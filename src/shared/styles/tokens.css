@@ -1,0 +1,38 @@
+/*
+ * 디자인 토큰 (Lo-Fi First) — NFR-UI-01
+ * 실제 디자인 적용 시 이 파일의 값만 수정한다. 화면 코드에 raw HEX/px 금지.
+ */
+:root {
+  /* color */
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-border: #d4d4d4;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b6b6b;
+  --color-primary: #2b2b2b;
+  --color-primary-contrast: #ffffff;
+  --color-danger: #b00020;
+
+  /* radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* spacing scale (참고용 — Tailwind 기본 스케일과 병용) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+
+  /* typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard',
+    'Segoe UI', Roboto, sans-serif;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+
+  /* layout */
+  --tabbar-height: 56px;
+}
