@@ -141,3 +141,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# 개인 학습 노트 (velog용)
+til/
+
+# AI-DLC 워크플로우 파일 (iOS 개발자 클론 편의를 위해 제외)
+.aidlc-rule-details/
+aidlc-docs/
+aidlc-rules/
