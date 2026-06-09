@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * 전역 WebView 호환 스타일 — NFR-WEBVIEW-01~03
+ */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  /* 100dvh 사용 (100vh 금지) */
+  min-height: 100dvh;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  /* overscroll bounce 비활성 */
+  overscroll-behavior: none;
+  /* tap highlight 비활성 */
+  -webkit-tap-highlight-color: transparent;
+  /* long-press callout 비활성 */
+  -webkit-touch-callout: none;
+}
+
+/* 입력 요소는 텍스트 선택 허용, 그 외 UI는 선택 방지 */
+button,
+a,
+[role='button'] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
