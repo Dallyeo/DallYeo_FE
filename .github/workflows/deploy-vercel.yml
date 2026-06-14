@@ -1,0 +1,52 @@
+# 조직 레포 main 머지 시, GitHub Actions에서 빌드해 Vercel로 직접 업로드 배포한다.
+# Vercel Git 연동을 쓰지 않으므로(빌드 산출물 업로드 방식) 조직 레포 유료 제약을 받지 않는다.
+#
+# 사전 설정 (조직 레포 Settings → Secrets and variables → Actions → Secrets):
+#   - VERCEL_TOKEN       : Vercel → Account Settings → Tokens 에서 발급
+#   - VERCEL_ORG_ID      : 로컬에서 `vercel link` 후 .vercel/project.json 의 orgId
+#   - VERCEL_PROJECT_ID  : 같은 파일의 projectId
+#
+# 동작: main 푸시 → 프로덕션 환경 설정 pull → 빌드 → 프로덕션 배포.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 수동 실행 허용
+
+concurrency:
+  group: deploy-vercel
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel project settings (production)
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy (production)
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
