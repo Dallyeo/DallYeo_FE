@@ -1,37 +1,67 @@
 /*
  * 디자인 토큰 (Lo-Fi First) — NFR-UI-01
- * 실제 디자인 적용 시 이 파일의 값만 수정한다. 화면 코드에 raw HEX/px 금지.
+ * 출처: Figma 디자인 토큰 (docs/design-lofi/tokens/colors.png, typo.png)
+ * 실제(Hi-Fi) 디자인 적용 시에도 이 파일의 값만 수정한다. 화면 코드에 raw HEX/px 금지.
+ *
+ * 구조: 1) Primitive(원시 팔레트) → 2) Semantic(의미 토큰, 화면이 참조)
  */
 :root {
-  /* color */
-  --color-bg: #f5f5f5;
-  --color-surface: #ffffff;
-  --color-border: #d4d4d4;
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b6b6b;
-  --color-primary: #2b2b2b;
-  --color-primary-contrast: #ffffff;
-  --color-danger: #b00020;
+  /* ── 1) Primitive: 색상 팔레트 (Figma 원본값) ── */
+  --c-black: #000000;
+  --c-white: #ffffff;
+  --c-off-white: #fafafa;
 
-  /* radius */
+  --c-green-700: #13c674; /* P_700 — 메인 그린 */
+  --c-green-500: #8ad68c; /* P_500 — 라이트 그린 */
+
+  --c-gray-900: #2b2b2b;
+  --c-gray-700: #5e5e5e;
+  --c-gray-500: #838383;
+  --c-gray-300: #cccccc;
+  --c-gray-200: #f3f3f3;
+  --c-gray-disabled: #b8b8b8;
+
+  /* ── 2) Semantic: 화면 코드가 참조하는 의미 토큰 ── */
+  /* 배경/표면 */
+  --color-bg: var(--c-white);
+  --color-surface: var(--c-white);
+  --color-surface-subtle: var(--c-gray-200); /* 카드 영역/리스트 헤더 등 옅은 면 */
+  --color-border: var(--c-gray-300);
+
+  /* 텍스트 */
+  --color-text: var(--c-gray-900); /* 본문/제목 기본 */
+  --color-text-strong: var(--c-black); /* 강조 텍스트 */
+  --color-text-muted: var(--c-gray-500); /* 보조 텍스트 */
+  --color-text-subtle: var(--c-gray-disabled); /* placeholder/비활성 라벨 */
+
+  /* 브랜드/상태 */
+  --color-primary: var(--c-green-700);
+  --color-primary-weak: var(--c-green-500);
+  --color-primary-contrast: var(--c-white);
+  --color-disabled: var(--c-gray-disabled);
+  --color-danger: #b00020; /* Figma 팔레트에 없음 — 임시 기본값(에러 상태용) */
+
+  /* ── radius ── */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
 
-  /* spacing scale (참고용 — Tailwind 기본 스케일과 병용) */
+  /* ── spacing scale (참고용 — Tailwind 기본 스케일과 병용) ── */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
 
-  /* typography */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard',
-    'Segoe UI', Roboto, sans-serif;
-  --text-sm: 13px;
-  --text-base: 15px;
-  --text-lg: 18px;
-  --text-xl: 22px;
+  /* ── typography ── */
+  /* SF Pro = iOS 시스템 폰트(네이티브 렌더). Android WebView엔 미존재 → 시스템 폰트로 폴백.
+     한글은 SF Pro에 글리프가 없어 'Apple SD Gothic Neo'(iOS)/시스템 한글 폰트로 폴백됨. */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Pretendard',
+    system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-rounded:
+    'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard',
+    system-ui, sans-serif;
 
   /* layout */
   --tabbar-height: 56px;
