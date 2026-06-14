@@ -20,6 +20,10 @@ const router = createBrowserRouter([
       { path: 'onboarding', element: <OnboardingFlow /> },
       { path: 'main', element: <MainView /> },
       { path: 'records', element: <PlaceholderScreen title="기록" testId="screen-records" /> },
+      {
+        path: 'achievements',
+        element: <PlaceholderScreen title="업적" testId="screen-achievements" />,
+      },
       { path: 'mypage', element: <MyPageView /> },
       { path: '*', element: <Navigate to="/main" replace /> },
     ],

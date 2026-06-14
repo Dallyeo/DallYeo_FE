@@ -5,6 +5,7 @@
  */
 export type GateAction =
   | 'recordsTab'
+  | 'achievementsTab'
   | 'myPageTab'
   | 'myPageProfile'
   | 'myPageEditInfo'

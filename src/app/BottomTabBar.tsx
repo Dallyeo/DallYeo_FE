@@ -1,16 +1,41 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useGate } from '@/features/login/model/useGate';
+import type { GateAction } from '@/domain/types';
+import IcSearch from '@/shared/ui/icons/ic-search.svg?react';
+import IcAchievements from '@/shared/ui/icons/ic-achievements.svg?react';
+import IcRecord from '@/shared/ui/icons/ic-record.svg?react';
 
 /**
- * 하단 탭바 (FR-V02-02) — 메인 / 기록 / 마이페이지. 업적 탭 제외.
- * 기록 탭은 게이트(V02-S2): 비로그인 시 차단 + 로그인 시트. 메인/마이페이지는 자유.
+ * 하단 탭바 (FR-V02-02) — 검색 / 업적 / 기록 (디자인 V02 기준).
+ * 설정(마이페이지)은 탭바에서 제외 → 메인뷰 우측 상단 햄버거(≡)로 진입.
+ * 업적·기록 탭은 게이트(V02-S2): 비로그인 시 차단 + 로그인 시트. 검색(메인)은 자유.
+ * 아이콘 fill=currentColor → 활성 primary / 비활성 subtle 색을 코드가 제어.
  */
-const baseClass = (isActive: boolean) =>
-  `flex flex-1 items-center justify-center text-sm ${isActive ? 'text-primary' : 'text-muted'}`;
+interface TabDef {
+  to: string;
+  label: string;
+  testId: string;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  /** 진입 시 필요한 게이트 액션. 없으면 자유 진입. */
+  gate?: GateAction;
+}
+
+const TABS: TabDef[] = [
+  { to: '/main', label: '검색', testId: 'tab-search', Icon: IcSearch },
+  {
+    to: '/achievements',
+    label: '업적',
+    testId: 'tab-achievements',
+    Icon: IcAchievements,
+    gate: 'achievementsTab',
+  },
+  { to: '/records', label: '기록', testId: 'tab-records', Icon: IcRecord, gate: 'recordsTab' },
+];
 
 export function BottomTabBar() {
   const { guard } = useGate();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   return (
     <nav
@@ -21,26 +46,26 @@ export function BottomTabBar() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      <NavLink to="/main" data-testid="tab-main" className={({ isActive }) => baseClass(isActive)}>
-        메인
-      </NavLink>
-      <button
-        type="button"
-        data-testid="tab-records"
-        onClick={() => {
-          if (guard('recordsTab')) navigate('/records');
-        }}
-        className={baseClass(false)}
-      >
-        기록
-      </button>
-      <NavLink
-        to="/mypage"
-        data-testid="tab-mypage"
-        className={({ isActive }) => baseClass(isActive)}
-      >
-        마이페이지
-      </NavLink>
+      {TABS.map(({ to, label, testId, Icon, gate }) => {
+        const isActive = pathname === to || pathname.startsWith(`${to}/`);
+        return (
+          <button
+            key={to}
+            type="button"
+            data-testid={testId}
+            onClick={() => {
+              if (gate && !guard(gate)) return;
+              navigate(to);
+            }}
+            className={`flex flex-1 flex-col items-center justify-center gap-1 ${
+              isActive ? 'text-primary' : 'text-subtle'
+            }`}
+          >
+            <Icon aria-hidden className="h-6 w-6" />
+            <span className="text-m-10">{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

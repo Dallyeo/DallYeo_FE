@@ -1,66 +1,59 @@
 import { describe, it, expect } from 'vitest';
 import fc from 'fast-check';
-import {
-  isValidHeight,
-  isValidWeight,
-  isProfileComplete,
-} from './profileValidation';
+import { isValidHeight, isValidWeight, isProfileComplete } from './profileValidation';
 import {
   integerStringOfDigits,
-  nonIntegerString,
+  invalidMeasureString,
   genderArb,
 } from '@/shared/testing/arbitraries';
 
-describe('profileValidation — isValidHeight (키 2~3자리 정수)', () => {
+describe('profileValidation — isValidHeight (정수부 2~3자리 + 소수 1자리)', () => {
   // example-based (PBT-10 병행)
   it('경계값', () => {
-    expect(isValidHeight('9')).toBe(false); // 1자리
+    expect(isValidHeight('9')).toBe(false); // 정수부 1자리
     expect(isValidHeight('50')).toBe(true); // 2자리
     expect(isValidHeight('175')).toBe(true); // 3자리
-    expect(isValidHeight('1750')).toBe(false); // 4자리
-    expect(isValidHeight('17.5')).toBe(false); // 비정수
+    expect(isValidHeight('1750')).toBe(false); // 정수부 4자리
+    expect(isValidHeight('17.5')).toBe(true); // 소수 1자리 허용
+    expect(isValidHeight('167.5')).toBe(true);
+    expect(isValidHeight('17.55')).toBe(false); // 소수 2자리
+    expect(isValidHeight('17.')).toBe(false); // 소수점 뒤 공란
     expect(isValidHeight('')).toBe(false);
     expect(isValidHeight('01')).toBe(false); // 선행 0
+    expect(isValidHeight('0.5')).toBe(false); // 선행 0
   });
 
-  // property: 2~3자리 정수 문자열 ⇔ true
+  // property: 2~3자리 정수 문자열 ⇔ true (소수 없는 경우)
   it('property: 2~3자리 정수 문자열은 항상 유효', () => {
-    fc.assert(
-      fc.property(integerStringOfDigits(2, 3), (s) => isValidHeight(s) === true),
-    );
+    fc.assert(fc.property(integerStringOfDigits(2, 3), (s) => isValidHeight(s) === true));
   });
 
-  it('property: 비정수 문자열은 항상 무효', () => {
-    fc.assert(fc.property(nonIntegerString, (s) => isValidHeight(s) === false));
+  it('property: 유효 패턴 위반 문자열은 항상 무효', () => {
+    fc.assert(fc.property(invalidMeasureString, (s) => isValidHeight(s) === false));
   });
 
-  it('property: 4자리 이상 정수는 항상 무효', () => {
-    fc.assert(
-      fc.property(integerStringOfDigits(4, 6), (s) => isValidHeight(s) === false),
-    );
+  it('property: 정수부 4자리 이상은 항상 무효', () => {
+    fc.assert(fc.property(integerStringOfDigits(4, 6), (s) => isValidHeight(s) === false));
   });
 });
 
-describe('profileValidation — isValidWeight (체중 2~3자리 정수)', () => {
+describe('profileValidation — isValidWeight (정수부 2~3자리 + 소수 1자리)', () => {
   it('경계값', () => {
     expect(isValidWeight('9')).toBe(false);
     expect(isValidWeight('60')).toBe(true);
     expect(isValidWeight('100')).toBe(true);
+    expect(isValidWeight('55.0')).toBe(true); // 소수 1자리 허용
     expect(isValidWeight('1000')).toBe(false);
   });
 
   it('property: 2~3자리 정수 ⇔ true', () => {
-    fc.assert(
-      fc.property(integerStringOfDigits(2, 3), (s) => isValidWeight(s) === true),
-    );
+    fc.assert(fc.property(integerStringOfDigits(2, 3), (s) => isValidWeight(s) === true));
   });
 });
 
 describe('profileValidation — isProfileComplete (입력 완료 판정)', () => {
   it("'선택안함'(unspecified)도 채워진 값으로 간주", () => {
-    expect(
-      isProfileComplete({ heightCm: 175, weightKg: 60, gender: 'unspecified' }),
-    ).toBe(true);
+    expect(isProfileComplete({ heightCm: 175, weightKg: 60, gender: 'unspecified' })).toBe(true);
   });
 
   it('하나라도 비면 false', () => {

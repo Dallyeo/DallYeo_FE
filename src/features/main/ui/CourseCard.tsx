@@ -11,25 +11,24 @@ export function CourseCard({ course }: { course: Course }) {
   const [popupOpen, setPopupOpen] = useState(false);
 
   return (
-    <div className="rounded-md border border-border bg-surface p-4">
-      <div className="flex items-start justify-between gap-2">
+    <div className="rounded-md bg-surface-subtle px-4 py-4">
+      <div className="flex items-center justify-between gap-2">
         <button
           type="button"
           data-testid={`course-card-${course.id}`}
           onClick={() => bridgeService.openCourseConfirm(course)}
           className="flex-1 text-left"
         >
-          <h3 className="text-base">{course.title}</h3>
-          <p className="mt-1 text-sm text-muted">
-            {course.distanceKm}km · {course.estimatedTime}
-          </p>
+          <h3 className="text-sb-15 text-text-strong">{course.title}</h3>
+          <p className="mt-1 text-m-12 text-muted">{course.estimatedTime}</p>
+          <p className="text-m-12 text-muted">{course.distanceKm}km</p>
         </button>
         <button
           type="button"
           data-testid={`course-card-info-${course.id}`}
           aria-label="코스 정보"
           onClick={() => setPopupOpen(true)}
-          className="rounded-full border border-border px-2 py-1 text-sm"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-m-12 text-primary-contrast"
         >
           i
         </button>
