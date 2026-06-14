@@ -2,14 +2,14 @@
  * 온보딩 도메인 타입 (FR-V01)
  */
 
-/** 성별 4옵션 (FR-V01-07). 'unspecified' = 선택안함(명시적 선택으로 간주, FD Q3) */
-export type Gender = 'male' | 'female' | 'other' | 'unspecified';
+/** 성별 3옵션 (FR-V01-07, 디자인 V01). 'unspecified' = 입력 안함(명시적 선택으로 간주, FD Q3) */
+export type Gender = 'male' | 'female' | 'unspecified';
 
 /** 온보딩 신체 정보. 모두 선택(건너뛰기 가능) */
 export interface OnboardingProfile {
-  /** 키(cm), 정수 */
+  /** 키(cm), 정수부 2~3자리 + 소수 1자리까지 허용 */
   heightCm?: number;
-  /** 체중(kg), 정수 */
+  /** 체중(kg), 정수부 2~3자리 + 소수 1자리까지 허용 */
   weightKg?: number;
   gender?: Gender;
 }
