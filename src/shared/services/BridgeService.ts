@@ -4,6 +4,7 @@ import type {
   Course,
   PermissionStatus,
   PermissionType,
+  SharePayload,
   Unsubscribe,
 } from '@/domain/types';
 import {
@@ -61,6 +62,16 @@ export class BridgeService {
   /** 네이티브 코스 확인뷰(V08) 진입 — one-way (FR-V02-06) */
   openCourseConfirm(course: Course): void {
     this.adapter.post('openCourseConfirm', { course });
+  }
+
+  /** 네이티브 공유 시트 — one-way (FR-V10 공유하기) */
+  share(payload: SharePayload): void {
+    this.adapter.post('share', { payload });
+  }
+
+  /** 외부 URL 열기(카카오/네이버 지도 등) — one-way (FR-V10 주변장소 연결) */
+  openExternalUrl(url: string): void {
+    this.adapter.post('openExternalUrl', { url });
   }
 
   on(event: BridgeEventName, handler: (payload: unknown) => void): Unsubscribe {

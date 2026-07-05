@@ -8,3 +8,4 @@ export {
 export { nextAuthStatus, type AuthEvent } from './sessionLogic';
 export { isAllowed } from './gateRules';
 export { resolveDefaultRegion } from './regionLogic';
+export { resolveCompletionTier, completionMessage } from './completionMessage';

@@ -1,4 +1,4 @@
-import type { Course, Region } from '@/domain/types';
+import type { Course, NearbyPlace, Region } from '@/domain/types';
 import { DEFAULT_REGION_CODE } from '@/domain/constants';
 
 /** MVP1: 군산만 (NFR-DATA-02 — 동적 구조, 데이터만 단일) */
@@ -22,5 +22,45 @@ export const mockCourses: Course[] = [
     estimatedTime: '약 45분',
     previewImageUrl: 'https://placehold.co/600x300?text=Course+2',
     regionCode: DEFAULT_REGION_CODE,
+  },
+];
+
+/** 완주 위치 500m 주변 장소 mock (FR-V10). 편의시설/음식점 세그먼트. */
+export const mockNearbyPlaces: NearbyPlace[] = [
+  {
+    id: 'p1',
+    segment: 'amenity',
+    name: '초록 편의점',
+    address: '군산시 초록동 민트로 100',
+    photoUrl: 'https://placehold.co/120x120?text=편의점',
+    distanceM: 120,
+    externalMapUrl: 'https://map.kakao.com/?q=초록%20편의점',
+  },
+  {
+    id: 'p2',
+    segment: 'amenity',
+    name: '민트 약국',
+    address: '군산시 초록동 민트로 88',
+    photoUrl: 'https://placehold.co/120x120?text=약국',
+    distanceM: 240,
+    externalMapUrl: 'https://map.kakao.com/?q=민트%20약국',
+  },
+  {
+    id: 'p3',
+    segment: 'restaurant',
+    name: '군산 짬뽕집',
+    address: '군산시 초록동 민트로 12',
+    photoUrl: 'https://placehold.co/120x120?text=짬뽕',
+    distanceM: 300,
+    externalMapUrl: 'https://map.kakao.com/?q=군산%20짬뽕집',
+  },
+  {
+    id: 'p4',
+    segment: 'restaurant',
+    name: '초록 분식',
+    address: '군산시 초록동 민트로 45',
+    photoUrl: 'https://placehold.co/120x120?text=분식',
+    distanceM: 460,
+    externalMapUrl: 'https://map.kakao.com/?q=초록%20분식',
   },
 ];

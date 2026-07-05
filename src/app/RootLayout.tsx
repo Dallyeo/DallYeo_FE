@@ -5,6 +5,7 @@ import { toast } from '@/shared/ui/toastStore';
 import { ToastHost } from '@/shared/ui/ToastHost';
 import { LoginBottomSheetHost } from '@/features/login/ui/LoginBottomSheetHost';
 import { readOnboardingCompleted } from '@/features/onboarding/api/onboardingRepository';
+import { useRunCompletedListener } from '@/features/runResult/model/useRunCompletedListener';
 
 /**
  * 라우터 루트 레이아웃. 라우터 컨텍스트 안에서 SessionService를 기동하여
@@ -13,6 +14,9 @@ import { readOnboardingCompleted } from '@/features/onboarding/api/onboardingRep
 export function RootLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // 네이티브 'runCompleted' → 완주결과뷰 이동 (V10, D1). 실제(네이티브) 경로.
+  useRunCompletedListener();
 
   useEffect(() => {
     sessionService.configure({

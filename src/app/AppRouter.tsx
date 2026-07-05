@@ -5,6 +5,7 @@ import { PlaceholderScreen } from '@/app/placeholders/PlaceholderScreen';
 import { OnboardingFlow } from '@/features/onboarding/ui/OnboardingFlow';
 import { MainView } from '@/features/main/ui/MainView';
 import { MyPageView } from '@/features/settings/ui/MyPageView';
+import { RunResultView } from '@/features/runResult/ui/RunResultView';
 
 /**
  * 라우트 골격. RootLayout이 SessionService 기동 + 로그인 시트/토스트 호스트 포함(U1).
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       { index: true, element: <Navigate to="/main" replace /> },
       { path: 'onboarding', element: <OnboardingFlow /> },
       { path: 'main', element: <MainView /> },
+      { path: 'run-result', element: <RunResultView /> },
       { path: 'records', element: <PlaceholderScreen title="기록" testId="screen-records" /> },
       {
         path: 'achievements',

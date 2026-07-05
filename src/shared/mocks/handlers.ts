@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { env } from '@/shared/config/env';
-import { mockCourses, mockRegions } from './data';
+import { mockCourses, mockNearbyPlaces, mockRegions } from './data';
 
 const base = env.apiBaseUrl;
 
@@ -15,4 +15,7 @@ export const handlers = [
       : mockCourses;
     return HttpResponse.json(list);
   }),
+  // V10 완주결과: 주변 장소(500m) + 결과 저장
+  http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),
+  http.post(`${base}/runs`, () => HttpResponse.json({ recordId: 'rec-mock-1' })),
 ];

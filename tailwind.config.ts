@@ -37,6 +37,8 @@ const config: Config = {
         'sb-15': ['15px', { lineHeight: '20px', fontWeight: '600' }],
         'sb-20': ['20px', { lineHeight: '22px', fontWeight: '600' }],
         'b-22': ['22px', { lineHeight: '26px', fontWeight: '700' }],
+        // 완주결과 거리 숫자 등 대형 표시용(로파이 임시치 — 디자이너 수치로 교체 예정)
+        'b-34': ['34px', { lineHeight: '40px', fontWeight: '700' }],
       },
       borderRadius: {
         sm: 'var(--radius-sm)',
