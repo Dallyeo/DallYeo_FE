@@ -11,3 +11,12 @@ export type {
   PlaceSegment,
   NearbyPlace,
 } from './run';
+export type {
+  RunRecord,
+  RunRecordDetail,
+  StatsPeriod,
+  DailyDistance,
+  PeriodStats,
+} from './record';
+export type { UserProfile, UserProfilePatch } from './profile';
+export type { Achievement, RegionProgress, AchievementSummary } from './achievement';

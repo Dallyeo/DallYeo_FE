@@ -1,4 +1,13 @@
-import type { Course, NearbyPlace, Region } from '@/domain/types';
+import type {
+  Achievement,
+  Course,
+  NearbyPlace,
+  Region,
+  RunRecord,
+  RunRecordDetail,
+  UserProfile,
+  UserProfilePatch,
+} from '@/domain/types';
 import { DEFAULT_REGION_CODE } from '@/domain/constants';
 
 /** MVP1: 군산만 (NFR-DATA-02 — 동적 구조, 데이터만 단일) */
@@ -63,4 +72,81 @@ export const mockNearbyPlaces: NearbyPlace[] = [
     distanceM: 460,
     externalMapUrl: 'https://map.kakao.com/?q=초록%20분식',
   },
+];
+
+/** 기록 목록 mock (V11). 최신순. */
+export const mockRecords: RunRecord[] = [
+  {
+    id: 'rec1',
+    completedAt: '2026-06-10T09:00:00Z',
+    distanceKm: 10,
+    durationSec: 1930,
+    avgPaceSecPerKm: 193,
+    calories: 250,
+  },
+  {
+    id: 'rec2',
+    completedAt: '2026-06-06T08:30:00Z',
+    distanceKm: 10.23,
+    durationSec: 5064,
+    avgPaceSecPerKm: 495,
+    calories: 200,
+  },
+  {
+    id: 'rec3',
+    completedAt: '2026-05-30T07:00:00Z',
+    distanceKm: 5.4,
+    durationSec: 2160,
+    avgPaceSecPerKm: 400,
+    calories: 130,
+  },
+];
+
+/** 기록 상세 mock (V12). 목록 항목 + 경로/정적지도 보강. */
+export function buildMockRecordDetail(recordId: string): RunRecordDetail {
+  const base = mockRecords.find((r) => r.id === recordId) ?? mockRecords[0]!;
+  return {
+    ...base,
+    id: recordId,
+    completionRate: 100,
+    routePolyline: [
+      { lat: 35.9678, lng: 126.7369 },
+      { lat: 35.9701, lng: 126.7402 },
+    ],
+    staticMapImageUrl: 'https://placehold.co/600x450?text=Record+Route',
+  };
+}
+
+/** 프로필 mock (V13). PATCH 반영을 위해 모듈 스코프 상태로 보관. */
+let profile: UserProfile = {
+  nickname: '카야',
+  heightCm: 167.5,
+  weightKg: 55,
+  gender: 'unspecified',
+};
+
+export function getMockProfile(): UserProfile {
+  return profile;
+}
+
+export function patchMockProfile(patch: UserProfilePatch): UserProfile {
+  profile = { ...profile, ...patch };
+  return profile;
+}
+
+/** 업적 mock (V14 — 데이터모델 검증용). UI는 placeholder. */
+export const mockAchievements: Achievement[] = [
+  {
+    id: 'a1',
+    title: '경유의 악마',
+    description: '경유지 100개 통과하기',
+    achievedAt: '2026-06-12T00:00:00Z',
+  },
+  {
+    id: 'a2',
+    title: '먹으려고 뛰는 사람',
+    description: '맛집 100개 추천 받기',
+    achievedAt: '2026-05-13T00:00:00Z',
+  },
+  { id: 'a3', title: '인간 자동차', description: '누적 100km 달리기' },
 ];

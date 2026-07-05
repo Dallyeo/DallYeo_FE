@@ -74,6 +74,11 @@ export class BridgeService {
     this.adapter.post('openExternalUrl', { url });
   }
 
+  /** 네이티브 사진 선택 — 결과 URL 반환 (FR-V13 프로필 사진) */
+  pickProfilePhoto(): Promise<string> {
+    return this.adapter.invoke<string>('pickProfilePhoto');
+  }
+
   on(event: BridgeEventName, handler: (payload: unknown) => void): Unsubscribe {
     return this.adapter.on(event, handler);
   }

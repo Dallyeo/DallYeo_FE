@@ -48,3 +48,10 @@ export const RUN_RESULT_LEAVE_LOGIN_CONFIRM =
 
 /** 주변 장소 검색 반경(m) (FR-V10) */
 export const NEARBY_PLACE_RADIUS_M = 500;
+
+/** 설정 외부 링크 (FR-V13 문의/약관). 실제 URL은 확정 시 교체(placeholder). */
+export const SETTINGS_LINKS = {
+  inquiry: 'https://dallyeo.app/support',
+  terms: 'https://dallyeo.app/terms',
+  privacy: 'https://dallyeo.app/privacy',
+} as const;

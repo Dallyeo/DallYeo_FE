@@ -74,6 +74,8 @@ export const apiClient = {
   get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: 'GET' }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, { ...options, method: 'POST', body }),
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: 'PATCH', body }),
   setToken,
   clearToken,
   onUnauthorized,
