@@ -27,9 +27,9 @@ export function MainView() {
             <Logo aria-label="달여" className="h-5 w-auto text-primary" />
             <button
               type="button"
-              data-testid="open-mypage"
+              data-testid="open-settings"
               aria-label="설정 메뉴 열기"
-              onClick={() => navigate('/mypage')}
+              onClick={() => navigate('/settings')}
               className="text-sb-20 text-text-strong"
             >
               ☰

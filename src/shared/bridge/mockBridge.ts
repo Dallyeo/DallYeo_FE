@@ -50,6 +50,8 @@ export function createMockBridgeAdapter(
       case 'getPermissionStatus':
       case 'requestPermission':
         return wait('granted') as Promise<T>;
+      case 'pickProfilePhoto':
+        return wait('https://placehold.co/120x120?text=Photo') as Promise<T>;
       default:
         return wait(null) as Promise<T>;
     }
