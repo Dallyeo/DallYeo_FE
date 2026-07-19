@@ -150,5 +150,8 @@ til/
 aidlc-docs/
 aidlc-rules/
 
+# docs
+docs/
+
 # Vercel CLI
 .vercel

@@ -11,7 +11,7 @@ const course: Course = {
   distanceKm: 4.2,
   estimatedTime: '30분',
   previewImageUrl: 'https://example.com/x.png',
-  regionCode: 'gunsan',
+  regionCode: 'GUNSAN',
 };
 
 describe('CourseCard (V02-S3/S5)', () => {
