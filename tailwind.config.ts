@@ -16,6 +16,7 @@ const config: Config = {
         subtle: 'var(--color-text-subtle)',
         primary: 'var(--color-primary)',
         'primary-weak': 'var(--color-primary-weak)',
+        'primary-subtle': 'var(--color-primary-subtle)',
         'primary-contrast': 'var(--color-primary-contrast)',
         disabled: 'var(--color-disabled)',
         danger: 'var(--color-danger)',

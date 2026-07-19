@@ -1,6 +1,6 @@
 /*
- * 디자인 토큰 (Lo-Fi First) — NFR-UI-01
- * 출처: Figma 디자인 토큰 (docs/design-lofi/tokens/colors.png, typo.png)
+ * 디자인 토큰 — NFR-UI-01
+ * 색상: Hi-Fi 확정 (docs/design-lofi/tokens/colors_hifi.png). 타이포/spacing/radius는 Hi-Fi 회신 대기(디자이너 요청 중).
  * 실제(Hi-Fi) 디자인 적용 시에도 이 파일의 값만 수정한다. 화면 코드에 raw HEX/px 금지.
  *
  * 구조: 1) Primitive(원시 팔레트) → 2) Semantic(의미 토큰, 화면이 참조)
@@ -13,13 +13,17 @@
 
   --c-green-700: #13c674; /* P_700 — 메인 그린 */
   --c-green-500: #8ad68c; /* P_500 — 라이트 그린 */
+  --c-green-200: #c6f3df; /* P_200 — 그린 틴트(선택/성공 배경 등) */
 
   --c-gray-900: #2b2b2b;
   --c-gray-700: #5e5e5e;
   --c-gray-500: #838383;
   --c-gray-300: #cccccc;
+  --c-gray-250: #f3f3f3;
   --c-gray-200: #f3f3f3;
   --c-gray-disabled: #b8b8b8;
+
+  --c-red: #ff383c; /* 에러/위험 상태 */
 
   /* ── 2) Semantic: 화면 코드가 참조하는 의미 토큰 ── */
   /* 배경/표면 */
@@ -37,9 +41,10 @@
   /* 브랜드/상태 */
   --color-primary: var(--c-green-700);
   --color-primary-weak: var(--c-green-500);
+  --color-primary-subtle: var(--c-green-200); /* 그린 틴트 배경(선택 칩/성공 면 등) */
   --color-primary-contrast: var(--c-white);
   --color-disabled: var(--c-gray-disabled);
-  --color-danger: #b00020; /* Figma 팔레트에 없음 — 임시 기본값(에러 상태용) */
+  --color-danger: var(--c-red); /* Hi-Fi 확정 red #ff383c */
 
   /* ── radius ── */
   --radius-sm: 6px;
