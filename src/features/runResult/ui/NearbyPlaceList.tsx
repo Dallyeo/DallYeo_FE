@@ -33,7 +33,7 @@ export function NearbyPlaceList({
             aria-selected={segment === key}
             data-testid={`segment-${key}`}
             onClick={() => setSegment(key)}
-            className={`flex-1 rounded-full py-2 text-m-12 ${
+            className={`flex-1 rounded-full py-2 text-caption ${
               segment === key ? 'bg-primary text-primary-contrast' : 'text-subtle'
             }`}
           >
@@ -59,10 +59,10 @@ export function NearbyPlaceList({
               >
                 <div className="h-12 w-12 shrink-0 rounded-md bg-bg" aria-hidden />
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-m-15 text-text-strong">{place.name}</span>
-                  <span className="truncate text-m-12 text-subtle">{place.address}</span>
+                  <span className="truncate text-body text-text-strong">{place.name}</span>
+                  <span className="truncate text-caption text-subtle">{place.address}</span>
                 </div>
-                <span className="shrink-0 text-sb-15 text-text">{formatDistanceM(place.distanceM)}</span>
+                <span className="shrink-0 text-label text-text">{formatDistanceM(place.distanceM)}</span>
               </button>
             </li>
           ))}

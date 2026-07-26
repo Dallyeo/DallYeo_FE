@@ -26,7 +26,7 @@ export function LeaveConfirmDialog({
         className="flex w-full max-w-xs flex-col gap-4 rounded-xl bg-surface p-5"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-m-15 text-text-strong">{RUN_RESULT_LEAVE_LOGIN_CONFIRM}</p>
+        <p className="text-body text-text-strong">{RUN_RESULT_LEAVE_LOGIN_CONFIRM}</p>
         <div className="flex gap-2">
           <Button
             variant="secondary"

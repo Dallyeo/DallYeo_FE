@@ -21,7 +21,7 @@ export function CoursePreviewPopup({
         {imageFailed ? (
           <div
             data-testid="course-preview-image-placeholder"
-            className="flex h-40 items-center justify-center rounded-md bg-bg text-muted"
+            className="flex h-40 items-center justify-center rounded-md bg-white text-gray-500"
           >
             미리보기를 불러올 수 없어요
           </div>
@@ -35,7 +35,7 @@ export function CoursePreviewPopup({
             className="h-40 w-full rounded-md object-cover"
           />
         )}
-        <p className="text-sm text-muted">{course.description}</p>
+        <p className="text-sm text-gray-500">{course.description}</p>
         <p className="text-sm">
           {course.distanceKm}km · {course.estimatedTime}
         </p>

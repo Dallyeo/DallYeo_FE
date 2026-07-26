@@ -1,5 +1,4 @@
 import type {
-  AppSession,
   AuthProvider,
   Course,
   PermissionStatus,
@@ -12,6 +11,7 @@ import {
   type BridgeAdapter,
   type BridgeEventName,
   type BridgeLoginResult,
+  type BridgeSessionResult,
 } from '@/shared/bridge';
 
 /**
@@ -40,8 +40,9 @@ export class BridgeService {
     return this.adapter.invoke<void>('logout');
   }
 
-  getCurrentSession(): Promise<AppSession | null> {
-    return this.adapter.invoke<AppSession | null>('getCurrentSession');
+  /** 네이티브 주입 세션 조회 — 로그인 상태면 세션+토큰, 미로그인이면 null (부트스트랩용) */
+  getCurrentSession(): Promise<BridgeSessionResult> {
+    return this.adapter.invoke<BridgeSessionResult>('getCurrentSession');
   }
 
   /** 권한 상태 조회 (FR-V01-03) */

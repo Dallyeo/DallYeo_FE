@@ -8,7 +8,7 @@ export function ProfileCard({ profile }: { profile: UserProfile }) {
       className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4"
     >
       <Avatar photoUrl={profile.photoUrl} nickname={profile.nickname} />
-      <p className="text-sb-20 text-text-strong">{profile.nickname}, 안녕하세요!</p>
+      <p className="text-heading text-text-strong">{profile.nickname}, 안녕하세요!</p>
     </div>
   );
 }
@@ -27,7 +27,7 @@ export function Avatar({ photoUrl, nickname }: { photoUrl?: string | undefined; 
   return (
     <div
       aria-hidden
-      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-bg text-m-15 text-subtle"
+      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-bg text-body text-subtle"
     >
       {nickname.slice(0, 2)}
     </div>

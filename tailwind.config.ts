@@ -20,26 +20,56 @@ const config: Config = {
         'primary-contrast': 'var(--color-primary-contrast)',
         disabled: 'var(--color-disabled)',
         danger: 'var(--color-danger)',
+        kakao: 'var(--color-kakao)',
+        'kakao-contrast': 'var(--color-kakao-contrast)',
+        apple: 'var(--color-apple)',
+        'apple-contrast': 'var(--color-apple-contrast)',
+
+        // ── 팔레트 직접 참조용 (tokens.css --c-* 매핑) ──
+        // 편의를 위해 원시 색을 클래스로 노출: text-gray-700, bg-green-200 등.
+        // 단, 재스타일 유연성은 의미 토큰(text-muted 등)이 더 좋음 — 가급적 의미 토큰 우선.
+        black: 'var(--c-black)',
+        white: 'var(--c-white)',
+        'off-white': 'var(--c-off-white)',
+        gray: {
+          900: 'var(--c-gray-900)',
+          700: 'var(--c-gray-700)',
+          500: 'var(--c-gray-500)',
+          300: 'var(--c-gray-300)',
+          250: 'var(--c-gray-250)',
+          200: 'var(--c-gray-200)',
+          disabled: 'var(--c-gray-disabled)',
+        },
+        green: {
+          700: 'var(--c-green-700)',
+          500: 'var(--c-green-500)',
+          200: 'var(--c-green-200)',
+        },
+        red: 'var(--c-red)',
       },
       fontFamily: {
         sans: 'var(--font-sans)',
-        rounded: 'var(--font-rounded)',
+        display: 'var(--font-display)',
       },
-      // Figma 텍스트 스타일 1:1 매핑 (SF_{weight}_{size}). 크기+행간+굵기 일괄 적용.
-      // 예) text-r-14 = SF_R_14. SF_Rounded_L_12 는 font-rounded 와 함께 사용.
+      // 타입 스케일 — Figma Text styles(font.png) 값을 폰트 비종속 역할 이름으로 정의.
+      // [size, { lineHeight, letterSpacing, fontWeight }]. 자간 %→em(예: -2% = -0.02em).
+      // 폰트 교체 시 이 이름/스케일은 불변, tokens.css --font-sans 만 교체.
       fontSize: {
-        'rounded-l-12': ['12px', { lineHeight: '14px', fontWeight: '300' }],
-        'l-12': ['12px', { lineHeight: '14px', fontWeight: '300' }],
-        'r-14': ['14px', { lineHeight: '16px', fontWeight: '400' }],
-        'm-10': ['10px', { lineHeight: '12px', fontWeight: '500' }],
-        'm-12': ['12px', { lineHeight: '14px', fontWeight: '500' }],
-        'm-14': ['14px', { lineHeight: '16px', fontWeight: '500' }],
-        'm-15': ['15px', { lineHeight: '18px', fontWeight: '500' }],
-        'sb-15': ['15px', { lineHeight: '20px', fontWeight: '600' }],
-        'sb-20': ['20px', { lineHeight: '22px', fontWeight: '600' }],
-        'b-22': ['22px', { lineHeight: '26px', fontWeight: '700' }],
-        // 완주결과 거리 숫자 등 대형 표시용(로파이 임시치 — 디자이너 수치로 교체 예정)
-        'b-34': ['34px', { lineHeight: '40px', fontWeight: '700' }],
+        display: ['30px', { lineHeight: '30px', letterSpacing: '0em', fontWeight: '700' }], // P_B_30
+        headline: ['23px', { lineHeight: '35px', letterSpacing: '0em', fontWeight: '600' }], // P_SB_23
+        title: ['22px', { lineHeight: '26px', letterSpacing: '0em', fontWeight: '700' }], // P_B_22
+        heading: ['20px', { lineHeight: '28px', letterSpacing: '-0.02em', fontWeight: '600' }], // P_SB_20
+        subheading: ['17px', { lineHeight: '22px', letterSpacing: '0em', fontWeight: '600' }], // P_SB_17
+        label: ['15px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '600' }], // P_SB_15
+        'label-sm': ['13px', { lineHeight: '28px', letterSpacing: '0em', fontWeight: '600' }], // P_SB_13
+        body: ['15px', { lineHeight: '20px', letterSpacing: '-0.02em', fontWeight: '500' }], // P_M_15
+        'body-sm': ['14px', { lineHeight: '20px', letterSpacing: '-0.02em', fontWeight: '500' }], // P_M_14
+        footnote: ['14px', { lineHeight: '16px', letterSpacing: '0em', fontWeight: '400' }], // P_R_14
+        caption: ['12px', { lineHeight: '20px', letterSpacing: '-0.02em', fontWeight: '500' }], // P_M_12
+        'caption-tight': ['12px', { lineHeight: '14px', letterSpacing: '0em', fontWeight: '500' }], // P_M_12_line
+        'caption-light': ['12px', { lineHeight: '14px', letterSpacing: '-0.02em', fontWeight: '300' }], // P_L_12
+        overline: ['10px', { lineHeight: '12px', letterSpacing: '0.04em', fontWeight: '500' }], // P_M_10
+        'overline-strong': ['10px', { lineHeight: '12px', letterSpacing: '-0.02em', fontWeight: '600' }], // SF_SB_10
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

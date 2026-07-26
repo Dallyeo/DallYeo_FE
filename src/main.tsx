@@ -2,6 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AppRoot } from '@/app/AppRoot';
 import { env } from '@/shared/config/env';
+// Pretendard 가변폰트(한글 다이나믹 서브셋) — 로컬 번들. 폰트 교체 지점은 tokens.css --font-sans.
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
 import '@/shared/styles/tokens.css';
 import '@/shared/styles/global.css';
 

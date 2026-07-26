@@ -6,6 +6,13 @@ export interface BridgeLoginResult {
   token: string;
 }
 
+/**
+ * bridge.getCurrentSession 결과.
+ * 로그인 상태면 login과 동일하게 세션+토큰을 함께 반환(부트스트랩 시 Bearer 토큰 복원),
+ * 미로그인이면 null.
+ */
+export type BridgeSessionResult = BridgeLoginResult | null;
+
 export type BridgeEventName =
   | 'runCompleted'
   | 'runCancelled'

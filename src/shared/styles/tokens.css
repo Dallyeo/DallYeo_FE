@@ -25,6 +25,9 @@
 
   --c-red: #ff383c; /* 에러/위험 상태 */
 
+  /* 소셜 로그인 브랜드 컬러 (V01 로그인 진입화면) */
+  --c-kakao: #fce04d; /* 카카오 옐로우 */
+
   /* ── 2) Semantic: 화면 코드가 참조하는 의미 토큰 ── */
   /* 배경/표면 */
   --color-bg: var(--c-white);
@@ -46,10 +49,16 @@
   --color-disabled: var(--c-gray-disabled);
   --color-danger: var(--c-red); /* Hi-Fi 확정 red #ff383c */
 
+  /* 소셜 로그인 버튼 (카카오=옐로우/블랙, 애플=다크그레이/화이트, 게스트=옅은 면) */
+  --color-kakao: var(--c-kakao);
+  --color-kakao-contrast: var(--c-black);
+  --color-apple: var(--c-gray-700);
+  --color-apple-contrast: var(--c-white);
+
   /* ── radius ── */
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 8px; /* hifi 버튼/컨트롤 라운드(권한안내 스펙) */
+  --radius-lg: 16px; /* 카드/패널 */
 
   /* ── spacing scale (참고용 — Tailwind 기본 스케일과 병용) ── */
   --space-1: 4px;
@@ -58,15 +67,15 @@
   --space-4: 16px;
   --space-6: 24px;
 
-  /* ── typography ── */
-  /* SF Pro = iOS 시스템 폰트(네이티브 렌더). Android WebView엔 미존재 → 시스템 폰트로 폴백.
-     한글은 SF Pro에 글리프가 없어 'Apple SD Gothic Neo'(iOS)/시스템 한글 폰트로 폴백됨. */
+  /* ── typography (폰트 패밀리 = 교체 지점) ──
+     타입 스케일(크기/굵기/행간/자간)은 tailwind.config.ts fontSize에 역할 이름으로 정의.
+     폰트만 바꾸려면 아래 --font-sans 값만 교체(예: SF Pro → 'Pretendard'). 스케일/이름은 불변.
+     현재: Pretendard(로컬 번들, 가변폰트 다이나믹 서브셋 — main.tsx 임포트). 미로드 시 시스템 폰트로 폴백. */
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Pretendard',
-    system-ui, 'Segoe UI', Roboto, sans-serif;
-  --font-rounded:
-    'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard',
-    system-ui, sans-serif;
+    'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'Apple SD Gothic Neo', system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* 대형 표시(숫자 등) 전용 패밀리 훅. 지금은 본문과 동일 — 필요 시 여기만 분리 교체. */
+  --font-display: var(--font-sans);
 
   /* layout */
   --tabbar-height: 56px;

@@ -13,14 +13,14 @@ export function RecordCard({ record }: { record: RunRecord }) {
       onClick={() => navigate(`/records/${record.id}`)}
       className="flex w-full flex-col gap-3 rounded-2xl border border-border bg-surface p-4 text-left"
     >
-      <span className="text-m-15 text-text-strong">{formatMonthDayWeekday(record.completedAt)}</span>
+      <span className="text-body text-text-strong">{formatMonthDayWeekday(record.completedAt)}</span>
       <div className="flex items-end justify-between gap-2">
         <dl className="flex gap-5">
           <Metric label="시간" value={formatDuration(record.durationSec)} />
           <Metric label="페이스" value={formatPace(record.avgPaceSecPerKm)} />
           <Metric label="칼로리" value={String(record.calories)} />
         </dl>
-        <span className="text-b-22 text-text-strong">{record.distanceKm}km</span>
+        <span className="text-title text-text-strong">{record.distanceKm}km</span>
       </div>
     </button>
   );
@@ -29,8 +29,8 @@ export function RecordCard({ record }: { record: RunRecord }) {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-m-12 text-subtle">{label}</dt>
-      <dd className="text-sb-15 text-text">{value}</dd>
+      <dt className="text-caption text-subtle">{label}</dt>
+      <dd className="text-label text-text">{value}</dd>
     </div>
   );
 }

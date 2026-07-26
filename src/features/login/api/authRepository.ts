@@ -19,7 +19,9 @@ export const authRepository: AuthRepository = {
     sessionService.invalidate('user-logout');
   },
 
-  getCurrentSession(): Promise<AppSession | null> {
-    return bridgeService.getCurrentSession();
+  // 도메인 계약은 토큰을 노출하지 않는다 — 세션 메타만 반환. 토큰 복원은 SessionService.bootstrap 담당.
+  async getCurrentSession(): Promise<AppSession | null> {
+    const result = await bridgeService.getCurrentSession();
+    return result?.session ?? null;
   },
 };
