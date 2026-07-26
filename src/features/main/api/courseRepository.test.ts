@@ -22,18 +22,18 @@ describe('courseRepository / regionRepository', () => {
         distanceKm: 1,
         estimatedTime: '10분',
         previewImageUrl: 'x',
-        regionCode: 'gunsan',
+        regionCode: 'GUNSAN',
       },
     ];
     stubJson(courses);
-    const result = await courseRepository.listRecommended('gunsan');
+    const result = await courseRepository.listRecommended('GUNSAN');
     expect(result).toHaveLength(1);
     const [url] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-    expect(String(url)).toContain('regionCode=gunsan');
+    expect(String(url)).toContain('region=GUNSAN');
   });
 
   it('listSupported는 지역 목록 반환', async () => {
-    const regions: Region[] = [{ code: 'gunsan', name: '군산' }];
+    const regions: Region[] = [{ code: 'GUNSAN', name: '군산' }];
     stubJson(regions);
     await expect(regionRepository.listSupported()).resolves.toEqual(regions);
   });

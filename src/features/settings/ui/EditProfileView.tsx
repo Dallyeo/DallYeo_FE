@@ -100,12 +100,12 @@ function EditForm({
           <Avatar photoUrl={photoUrl} nickname={nickname || '?'} />
         </button>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="text-m-12 text-subtle">닉네임</span>
+          <span className="text-caption text-subtle">닉네임</span>
           <input
             data-testid="edit-nickname"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-m-15 text-text-strong"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-body text-text-strong"
           />
         </label>
       </div>
@@ -117,7 +117,7 @@ function EditForm({
           value={height}
           onChange={(e) => setHeight(e.target.value)}
           placeholder="167.5"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-m-15"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-body"
         />
       </Field>
 
@@ -128,7 +128,7 @@ function EditForm({
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
           placeholder="55.0"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-m-15"
+          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-body"
         />
       </Field>
 
@@ -141,7 +141,7 @@ function EditForm({
               data-testid={`edit-gender-${key}`}
               aria-pressed={gender === key}
               onClick={() => setGender(key)}
-              className={`flex-1 rounded-lg py-3 text-m-15 ${
+              className={`flex-1 rounded-lg py-3 text-body ${
                 gender === key ? 'bg-primary text-primary-contrast' : 'bg-surface text-subtle'
               }`}
             >
@@ -169,9 +169,9 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-m-12 text-subtle">{label}</span>
+      <span className="text-caption text-subtle">{label}</span>
       {children}
-      {hint && <span className="text-m-12 text-danger">{hint}</span>}
+      {hint && <span className="text-caption text-danger">{hint}</span>}
     </div>
   );
 }
@@ -185,11 +185,11 @@ function BackHeader({ title }: { title: string }) {
         data-testid="edit-back"
         aria-label="뒤로가기"
         onClick={() => navigate(-1)}
-        className="text-sb-20 text-text-strong"
+        className="text-heading text-text-strong"
       >
         ‹
       </button>
-      <h1 className="flex-1 text-center text-m-15 text-text-strong">{title}</h1>
+      <h1 className="flex-1 text-center text-body text-text-strong">{title}</h1>
       <span className="w-5" aria-hidden />
     </header>
   );

@@ -34,11 +34,11 @@ export function AccountView() {
           data-testid="account-back"
           aria-label="뒤로가기"
           onClick={() => navigate(-1)}
-          className="text-sb-20 text-text-strong"
+          className="text-heading text-text-strong"
         >
           ‹
         </button>
-        <h1 className="flex-1 text-center text-m-15 text-text-strong">계정관리</h1>
+        <h1 className="flex-1 text-center text-body text-text-strong">계정관리</h1>
         <span className="w-5" aria-hidden />
       </header>
 

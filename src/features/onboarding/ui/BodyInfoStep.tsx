@@ -1,14 +1,15 @@
 import type { Gender } from '@/domain/types';
-import { Button } from '@/shared/ui';
 import { useOnboarding } from '@/features/onboarding/model/useOnboarding';
+import { OnboardingStepHeader } from './OnboardingStepHeader';
+import { OnboardingStepFooter } from './OnboardingStepFooter';
 
 const GENDERS: { value: Gender; label: string }[] = [
   { value: 'male', label: '남성' },
   { value: 'female', label: '여성' },
-  { value: 'unspecified', label: '입력 안함' },
 ];
 
-export function BodyInfoStep() {
+/** V01 정보 입력 (온보딩 3단계). 키/체중/성별 → 시작하기. 건너뛰기 가능. */
+export function BodyInfoStep({ onBack }: { onBack: () => void }) {
   const {
     heightRaw,
     weightRaw,
@@ -26,61 +27,68 @@ export function BodyInfoStep() {
   return (
     <section
       data-testid="onboarding-bodyinfo"
-      className="flex flex-1 flex-col justify-between gap-8 p-6"
+      className="flex flex-1 flex-col px-4 pt-safe-top"
     >
-      <div className="flex flex-col gap-6">
-        <h1 className="text-b-22 text-text-strong">
-          입력해주신 정보를 바탕으로
-          <br />
-          최적의 러닝코스를 안내해 드릴게요
-        </h1>
+      <OnboardingStepHeader
+        onBack={onBack}
+        backTestId="onboarding-bodyinfo-back"
+        title="정보를 입력해주세요."
+        subtitle={
+          <>
+            키와 몸무게를 바탕으로 더 정확한 러닝 통계를 제공해드려요.
+            <br />
+            통계 확인 이외에는 개인정보를 활용하지 않아요.
+          </>
+        }
+      />
 
-        {/* 키 — 디자인은 드롭다운이나 임시로 입력창 사용(디자이너/PM 논의 예정) */}
-        <label className="flex flex-col gap-1">
-          <span className="text-m-15 text-text-strong">키</span>
-          <div className="flex items-center rounded-md border border-border bg-surface px-4 py-3">
+      <div className="mt-8 flex flex-col gap-7">
+        {/* 키 */}
+        <label className="flex flex-col gap-[15px]">
+          <span className="text-body-sm text-gray-700">키</span>
+          <div className="flex items-baseline gap-2 border-b border-gray-700 py-[15px] px-[23px]">
             <input
               data-testid="onboarding-height-input"
               inputMode="decimal"
-              placeholder="167.5"
+              placeholder="160"
               value={heightRaw}
               onChange={(e) => setHeight(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent text-m-15 text-text outline-none placeholder:text-subtle"
+              className="min-w-0 flex-1 bg-transparent text-subheading text-gray-700 outline-none placeholder:text-gray-disabled"
             />
-            <span className="text-m-15 text-subtle">cm</span>
+            <span className="text-label text-gray-700">cm</span>
           </div>
           {heightOutOfRange && (
-            <span data-testid="onboarding-height-warning" className="text-r-14 text-danger">
+            <span data-testid="onboarding-height-warning" className="text-footnote text-red">
               일반적인 범위(50~250cm)를 벗어났어요.
             </span>
           )}
         </label>
 
         {/* 현재 체중 */}
-        <label className="flex flex-col gap-1">
-          <span className="text-m-15 text-text-strong">현재 체중</span>
-          <div className="flex items-center rounded-md border border-border bg-surface px-4 py-3">
+        <label className="flex flex-col gap-[30px]">
+          <span className="text-body-sm text-gray-700">현재 체중</span>
+          <div className="flex items-baseline gap-2 border-b border-gray-700 py-[15px] px-[23px]">
             <input
               data-testid="onboarding-weight-input"
               inputMode="decimal"
-              placeholder="55.0"
+              placeholder="50"
               value={weightRaw}
               onChange={(e) => setWeight(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent text-m-15 text-text outline-none placeholder:text-subtle"
+              className="min-w-0 flex-1 bg-transparent text-subheading text-gray-700 outline-none placeholder:text-gray-disabled"
             />
-            <span className="text-m-15 text-subtle">kg</span>
+            <span className="text-label text-gray-700">kg</span>
           </div>
           {weightOutOfRange && (
-            <span data-testid="onboarding-weight-warning" className="text-r-14 text-danger">
+            <span data-testid="onboarding-weight-warning" className="text-footnote text-red">
               일반적인 범위(20~300kg)를 벗어났어요.
             </span>
           )}
         </label>
 
         {/* 성별 */}
-        <div className="flex flex-col gap-1">
-          <span className="text-m-15 text-text-strong">성별</span>
-          <div className="flex gap-2">
+        <div className="flex flex-col gap-[30px]">
+          <span className="text-body-sm text-gray-700">성별</span>
+          <div className="flex gap-[15px]">
             {GENDERS.map((g) => {
               const selected = gender === g.value;
               return (
@@ -89,10 +97,10 @@ export function BodyInfoStep() {
                   type="button"
                   data-testid={`onboarding-gender-${g.value}`}
                   onClick={() => setGender(g.value)}
-                  className={`flex-1 rounded-md py-3 text-m-14 ${
+                  className={`flex-1 rounded-md py-3.5 text-label ${
                     selected
-                      ? 'border border-primary text-primary'
-                      : 'border border-transparent bg-surface-subtle text-subtle'
+                      ? 'bg-green-700 text-white'
+                      : 'bg-gray-200 text-gray-disabled'
                   }`}
                 >
                   {g.label}
@@ -103,24 +111,16 @@ export function BodyInfoStep() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-3">
-        <Button
-          data-testid="onboarding-submit"
-          disabled={!canSubmit}
-          onClick={() => void complete()}
-          className="w-full py-3.5 text-sb-15"
-        >
-          시작하기
-        </Button>
-        <button
-          type="button"
-          data-testid="onboarding-skip"
-          onClick={() => void skip()}
-          className="text-r-14 text-muted underline"
-        >
-          건너뛰기
-        </button>
-      </div>
+      <div className="flex-1" />
+
+      <OnboardingStepFooter
+        primaryLabel="시작하기"
+        onPrimary={() => void complete()}
+        primaryDisabled={!canSubmit}
+        primaryTestId="onboarding-submit"
+        onSkip={() => void skip()}
+        skipTestId="onboarding-skip"
+      />
     </section>
   );
 }

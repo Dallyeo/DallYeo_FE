@@ -69,15 +69,15 @@ export function RunResultView() {
         {/* 결과 카드 */}
         <section className="flex flex-col items-center gap-5 rounded-3xl bg-surface px-5 py-8">
           <div className="flex flex-col items-center gap-3">
-            <h1 className="text-sb-20 text-text-strong">
+            <h1 className="text-heading text-text-strong">
               {tier === 'complete' ? '완주 성공!' : '완주 완료'}
             </h1>
-            <p data-testid="run-distance" className="text-b-34 text-text-strong">
+            <p data-testid="run-distance" className="text-display text-text-strong">
               {formatDistanceKm(result.distanceKm)}km
             </p>
             <p
               data-testid="completion-message"
-              className="text-center text-m-15 leading-relaxed text-subtle"
+              className="text-center text-body leading-relaxed text-subtle"
             >
               {completionMessage(result.completionRate)}
             </p>
@@ -154,8 +154,8 @@ export function RunResultView() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <dd className="text-sb-20 text-text-strong">{value}</dd>
-      <dt className="text-m-12 text-subtle">{label}</dt>
+      <dd className="text-heading text-text-strong">{value}</dd>
+      <dt className="text-caption text-subtle">{label}</dt>
     </div>
   );
 }

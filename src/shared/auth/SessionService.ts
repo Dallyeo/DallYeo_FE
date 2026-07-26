@@ -30,13 +30,16 @@ class SessionServiceImpl {
     useSessionStore.getState().setAuthenticated(session);
   }
 
-  /** 부트스트랩: 네이티브 주입 세션 조회 (BR-U1-5) */
+  /**
+   * 부트스트랩: 네이티브 주입 세션 조회 (BR-U1-5).
+   * getCurrentSession은 로그인 상태면 세션+토큰을 함께 반환 →
+   * applySession으로 Bearer 토큰까지 복원해야 이후 API 호출이 인증된다.
+   */
   async bootstrap(): Promise<void> {
     try {
-      const session = await bridgeService.getCurrentSession();
-      if (session) {
-        // 네이티브가 토큰을 별도 주입하지 않는 환경 대비: 세션만 있으면 상태만 인증
-        useSessionStore.getState().setAuthenticated(session);
+      const result = await bridgeService.getCurrentSession();
+      if (result) {
+        this.applySession(result.session, result.token);
       } else {
         useSessionStore.getState().setUnauthenticated();
       }

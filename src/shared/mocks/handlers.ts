@@ -13,16 +13,17 @@ import {
 import type { UserProfilePatch } from '@/domain/types';
 
 const base = env.apiBaseUrl;
+/** 공개계 base — 기본은 인증계와 동일(dev 프리뷰 목). 실연동 시 dallyeo.cloud로 분리됨. */
+const publicBase = env.publicApiBaseUrl;
 
 /** 백엔드 미준비 엔드포인트 mock (NFR-DATA-01). 준비되면 해당 핸들러 제거로 passthrough. */
 export const handlers = [
-  http.get(`${base}/regions`, () => HttpResponse.json(mockRegions)),
-  http.get(`${base}/courses`, ({ request }) => {
+  // 공개계(regions/courses) — 배포됨. 실연동 전까지 목 유지.
+  http.get(`${publicBase}/regions`, () => HttpResponse.json(mockRegions)),
+  http.get(`${publicBase}/courses`, ({ request }) => {
     const url = new URL(request.url);
-    const regionCode = url.searchParams.get('regionCode');
-    const list = regionCode
-      ? mockCourses.filter((c) => c.regionCode === regionCode)
-      : mockCourses;
+    const region = url.searchParams.get('region');
+    const list = region ? mockCourses.filter((c) => c.regionCode === region) : mockCourses;
     return HttpResponse.json(list);
   }),
   // V10 완주결과: 주변 장소(500m) + 결과 저장

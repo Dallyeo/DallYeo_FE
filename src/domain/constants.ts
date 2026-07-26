@@ -2,8 +2,8 @@
  * 도메인 상수 (business-rules.md / domain-entities.md)
  */
 
-/** 기본 지역 코드 (FR-V02-08). regionLogic이 참조. */
-export const DEFAULT_REGION_CODE = 'gunsan';
+/** 기본 지역 코드 (FR-V02-08). regionLogic이 참조. 백엔드 enum(대문자). */
+export const DEFAULT_REGION_CODE = 'GUNSAN';
 export const DEFAULT_REGION_NAME = '군산';
 
 /** 키 정수부 자릿수: 2~3자리 (FD Q2=B) */

@@ -10,8 +10,11 @@ import type {
 } from '@/domain/types';
 import { DEFAULT_REGION_CODE } from '@/domain/constants';
 
-/** MVP1: 군산만 (NFR-DATA-02 — 동적 구조, 데이터만 단일) */
-export const mockRegions: Region[] = [{ code: DEFAULT_REGION_CODE, name: '군산' }];
+/** 지원 지역: 군산(기본) + 전주 (be-api-spec-recieved-sprint4.md §2) */
+export const mockRegions: Region[] = [
+  { code: DEFAULT_REGION_CODE, name: '군산' },
+  { code: 'JEONJU', name: '전주' },
+];
 
 export const mockCourses: Course[] = [
   {
@@ -31,6 +34,15 @@ export const mockCourses: Course[] = [
     estimatedTime: '약 45분',
     previewImageUrl: 'https://placehold.co/600x300?text=Course+2',
     regionCode: DEFAULT_REGION_CODE,
+  },
+  {
+    id: 'c3',
+    title: '한옥마을 둘레길 코스',
+    description: '전주 한옥마을을 도는 짧은 코스.',
+    distanceKm: 2.8,
+    estimatedTime: '약 20분',
+    previewImageUrl: 'https://placehold.co/600x300?text=Course+3',
+    regionCode: 'JEONJU',
   },
 ];
 

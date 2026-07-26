@@ -40,7 +40,7 @@ export function BottomTabBar() {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border bg-surface"
+      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-gray-300 bg-white"
       style={{
         height: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)',
@@ -58,11 +58,11 @@ export function BottomTabBar() {
               navigate(to);
             }}
             className={`flex flex-1 flex-col items-center justify-center gap-1 ${
-              isActive ? 'text-primary' : 'text-subtle'
+              isActive ? 'text-green-700' : 'text-gray-disabled'
             }`}
           >
             <Icon aria-hidden className="h-6 w-6" />
-            <span className="text-m-10">{label}</span>
+            <span className="text-overline">{label}</span>
           </button>
         );
       })}

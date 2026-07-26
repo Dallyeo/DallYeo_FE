@@ -3,7 +3,7 @@ import { CourseCard } from './CourseCard';
 
 export function RecommendedCourseList({ courses }: { courses: Course[] }) {
   return (
-    <ul data-testid="recommended-course-list" className="flex flex-col gap-2">
+    <ul data-testid="recommended-course-list" className="flex flex-col divide-y divide-gray-250">
       {courses.map((course) => (
         <li key={course.id}>
           <CourseCard course={course} />

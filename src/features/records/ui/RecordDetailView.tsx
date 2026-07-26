@@ -46,11 +46,11 @@ export function RecordDetailView() {
           data-testid="record-detail-back"
           aria-label="뒤로가기"
           onClick={() => navigate(-1)}
-          className="text-sb-20 text-text-strong"
+          className="text-heading text-text-strong"
         >
           ‹
         </button>
-        <h1 className="flex-1 text-center text-m-15 text-text-strong">
+        <h1 className="flex-1 text-center text-body text-text-strong">
           {detailQuery.data ? formatMonthDayWeekdayShort(detailQuery.data.completedAt) : '기록 상세'}
         </h1>
         <span className="w-5" aria-hidden />
@@ -65,7 +65,7 @@ export function RecordDetailView() {
           {(detail) => (
             <>
               <section className="flex flex-col items-center gap-5 rounded-3xl bg-surface px-5 py-8">
-                <p data-testid="record-distance" className="text-b-34 text-text-strong">
+                <p data-testid="record-distance" className="text-display text-text-strong">
                   {formatDistanceKm(detail.distanceKm)}km
                 </p>
 
@@ -83,7 +83,7 @@ export function RecordDetailView() {
                   className="aspect-square w-full rounded-2xl bg-bg object-cover"
                 />
 
-                <span className="text-m-12 text-subtle">{formatDotDate(detail.completedAt)}</span>
+                <span className="text-caption text-subtle">{formatDotDate(detail.completedAt)}</span>
               </section>
 
               <div className="flex gap-2.5">
@@ -114,8 +114,8 @@ export function RecordDetailView() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <dd className="text-sb-20 text-text-strong">{value}</dd>
-      <dt className="text-m-12 text-subtle">{label}</dt>
+      <dd className="text-heading text-text-strong">{value}</dd>
+      <dt className="text-caption text-subtle">{label}</dt>
     </div>
   );
 }

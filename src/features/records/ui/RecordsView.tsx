@@ -18,18 +18,18 @@ export function RecordsView() {
   return (
     <SafeAreaLayout withTabBar>
       <main data-testid="records-view" className="flex flex-1 flex-col gap-4 overflow-y-auto p-5 pb-10">
-        <h1 className="text-b-22 text-text-strong">기록</h1>
+        <h1 className="text-title text-text-strong">기록</h1>
 
         {/* MVP3: 기간 통계(주간/월간/연간/전체) + 막대그래프 자리 — 데이터모델(PeriodStats)만 정의 */}
 
         {!isLoggedIn ? (
           <div data-testid="records-login-gate" className="flex flex-col gap-3">
-            <p className="text-m-15 text-subtle">로그인하면 러닝 기록을 확인할 수 있어요.</p>
+            <p className="text-body text-subtle">로그인하면 러닝 기록을 확인할 수 있어요.</p>
             <LoginBanner />
           </div>
         ) : (
           <section className="flex flex-col gap-3">
-            <h2 className="text-m-15 text-text">최근 러닝 기록</h2>
+            <h2 className="text-body text-text">최근 러닝 기록</h2>
             <AsyncBoundary
               query={recordsQuery}
               isEmpty={(records) => records.length === 0}

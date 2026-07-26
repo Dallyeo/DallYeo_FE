@@ -2,7 +2,13 @@
  * 지역/코스 도메인 타입 (FR-V02)
  */
 
-/** 지역. code는 string(하드코딩 금지), 다중 지역 확장 가능 (NFR-DATA-02). */
+/** 지원 지역 코드 (백엔드 enum). be-api-spec-recieved-sprint4.md §1 */
+export type RegionCode = 'GUNSAN' | 'JEONJU';
+
+/** 코스 거리 분류 (백엔드 enum). */
+export type DistanceCategory = 'SHORT' | 'MEDIUM' | 'LONG';
+
+/** 지역. code는 RegionCode(대문자 enum), 다중 지역 확장 가능 (NFR-DATA-02). */
 export interface Region {
   code: string;
   name: string;
