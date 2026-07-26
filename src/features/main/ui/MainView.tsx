@@ -36,7 +36,7 @@ export function MainView() {
             </button>
           </div>
 
-          <h1 className="mt-5 text-title">
+          <h1 className="mt-5 text-heading text-gray-200">
             {displayName} 님,
             <br />
             오늘은 어디로 달려볼까요?
@@ -45,9 +45,9 @@ export function MainView() {
 
         {/* 추천 코스 카드 패널 */}
         <section className="flex flex-1 flex-col p-4">
-          <div className="overflow-hidden rounded-lg border border-gray-300">
-            <div className="flex items-center justify-between gap-2 bg-gray-200 px-4 py-4">
-              <h2 className="text-body text-gray-900">추천코스</h2>
+          <div className="overflow-hidden rounded-lg shadow-[0px_0px_5.7px_rgba(0,0,0,0.15)]">
+            <div className="flex items-center justify-between gap-2 bg-off-white py-4 pl-[23px] pr-[10px]">
+              <h2 className="text-body text-gray-700">추천코스</h2>
               <RegionSelector />
             </div>
 

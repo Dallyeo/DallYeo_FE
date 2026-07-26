@@ -9,7 +9,7 @@ export function RegionSelector() {
 
   return (
     <label className="flex items-center gap-2">
-      <span className="text-caption text-gray-500">선택된 지역</span>
+      <span className="text-body-sm text-gray-700">선택된 지역</span>
       <select
         data-testid="region-selector"
         value={region.code}
@@ -17,7 +17,7 @@ export function RegionSelector() {
           const next = options.find((r) => r.code === e.target.value);
           if (next) setRegion(next);
         }}
-        className="rounded-full bg-green-700 px-4 py-1.5 text-body-sm text-white"
+        className="h-[29px] w-[60px] appearance-none rounded-md bg-green-700 text-center text-body-sm text-white"
       >
         {options.map((r) => (
           <option key={r.code} value={r.code}>

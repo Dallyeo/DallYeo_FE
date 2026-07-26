@@ -11,16 +11,16 @@ export function CourseCard({ course }: { course: Course }) {
   const [popupOpen, setPopupOpen] = useState(false);
 
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-5">
+    <div className="flex items-center justify-between gap-3 px-[24px] py-[15px]">
       <button
         type="button"
         data-testid={`course-card-${course.id}`}
         onClick={() => bridgeService.openCourseConfirm(course)}
         className="flex-1 text-left"
       >
-        <h3 className="text-heading text-black">{course.title}</h3>
-        <p className="mt-2 text-body-sm text-gray-500">{course.estimatedTime}</p>
-        <p className="mt-0.5 text-body-sm text-gray-500">{course.distanceKm}km</p>
+        <h3 className="text-subheading text-gray-900">{course.title}</h3>
+        <p className="mt-2 text-caption text-gray-500">{course.estimatedTime}</p>
+        <p className="mt-0.5 text-caption text-gray-500">{course.distanceKm}km</p>
       </button>
       <button
         type="button"

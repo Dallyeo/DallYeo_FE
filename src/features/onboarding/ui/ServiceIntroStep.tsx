@@ -33,7 +33,7 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
   return (
     <section
       data-testid="onboarding-intro"
-      className="flex flex-1 flex-col px-4 pb-4 pt-safe-top"
+      className="flex flex-1 flex-col px-4 pb-[60px] pt-safe-top"
     >
       {/* 로고 (세로 중앙) */}
       <div className="flex flex-1 flex-col items-center justify-center">
