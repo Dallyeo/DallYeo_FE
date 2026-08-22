@@ -11,20 +11,42 @@ export interface RunRecord {
   completedAt: string;
   distanceKm: number;
   durationSec: number;
+  /** 평균 페이스(초/km). 목록 응답에 없으면 거리·시간으로 계산해 채운다. */
   avgPaceSecPerKm: number;
-  calories: number;
+  /** ⚠️ 백엔드 명세에 없는 필드 — 현재 목에서만 채워진다(없으면 미표시). */
+  calories?: number;
+  /** 완주한 코스명. 자유 러닝이면 없음. */
+  courseName?: string;
+  /** 시작 시각 (ISO 8601). V12 "12:00 - 12:30" 구간 표시용 — 목록 응답엔 없다. */
+  startedAt?: string;
 }
 
 /** 기록 상세 (V12). 정적 지도 + 경로. */
 export interface RunRecordDetail extends RunRecord {
   completionRate: number;
+  /**
+   * 출발/도착 지점명 (V12 "청송 과수원 → 신시 전망대").
+   * ⚠️ 백엔드 명세에 없음 — 지정 코스면 코스의 지점명, 자유 러닝이면 출발지는 "지정된 위치"로 대체.
+   */
+  startPlaceName?: string;
+  endPlaceName?: string;
   routePolyline: GeoPoint[];
   /** 정적 지도 이미지 URL (줌 없음) */
   staticMapImageUrl: string;
 }
 
-/** 기간 통계 구간 (MVP3) */
-export type StatsPeriod = 'weekly' | 'monthly' | 'yearly' | 'all';
+/**
+ * 기간 통계 구간. 시안에 '전체' 탭이 있었으나 **제거 확정**(2026-08-22 사용자 결정).
+ * 차트와 기록 리스트 **모두** 이 구간으로 필터된다.
+ */
+export type StatsPeriod = 'weekly' | 'monthly' | 'yearly';
+
+/** 탭 라벨 (시안 순서) */
+export const STATS_PERIODS: { key: StatsPeriod; label: string }[] = [
+  { key: 'weekly', label: '주간' },
+  { key: 'monthly', label: '월간' },
+  { key: 'yearly', label: '연간' },
+];
 
 /** 일자별 거리 (차트용, MVP3) */
 export interface DailyDistance {

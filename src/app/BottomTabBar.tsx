@@ -1,14 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGate } from '@/features/login/model/useGate';
 import type { GateAction } from '@/domain/types';
-import IcSearch from '@/shared/ui/icons/ic-search.svg?react';
-import IcAchievements from '@/shared/ui/icons/ic-achievements.svg?react';
-import IcRecord from '@/shared/ui/icons/ic-record.svg?react';
+import IcCourse from '@/shared/ui/icons/ic-add-location-alt.svg?react';
+import IcAchievements from '@/shared/ui/icons/ic-steps.svg?react';
+import IcRecord from '@/shared/ui/icons/ic-bar-chart.svg?react';
 
 /**
- * 하단 탭바 (FR-V02-02) — 검색 / 업적 / 기록 (디자인 V02 기준).
+ * 하단 탭바 (FR-V02-02) — 코스 / 업적 / 기록 (Figma 탭 컴포넌트 822:1112 기준).
  * 설정(마이페이지)은 탭바에서 제외 → 메인뷰 우측 상단 햄버거(≡)로 진입.
- * 업적·기록 탭은 게이트(V02-S2): 비로그인 시 차단 + 로그인 시트. 검색(메인)은 자유.
+ * 업적·기록 탭은 게이트(V02-S2): 비로그인 시 차단 + 로그인 시트. 코스(메인)는 자유.
+ * 아이콘은 시안 실물(add_location_alt / steps / bar_chart), 라벨 12px.
  * 아이콘 fill=currentColor → 활성 primary / 비활성 subtle 색을 코드가 제어.
  */
 interface TabDef {
@@ -21,7 +22,7 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { to: '/main', label: '검색', testId: 'tab-search', Icon: IcSearch },
+  { to: '/main', label: '코스', testId: 'tab-search', Icon: IcCourse },
   {
     to: '/achievements',
     label: '업적',
@@ -40,7 +41,8 @@ export function BottomTabBar() {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-gray-300 bg-white"
+      // 시안 탭바 그림자: 0 -4px 4px rgba(0,0,0,0.05)
+      className="fixed inset-x-0 bottom-0 z-10 flex bg-off-white shadow-[0_-4px_4px_rgba(0,0,0,0.05)]"
       style={{
         height: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)',

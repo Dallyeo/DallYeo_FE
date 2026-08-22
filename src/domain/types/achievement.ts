@@ -1,26 +1,26 @@
 /**
- * 업적 도메인 타입 (V14). 기획 보류 → **데이터모델만** 정의(UI는 placeholder).
- * 전북 지역 게이미피케이션 지도는 스타일드 SVG 컴포넌트 예정(지도 SDK 아님).
+ * 업적 도메인 타입 (V14). 백엔드 `GET /achievements` 계약(backend-api.md §8.1) — 고정 8종.
+ * 지도(전북 스타일드 이미지)에 업적 달성마다 초록 선이 그려지는 연출은 **기획 미확정** → 이미지만 표시.
  */
 export interface Achievement {
-  id: string;
-  title: string;
+  /** 업적 코드 (GUNSAN_BEGINNER, JJAMPPONG 등) */
+  code: string;
+  name: string;
   description: string;
-  iconUrl?: string;
-  /** 달성 일시 (ISO). 미달성이면 undefined */
-  achievedAt?: string;
+  unlocked: boolean;
+  /** 달성 일시 (ISO). 미달성이면 null/undefined */
+  unlockedAt?: string | null;
 }
 
-/** 전북 시군 진행도 (V14 SVG 지도용 — 데이터모델만) */
-export interface RegionProgress {
-  regionCode: string;
-  regionName: string;
-  visited: boolean;
-  runCount: number;
-}
+/** 업적 지역 탭 — 시안 상단(군산/전주) */
+export type AchievementRegion = 'GUNSAN' | 'JEONJU';
 
-/** 업적 화면 데이터 묶음 (예약) */
-export interface AchievementSummary {
-  achievements: Achievement[];
-  regions: RegionProgress[];
+export const ACHIEVEMENT_REGIONS: { key: AchievementRegion; label: string }[] = [
+  { key: 'GUNSAN', label: '군산' },
+  { key: 'JEONJU', label: '전주' },
+];
+
+/** 업적 코드 → 지역. 코드 접두사로 판정하며 지역 무관 업적은 없다(고정 8종 기준). */
+export function regionOfAchievement(code: string): AchievementRegion {
+  return code.startsWith('JEONJU') ? 'JEONJU' : 'GUNSAN';
 }

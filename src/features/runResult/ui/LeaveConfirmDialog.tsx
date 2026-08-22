@@ -19,7 +19,7 @@ export function LeaveConfirmDialog({
       data-testid="leave-confirm-dialog"
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-6"
+      className="fixed inset-0 z-20 flex items-center justify-center bg-dim p-6"
       onClick={onClose}
     >
       <div

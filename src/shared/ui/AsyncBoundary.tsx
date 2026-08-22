@@ -18,6 +18,7 @@ export function AsyncBoundary<T>({
   children,
   isEmpty,
   emptyMessage = '표시할 내용이 없어요.',
+  emptyIcon,
   loadingLabel,
   testId = 'async-boundary',
 }: {
@@ -25,6 +26,8 @@ export function AsyncBoundary<T>({
   children: (data: T) => ReactNode;
   isEmpty?: (data: T) => boolean;
   emptyMessage?: string;
+  /** 빈 상태 상단 아이콘 (시안: 24×24, gray-300) */
+  emptyIcon?: ReactNode;
   loadingLabel?: string;
   testId?: string;
 }) {
@@ -45,9 +48,14 @@ export function AsyncBoundary<T>({
   if (data === undefined) return <Spinner {...(loadingLabel ? { label: loadingLabel } : {})} />;
 
   if (isEmpty?.(data)) {
+    // 시안(V02_empty): 아이콘 24 gray-300 → 간격 15 → 문구 text-body / Disabled, 가운데 정렬
     return (
-      <div data-testid={`${testId}-empty`} className="p-6 text-center text-muted">
-        {emptyMessage}
+      <div
+        data-testid={`${testId}-empty`}
+        className="flex flex-1 flex-col items-center justify-center gap-[15px] p-6 text-center"
+      >
+        {emptyIcon}
+        <p className="text-body text-gray-disabled">{emptyMessage}</p>
       </div>
     );
   }

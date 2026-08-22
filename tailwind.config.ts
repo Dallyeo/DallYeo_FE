@@ -20,6 +20,7 @@ const config: Config = {
         'primary-contrast': 'var(--color-primary-contrast)',
         disabled: 'var(--color-disabled)',
         danger: 'var(--color-danger)',
+        dim: 'var(--color-dim)', // 모달 딤 — `bg-black/40`은 팔레트 var 때문에 동작하지 않음
         kakao: 'var(--color-kakao)',
         'kakao-contrast': 'var(--color-kakao-contrast)',
         apple: 'var(--color-apple)',
@@ -55,6 +56,7 @@ const config: Config = {
       // [size, { lineHeight, letterSpacing, fontWeight }]. 자간 %→em(예: -2% = -0.02em).
       // 폰트 교체 시 이 이름/스케일은 불변, tokens.css --font-sans 만 교체.
       fontSize: {
+        'display-lg': ['40px', { lineHeight: '30px', letterSpacing: '0em', fontWeight: '700' }], // P_B_40
         display: ['30px', { lineHeight: '30px', letterSpacing: '0em', fontWeight: '700' }], // P_B_30
         headline: ['23px', { lineHeight: '35px', letterSpacing: '0em', fontWeight: '600' }], // P_SB_23
         title: ['22px', { lineHeight: '26px', letterSpacing: '0em', fontWeight: '700' }], // P_B_22
@@ -69,7 +71,7 @@ const config: Config = {
         'caption-tight': ['12px', { lineHeight: '14px', letterSpacing: '0em', fontWeight: '500' }], // P_M_12_line
         'caption-light': ['12px', { lineHeight: '14px', letterSpacing: '-0.02em', fontWeight: '300' }], // P_L_12
         overline: ['10px', { lineHeight: '12px', letterSpacing: '0.04em', fontWeight: '500' }], // P_M_10
-        'overline-strong': ['10px', { lineHeight: '12px', letterSpacing: '-0.02em', fontWeight: '600' }], // SF_SB_10
+        'overline-strong': ['10px', { lineHeight: '12px', letterSpacing: '-0.02em', fontWeight: '600' }], // P_SB_10
       },
       borderRadius: {
         sm: 'var(--radius-sm)',

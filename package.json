@@ -12,7 +12,12 @@
     "test:watch": "vitest",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "figma:fetch": "node scripts/figma/fetch.mjs",
+    "figma:list": "node scripts/figma/list.mjs",
+    "figma:styles": "node scripts/figma/styles.mjs",
+    "figma:spacing": "node scripts/figma/spacing.mjs",
+    "figma:icons": "node scripts/figma/icons.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.0",

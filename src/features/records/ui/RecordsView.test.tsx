@@ -4,16 +4,16 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RecordsView } from './RecordsView';
 import { useSessionStore } from '@/shared/auth/sessionStore';
-import type { RunRecord } from '@/domain/types';
 
-const records: RunRecord[] = [
+/** 백엔드 목록 응답(backend-api.md §7.2) 형태. 기간 필터가 걸리므로 **오늘** 기록으로 만든다. */
+const records = [
   {
     id: 'rec1',
-    completedAt: '2026-06-10T09:00:00Z',
-    distanceKm: 10,
-    durationSec: 1930,
-    avgPaceSecPerKm: 193,
+    courseName: '테스트 코스',
+    distanceMeters: 10000,
+    durationSeconds: 1930,
     calories: 250,
+    finishedAt: new Date().toISOString(),
   },
 ];
 

@@ -43,11 +43,20 @@ describe('RunResultView (V10)', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('결과 렌더: 거리 + 완주율 문구(100%)', () => {
+  it('결과 렌더: 거리 + 구간 · 완주율 문구는 시안에 없어 미노출', () => {
     useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
     renderView();
     expect(screen.getByTestId('run-distance')).toHaveTextContent('10.23km');
-    expect(screen.getByTestId('completion-message')).toHaveTextContent('완주에 성공했어요');
+    // 시안(V10_결과 785:2701/2793)에 완주율 메시지 자리가 없음 — 도메인 로직/테스트는 유지, 화면 노출만 제거
+    expect(screen.queryByTestId('completion-message')).not.toBeInTheDocument();
+  });
+
+  it('「주변 둘러보기」 → 모달 오픈 (스크롤 아님)', () => {
+    useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
+    renderView();
+    expect(screen.queryByTestId('nearby-places-modal')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('open-nearby'));
+    expect(screen.getByTestId('nearby-places-modal')).toBeInTheDocument();
   });
 
   it('비로그인: 메인화면 → 이탈 확인 팝업, 로그인 클릭 시 로그인 시트 오픈(saveRunResult)', () => {

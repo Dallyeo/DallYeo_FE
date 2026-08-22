@@ -26,9 +26,10 @@ export function OnboardingStepHeader({
         onClick={onBack}
         className="mt-0.5 flex h-10 w-10 items-center justify-center text-black"
       >
-        <IcBack aria-hidden className="h-6 w-6" />
+        {/* ic-back은 40×40 viewBox — 자연 크기로 둬야 글리프가 시안(21×14)과 일치 */}
+        <IcBack aria-hidden className="h-10 w-10" />
       </button>
-      <h1 className="mt-[29px] text-headline text-black">{title}</h1>
+      <h1 className="mt-[29px] text-headline text-gray-900">{title}</h1>
       {subtitle && <p className="mt-[15px] text-body-sm text-gray-500">{subtitle}</p>}
     </div>
   );

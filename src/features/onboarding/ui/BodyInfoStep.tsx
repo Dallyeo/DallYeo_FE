@@ -42,11 +42,15 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
         }
       />
 
-      <div className="mt-8 flex flex-col gap-7">
+      {/* 시안: 부제와 간격 36, 그룹 간 30, 그룹 내 라벨→입력 15.
+          라벨·값 색은 입력 여부로 갈림 — 미입력 gray-disabled / 입력됨 gray-700 */}
+      <div className="mt-9 flex flex-col gap-[30px]">
         {/* 키 */}
         <label className="flex flex-col gap-[15px]">
-          <span className="text-body-sm text-gray-700">키</span>
-          <div className="flex items-baseline gap-2 border-b border-gray-700 py-[15px] px-[23px]">
+          <span className={`text-body-sm ${heightRaw ? 'text-gray-700' : 'text-gray-disabled'}`}>
+            키
+          </span>
+          <div className="flex items-baseline justify-between gap-2 border-b border-gray-700 px-[23px] pb-[13px] pt-[15px]">
             <input
               data-testid="onboarding-height-input"
               inputMode="decimal"
@@ -55,7 +59,9 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
               onChange={(e) => setHeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-subheading text-gray-700 outline-none placeholder:text-gray-disabled"
             />
-            <span className="text-label text-gray-700">cm</span>
+            <span className={`text-label ${heightRaw ? 'text-gray-700' : 'text-gray-disabled'}`}>
+              cm
+            </span>
           </div>
           {heightOutOfRange && (
             <span data-testid="onboarding-height-warning" className="text-footnote text-red">
@@ -65,9 +71,11 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
         </label>
 
         {/* 현재 체중 */}
-        <label className="flex flex-col gap-[30px]">
-          <span className="text-body-sm text-gray-700">현재 체중</span>
-          <div className="flex items-baseline gap-2 border-b border-gray-700 py-[15px] px-[23px]">
+        <label className="flex flex-col gap-[15px]">
+          <span className={`text-body-sm ${weightRaw ? 'text-gray-700' : 'text-gray-disabled'}`}>
+            현재 체중
+          </span>
+          <div className="flex items-baseline justify-between gap-2 border-b border-gray-700 px-[23px] pb-[13px] pt-[15px]">
             <input
               data-testid="onboarding-weight-input"
               inputMode="decimal"
@@ -76,7 +84,9 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
               onChange={(e) => setWeight(e.target.value)}
               className="min-w-0 flex-1 bg-transparent text-subheading text-gray-700 outline-none placeholder:text-gray-disabled"
             />
-            <span className="text-label text-gray-700">kg</span>
+            <span className={`text-label ${weightRaw ? 'text-gray-700' : 'text-gray-disabled'}`}>
+              kg
+            </span>
           </div>
           {weightOutOfRange && (
             <span data-testid="onboarding-weight-warning" className="text-footnote text-red">
@@ -85,9 +95,11 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
           )}
         </label>
 
-        {/* 성별 */}
-        <div className="flex flex-col gap-[30px]">
-          <span className="text-body-sm text-gray-700">성별</span>
+        {/* 성별 — 시안: 버튼 45 높이, r8, 간격 15 */}
+        <div className="flex flex-col gap-[15px]">
+          <span className={`text-body-sm ${gender ? 'text-gray-700' : 'text-gray-disabled'}`}>
+            성별
+          </span>
           <div className="flex gap-[15px]">
             {GENDERS.map((g) => {
               const selected = gender === g.value;
@@ -97,10 +109,8 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
                   type="button"
                   data-testid={`onboarding-gender-${g.value}`}
                   onClick={() => setGender(g.value)}
-                  className={`flex-1 rounded-md py-3.5 text-label ${
-                    selected
-                      ? 'bg-green-700 text-white'
-                      : 'bg-gray-200 text-gray-disabled'
+                  className={`h-[45px] flex-1 rounded-md text-body-sm ${
+                    selected ? 'bg-green-700 text-white' : 'bg-gray-200 text-gray-disabled'
                   }`}
                 >
                   {g.label}

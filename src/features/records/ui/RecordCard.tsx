@@ -1,9 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import type { RunRecord } from '@/domain/types';
-import { formatMonthDayWeekday } from '@/shared/format/dateFormat';
 import { formatDuration, formatPace } from '@/shared/format/runFormat';
+import IcChevron from '@/shared/ui/icons/ic-chevron-forward.svg?react';
 
-/** V11 기록 목록 카드. 탭 → 상세(V12). lo-fi 스켈레톤. */
+/** "26/06/10(금)" */
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const p = (n: number) => String(n).padStart(2, '0');
+  const weekday = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+  return `${String(d.getFullYear()).slice(2)}/${p(d.getMonth() + 1)}/${p(d.getDate())}(${weekday})`;
+}
+
+/**
+ * V11 기록 행 (V11_기록_주간 682:1385 Frame 334). 탭 → 상세(V12).
+ * 행 높이 72: 좌측 거리(`heading`)+날짜(`overline`), 중앙 3열(각 50폭·`body`), 우측 chevron.
+ * 하단 구분선 0.5px.
+ */
 export function RecordCard({ record }: { record: RunRecord }) {
   const navigate = useNavigate();
   return (
@@ -11,26 +24,44 @@ export function RecordCard({ record }: { record: RunRecord }) {
       type="button"
       data-testid={`record-card-${record.id}`}
       onClick={() => navigate(`/records/${record.id}`)}
-      className="flex w-full flex-col gap-3 rounded-2xl border border-border bg-surface p-4 text-left"
+      className="flex h-[72px] w-full items-center border-b-[0.5px] border-gray-250 pl-[1px] pr-[1px] text-left"
     >
-      <span className="text-body text-text-strong">{formatMonthDayWeekday(record.completedAt)}</span>
-      <div className="flex items-end justify-between gap-2">
-        <dl className="flex gap-5">
-          <Metric label="시간" value={formatDuration(record.durationSec)} />
-          <Metric label="페이스" value={formatPace(record.avgPaceSecPerKm)} />
-          <Metric label="칼로리" value={String(record.calories)} />
-        </dl>
-        <span className="text-title text-text-strong">{record.distanceKm}km</span>
-      </div>
+      <span className="flex w-[65px] shrink-0 flex-col">
+        <span className="text-heading text-black">{record.distanceKm}km</span>
+        <span className="text-overline text-gray-500">{formatShortDate(record.completedAt)}</span>
+      </span>
+
+      <dl className="flex flex-1 justify-around">
+        <Metric value={formatDuration(record.durationSec)} />
+        <Metric value={formatPace(record.avgPaceSecPerKm)} />
+        {/* 칼로리는 백엔드 명세에 없는 필드 — 없으면 '-' */}
+        <Metric value={record.calories !== undefined ? String(record.calories) : '-'} />
+      </dl>
+
+      <span aria-hidden className="flex w-6 shrink-0 justify-center text-gray-300">
+        <IcChevron className="h-3 w-auto" />
+      </span>
     </button>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ value }: { value: string }) {
+  return <dd className="w-[50px] text-center text-body text-gray-900">{value}</dd>;
+}
+
+/** 리스트 상단 컬럼 헤더 — 시안 Group 132 (시간/페이스/칼로리, overline gray-500) */
+export function RecordListHeader() {
   return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="text-caption text-subtle">{label}</dt>
-      <dd className="text-label text-text">{value}</dd>
+    <div className="flex items-center border-b border-gray-250 pb-[8px]">
+      <span className="w-[65px] shrink-0" />
+      <div className="flex flex-1 justify-around">
+        {['시간', '페이스', '칼로리'].map((label) => (
+          <span key={label} className="w-[50px] text-center text-overline text-gray-500">
+            {label}
+          </span>
+        ))}
+      </div>
+      <span className="w-6 shrink-0" />
     </div>
   );
 }

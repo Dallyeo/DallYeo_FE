@@ -30,11 +30,14 @@ describe('SettingsView (V13)', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('비로그인: 로그인 배너 + 프로필 카드 없음', () => {
+  // 시안(V13_설정 618:1110)에는 프로필 카드·로그인 배너가 없다 — 메뉴만 노출하고
+  // 비로그인 처리는 항목 탭 시 게이트(로그인 시트)로 한다.
+  it('비로그인: 배너/프로필 카드 없이 메뉴만 노출', () => {
     useSessionStore.setState({ status: 'unauthenticated', session: null });
     renderView();
-    expect(screen.getByTestId('login-banner')).toBeInTheDocument();
+    expect(screen.queryByTestId('login-banner')).not.toBeInTheDocument();
     expect(screen.queryByTestId('profile-card')).not.toBeInTheDocument();
+    expect(screen.getByTestId('settings-edit-info')).toBeInTheDocument();
   });
 
   it('비로그인: 내정보수정 탭 시 로그인 시트(이동 X)', () => {
@@ -44,10 +47,11 @@ describe('SettingsView (V13)', () => {
     expect(useLoginSheetStore.getState().isOpen).toBe(true);
   });
 
-  it('로그인: 프로필 카드 렌더', async () => {
+  // 시안(V13_설정 618:1110)에 프로필 카드가 없다 — 메뉴만 노출된다.
+  it('시안 메뉴 구성: 로그아웃 · 계정 삭제 노출', () => {
     useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
     renderView();
-    expect(await screen.findByTestId('profile-card')).toBeInTheDocument();
-    expect(screen.getByTestId('profile-card')).toHaveTextContent('카야, 안녕하세요!');
+    expect(screen.getByTestId('settings-logout')).toHaveTextContent('로그아웃');
+    expect(screen.getByTestId('settings-account')).toHaveTextContent('계정 삭제');
   });
 });

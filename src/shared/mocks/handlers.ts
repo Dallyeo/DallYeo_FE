@@ -1,12 +1,12 @@
 import { http, HttpResponse } from 'msw';
 import { env } from '@/shared/config/env';
 import {
-  buildMockRecordDetail,
+  buildMockRunDetail,
   getMockProfile,
   mockAchievements,
   mockCourses,
   mockNearbyPlaces,
-  mockRecords,
+  buildMockRuns,
   mockRegions,
   patchMockProfile,
 } from './data';
@@ -24,15 +24,36 @@ export const handlers = [
     const url = new URL(request.url);
     const region = url.searchParams.get('region');
     const list = region ? mockCourses.filter((c) => c.regionCode === region) : mockCourses;
-    return HttpResponse.json(list);
+    // 목록은 **요약** — 상세 전용 필드(경유지/설명)는 제외해 실제 백엔드 계약과 맞춘다.
+    return HttpResponse.json(
+      list.map(({ waypoints: _w, description: _d, ...summary }) => summary),
+    );
+  }),
+  // 코스 상세 — 경유지(waypointAnchors)·설명은 여기서만 내려온다 (be-api-spec §3.2)
+  http.get(`${publicBase}/courses/:courseId`, ({ params }) => {
+    const course = mockCourses.find((c) => c.id === String(params.courseId));
+    return course
+      ? HttpResponse.json(course)
+      : HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
   }),
   // V10 완주결과: 주변 장소(500m) + 결과 저장
   http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),
   http.post(`${base}/runs`, () => HttpResponse.json({ recordId: 'rec-mock-1' })),
   // V11/V12 기록: 목록 + 상세 (통계 /records/stats 는 MVP3 — 미제공)
-  http.get(`${base}/records`, () => HttpResponse.json(mockRecords)),
-  http.get(`${base}/records/:recordId`, ({ params }) =>
-    HttpResponse.json(buildMockRecordDetail(String(params.recordId))),
+  http.get(`${base}/runs`, ({ request }) => {
+    const url = new URL(request.url);
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    let runs = buildMockRuns();
+    // finishedAt(날짜) 기준 [from, to] 포함 필터 — backend §7.2와 동일 의미
+    if (from) runs = runs.filter((r) => r.finishedAt.slice(0, 10) >= from);
+    if (to) runs = runs.filter((r) => r.finishedAt.slice(0, 10) <= to);
+    // 최신순
+    runs.sort((a, b) => b.finishedAt.localeCompare(a.finishedAt));
+    return HttpResponse.json(runs);
+  }),
+  http.get(`${base}/runs/:recordId`, ({ params }) =>
+    HttpResponse.json(buildMockRunDetail(String(params.recordId))),
   ),
   // V13 설정: 프로필 조회/수정
   http.get(`${base}/me`, () => HttpResponse.json(getMockProfile())),

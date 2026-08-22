@@ -20,5 +20,8 @@ export function buildDevRunResult(completionRate: number): RunResult {
     staticMapImageUrl: 'https://placehold.co/600x450?text=Course+Route',
     endLocation: { lat: 35.9701, lng: 126.7402 },
     completedAt: new Date().toISOString(),
+    startedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    startPlaceName: '청송 과수원',
+    endPlaceName: '신시 전망대',
   };
 }
