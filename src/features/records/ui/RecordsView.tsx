@@ -50,7 +50,7 @@ export function RecordsView() {
 
   return (
     <SafeAreaLayout withTabBar>
-      <main data-testid="records-view" className="flex min-h-0 flex-1 flex-col pt-[5px]">
+      <main data-testid="records-view" className="flex min-h-0 flex-1 flex-col">
         <PeriodTabs value={period} onChange={setPeriod} />
 
         {!isLoggedIn ? (

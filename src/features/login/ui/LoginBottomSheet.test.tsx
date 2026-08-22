@@ -49,7 +49,7 @@ describe('LoginBottomSheet (LOGIN-S2)', () => {
     renderSheet();
     fireEvent.click(screen.getByTestId('login-apple-button'));
     await waitFor(() => {
-      expect(screen.getByTestId('login-error-notice')).toBeInTheDocument();
+      expect(screen.getByTestId('login-error-alert')).toBeInTheDocument();
     });
     expect(useSessionStore.getState().status).toBe('unauthenticated');
   });

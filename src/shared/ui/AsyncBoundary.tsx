@@ -6,6 +6,7 @@ interface QueryLike<T> {
   data: T | undefined;
   isLoading: boolean;
   isError: boolean;
+  error?: unknown;
   refetch: () => void;
 }
 
@@ -34,9 +35,16 @@ export function AsyncBoundary<T>({
   if (query.isLoading) return <Spinner {...(loadingLabel ? { label: loadingLabel } : {})} />;
 
   if (query.isError) {
+    // 네트워크/CORS 차단은 원인이 보이지 않으면 디버깅이 불가능하다 — 사유를 함께 노출한다
+    const reason = query.error instanceof Error ? query.error.message : undefined;
     return (
       <div data-testid={`${testId}-error`} className="flex flex-col items-center gap-3 p-6">
-        <p className="text-danger">불러오지 못했어요.</p>
+        <p className="text-body text-red">불러오지 못했어요.</p>
+        {reason && (
+          <p data-testid={`${testId}-error-reason`} className="break-all text-center text-caption text-gray-500">
+            {reason}
+          </p>
+        )}
         <Button variant="secondary" data-testid={`${testId}-retry`} onClick={() => query.refetch()}>
           다시 시도
         </Button>

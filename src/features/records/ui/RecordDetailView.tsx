@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { RunRecordDetail } from '@/domain/types';
 import { SafeAreaLayout } from '@/app/SafeAreaLayout';
@@ -83,7 +83,8 @@ export function RecordDetailView() {
 
   return (
     // 상태바(safe-area)까지 primary로 채운다 — iOS에서 상단이 흰 띠로 남지 않게
-    <SafeAreaLayout topInset={false} bgClass="bg-green-700">
+    // 상단 여백을 공통(12)보다 더 준다
+    <SafeAreaLayout topInset={false} bgClass="bg-green-700" style={{ '--screen-top-gap': '24px' } as CSSProperties}>
       <AsyncBoundary query={detailQuery} loadingLabel="기록을 불러오는 중..." testId="record-detail">
         {(detail) => {
           const route = resolveRoutePoints(detail);
@@ -92,8 +93,10 @@ export function RecordDetailView() {
               data-testid="record-detail-view"
               className="relative flex flex-1 flex-col overflow-y-auto bg-green-700"
             >
-              {/* 앱바 — 뒤로 40×40(좌16) / 가운데 날짜 */}
-              <div className="relative flex h-10 items-center px-4 pt-safe-top">
+              {/* 앱바 — 뒤로 40×40(좌16) / 가운데 날짜.
+                  안전영역 패딩은 바깥에 (고정 높이와 같은 요소에 주면 내용이 상태바에 붙는다) */}
+              <div className="shrink-0 pt-screen">
+              <div className="relative flex h-10 items-center px-4">
                 <button
                   type="button"
                   data-testid="record-detail-back"
@@ -106,6 +109,7 @@ export function RecordDetailView() {
                 <h1 className="pointer-events-none absolute inset-x-0 mt-0.5 text-center text-subheading text-off-white">
                   {formatTitleDate(detail.completedAt)}
                 </h1>
+              </div>
               </div>
 
               {/* ── 윗조각 — 탭하면 뜯긴다. 시안 370×170, 내부 좌우 23 / 상 29 / 하 37 ── */}

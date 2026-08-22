@@ -1,5 +1,6 @@
 import type { Unsubscribe } from '@/domain/types';
 import { env } from '@/shared/config/env';
+import { logger } from '@/shared/observability/logger';
 
 /** 백엔드 에러 코드(고정 문자열, 프론트 분기용). be-api-spec-recieved-sprint4.md §1 */
 export type ApiErrorCode =
@@ -98,7 +99,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     ...(options.signal ? { signal: options.signal } : {}),
   };
 
-  const res = await fetch(url, init);
+  // fetch가 던지는 TypeError(네트워크/CORS 차단)는 상태코드가 없어 일반 에러로 묻힌다.
+  // WebView에서 가장 흔한 실패 원인이므로 URL과 함께 드러낸다.
+  let res: Response;
+  try {
+    res = await fetch(url, init);
+  } catch (cause) {
+    logger.error('[api] 요청 실패 — 네트워크 또는 CORS 차단', { url, cause: String(cause) });
+    throw new ApiError(0, {
+      code: 'NETWORK_ERROR',
+      message: `서버에 연결하지 못했어요. (${url})`,
+    });
+  }
 
   if (res.status === 401) {
     // 세션 무효화는 콜백 경로로 분리 (U1-P2, BR-U1-4)
@@ -163,6 +175,8 @@ export const apiClient = {
     request<T>(path, { ...options, method: 'POST', body }),
   patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
     request<T>(path, { ...options, method: 'PATCH', body }),
+  delete: <T>(path: string, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: 'DELETE' }),
   setToken,
   clearToken,
   onUnauthorized,

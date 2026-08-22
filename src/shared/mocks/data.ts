@@ -1,10 +1,7 @@
 import type {
   Achievement,
   Course,
-  NearbyPlace,
   Region,
-  UserProfile,
-  UserProfilePatch,
 } from '@/domain/types';
 import { DEFAULT_REGION_CODE } from '@/domain/constants';
 
@@ -50,161 +47,7 @@ export const mockCourses: Course[] = [
   },
 ];
 
-/** 완주 위치 500m 주변 장소 mock (FR-V10). 편의시설/음식점 세그먼트. */
-export const mockNearbyPlaces: NearbyPlace[] = [
-  // 스크롤 확인용 — 세그먼트별 6건씩(사진 없음 케이스 각 1건 포함)
-  {
-    id: 'p1',
-    segment: 'restaurant',
-    name: '군산 짬뽕집',
-    address: '군산시 초록동 민트로 12',
-    photoUrl: 'https://placehold.co/370x140?text=군산 짬뽕집',
-    category: '중식',
-    businessHours: '11:00-21:00',
-    isOpenNow: true,
-    phoneNumber: '063-000-0001',
-    distanceM: 120,
-    externalMapUrl: 'https://map.kakao.com/?q=군산 짬뽕집',
-  },
-  {
-    id: 'p2',
-    segment: 'restaurant',
-    name: '치로치로월명',
-    address: '군산시 열월동 감자 16-2',
-    photoUrl: 'https://placehold.co/370x140?text=치로치로월명',
-    category: '디저트',
-    businessHours: '10:00-22:00',
-    isOpenNow: true,
-    phoneNumber: '063-000-0002',
-    distanceM: 180,
-    externalMapUrl: 'https://map.kakao.com/?q=치로치로월명',
-  },
-  {
-    id: 'p3',
-    segment: 'restaurant',
-    name: '고구마 사랑단',
-    address: '군산시 열월동 고구마 16-2',
-    photoUrl: 'https://placehold.co/370x140?text=고구마 사랑단',
-    category: '분식',
-    businessHours: '09:00-20:00',
-    isOpenNow: false,
-    phoneNumber: '063-000-0003',
-    distanceM: 240,
-    externalMapUrl: 'https://map.kakao.com/?q=고구마 사랑단',
-  },
-  {
-    id: 'p4',
-    segment: 'restaurant',
-    name: '이성당 본점',
-    address: '군산시 중앙로 177',
-    photoUrl: 'https://placehold.co/370x140?text=이성당 본점',
-    category: '베이커리',
-    businessHours: '08:00-22:00',
-    isOpenNow: true,
-    phoneNumber: '063-000-0004',
-    distanceM: 310,
-    externalMapUrl: 'https://map.kakao.com/?q=이성당 본점',
-  },
-  {
-    id: 'p5',
-    segment: 'restaurant',
-    name: '한일옥',
-    address: '군산시 구영3길 63',
-    photoUrl: 'https://placehold.co/370x140?text=한일옥',
-    category: '한식',
-    businessHours: '10:00-20:00',
-    isOpenNow: true,
-    distanceM: 380,
-    externalMapUrl: 'https://map.kakao.com/?q=한일옥',
-  },
-  {
-    id: 'p6',
-    segment: 'restaurant',
-    name: '초원분식',
-    address: '군산시 초록동 민트로 45',
-    category: '분식',
-    businessHours: '11:00-19:00',
-    isOpenNow: false,
-    phoneNumber: '063-000-0006',
-    distanceM: 450,
-    externalMapUrl: 'https://map.kakao.com/?q=초원분식',
-  },
-  {
-    id: 'p7',
-    segment: 'amenity',
-    name: '초록 편의점',
-    address: '군산시 초록동 민트로 100',
-    photoUrl: 'https://placehold.co/370x140?text=초록 편의점',
-    category: '편의점',
-    businessHours: '00:00-24:00',
-    isOpenNow: true,
-    phoneNumber: '063-000-0007',
-    distanceM: 90,
-    externalMapUrl: 'https://map.kakao.com/?q=초록 편의점',
-  },
-  {
-    id: 'p8',
-    segment: 'amenity',
-    name: '민트 약국',
-    address: '군산시 초록동 민트로 88',
-    photoUrl: 'https://placehold.co/370x140?text=민트 약국',
-    category: '약국',
-    businessHours: '09:00-21:00',
-    isOpenNow: false,
-    phoneNumber: '063-000-0008',
-    distanceM: 150,
-    externalMapUrl: 'https://map.kakao.com/?q=민트 약국',
-  },
-  {
-    id: 'p9',
-    segment: 'amenity',
-    name: '월명공원 화장실',
-    address: '군산시 월명동 산 1-1',
-    photoUrl: 'https://placehold.co/370x140?text=월명공원 화장실',
-    category: '화장실',
-    businessHours: '05:00-23:00',
-    isOpenNow: true,
-    distanceM: 210,
-    externalMapUrl: 'https://map.kakao.com/?q=월명공원 화장실',
-  },
-  {
-    id: 'p10',
-    segment: 'amenity',
-    name: '근대역사 주차장',
-    address: '군산시 해망로 240',
-    photoUrl: 'https://placehold.co/370x140?text=근대역사 주차장',
-    category: '주차장',
-    businessHours: '00:00-24:00',
-    isOpenNow: true,
-    phoneNumber: '063-000-0010',
-    distanceM: 290,
-    externalMapUrl: 'https://map.kakao.com/?q=근대역사 주차장',
-  },
-  {
-    id: 'p11',
-    segment: 'amenity',
-    name: '시민 물품보관함',
-    address: '군산시 중앙로 12',
-    category: '보관함',
-    businessHours: '06:00-22:00',
-    isOpenNow: true,
-    distanceM: 360,
-    externalMapUrl: 'https://map.kakao.com/?q=시민 물품보관함',
-  },
-  {
-    id: 'p12',
-    segment: 'amenity',
-    name: '나운 자전거대여소',
-    address: '군산시 나운동 은파로 3',
-    photoUrl: 'https://placehold.co/370x140?text=나운 자전거대여소',
-    category: '대여소',
-    businessHours: '09:00-18:00',
-    isOpenNow: false,
-    phoneNumber: '063-000-0012',
-    distanceM: 470,
-    externalMapUrl: 'https://map.kakao.com/?q=나운 자전거대여소',
-  },
-];
+
 
 /** 기록 목록 mock (V11). 최신순. */
 /**
@@ -405,18 +248,22 @@ export function buildMockRunDetail(recordId: string) {
 }
 
 /** 프로필 mock (V13). PATCH 반영을 위해 모듈 스코프 상태로 보관. */
-let profile: UserProfile = {
+/** 프로필 목 — **백엔드 §6.1 형태**(nickname/gender:MALE|FEMALE|NONE/height/weight)로 보관한다. */
+let profile = {
+  id: 1,
   nickname: '카야',
-  heightCm: 167.5,
-  weightKg: 55,
-  gender: 'unspecified',
+  gender: 'NONE' as 'MALE' | 'FEMALE' | 'NONE',
+  height: 167.5,
+  weight: 55,
+  profileImageUrl: null as string | null,
 };
 
-export function getMockProfile(): UserProfile {
+export function getMockProfile() {
   return profile;
 }
 
-export function patchMockProfile(patch: UserProfilePatch): UserProfile {
+/** PATCH /users/me — 전달한 필드만 부분 갱신 */
+export function patchMockProfile(patch: Record<string, unknown>) {
   profile = { ...profile, ...patch };
   return profile;
 }

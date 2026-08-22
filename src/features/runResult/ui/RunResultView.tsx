@@ -66,7 +66,7 @@ export function RunResultView() {
     copyLink,
     openPlace,
   } = useRunResult();
-  const nearbyQuery = useNearbyPlaces(result?.runId);
+  const nearbyQuery = useNearbyPlaces(result?.endLocation);
   const [nearbyOpen, setNearbyOpen] = useState(false);
 
   // dev: 결과 없이 직접 진입하면 mock seed (프로덕션에선 폴백 표시)
@@ -96,7 +96,7 @@ export function RunResultView() {
         className="flex flex-1 flex-col overflow-y-auto bg-green-700"
       >
         {/* 상단 액션 — 시안: 40×40, 좌16 / 우16, 상단 2 */}
-        <div className="flex items-center justify-between px-4 pt-safe-top text-off-white">
+        <div className="flex items-center justify-between px-4 text-off-white">
           <button
             type="button"
             data-testid="go-main"

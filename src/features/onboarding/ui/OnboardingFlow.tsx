@@ -9,8 +9,9 @@ export function OnboardingFlow() {
   const { step, setStep, requestLocation } = useOnboarding();
 
   return (
-    <SafeAreaLayout topInset={false}>
-      <main data-testid="onboarding-flow" className="flex flex-1 flex-col">
+    // 푸터가 시안 좌표(프레임 바닥 기준)를 그대로 쓰므로 하단 인셋은 더하지 않는다
+    <SafeAreaLayout topInset={false} bottomInset={false}>
+      <main data-testid="onboarding-flow" className="flex min-h-0 flex-1 flex-col">
         {step === 'intro' && <ServiceIntroStep onNext={() => setStep('permission')} />}
         {step === 'permission' && (
           <LocationPermissionStep

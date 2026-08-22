@@ -24,7 +24,7 @@ export function MainView() {
     <SafeAreaLayout withTabBar topInset={false}>
       <main data-testid="main-view" className="relative flex min-h-0 flex-1 flex-col">
         {/* 그린 헤더 — 노치까지 채움. Figma: 로고/설정 행 T64(상태바 아래 2) 높이30, 인사말 간격21, 하단 28 */}
-        <header className="bg-green-700 px-4 pb-7 pt-safe-top text-off-white">
+        <header className="bg-green-700 px-4 pb-7 pt-screen text-off-white">
           <div className="flex h-[30px] items-center justify-between pt-0.5">
             <Logo aria-label="달여" className="h-[19px] w-auto" />
             <button

@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 /*
+ * 화면 상단 공통 여백.
+ * 시안은 앱바가 상태바 바로 아래(2px)지만 실기기에서는 너무 붙어 보인다
+ * → safe-area 위에 `--screen-top-gap` 만큼 더 띄운다. 값 하나로 전 화면이 함께 움직인다.
+ */
+:root {
+  --screen-top-gap: 12px;
+}
+
+.pt-screen {
+  padding-top: calc(env(safe-area-inset-top) + var(--screen-top-gap));
+}
+
+/*
  * 전역 WebView 호환 스타일 — NFR-WEBVIEW-01~03
  */
 html,
