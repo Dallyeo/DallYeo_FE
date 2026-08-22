@@ -4,11 +4,9 @@ import {
   buildMockRunDetail,
   getMockProfile,
   mockAchievements,
-  mockNearbyPlaces,
   buildMockRuns,
   patchMockProfile,
 } from './data';
-import type { UserProfilePatch } from '@/domain/types';
 
 const base = env.apiBaseUrl;
 
@@ -16,8 +14,8 @@ const base = env.apiBaseUrl;
 export const handlers = [
   // 공개계(regions/courses)는 **실 백엔드**(env.publicApiBaseUrl)로 직접 나간다 — 목 없음.
   // V10 완주결과: 주변 장소(500m) + 결과 저장
-  http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),
-  http.post(`${base}/runs`, () => HttpResponse.json({ recordId: 'rec-mock-1' })),
+  // 주변 장소는 **공개계 실 백엔드**(/places/nearby)로 나간다 — 목 없음
+  http.post(`${base}/runs`, () => HttpResponse.json({ id: 1 })),
   // V11/V12 기록: 목록 + 상세 (통계 /records/stats 는 MVP3 — 미제공)
   http.get(`${base}/runs`, ({ request }) => {
     const url = new URL(request.url);
@@ -41,11 +39,12 @@ export const handlers = [
     HttpResponse.json(buildMockRunDetail(String(params.recordId))),
   ),
   // V13 설정: 프로필 조회/수정
-  http.get(`${base}/me`, () => HttpResponse.json(getMockProfile())),
-  http.patch(`${base}/me`, async ({ request }) => {
-    const patch = (await request.json()) as UserProfilePatch;
+  http.get(`${base}/users/me`, () => HttpResponse.json(getMockProfile())),
+  http.patch(`${base}/users/me`, async ({ request }) => {
+    const patch = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json(patchMockProfile(patch));
   }),
+  http.delete(`${base}/users/me`, () => new HttpResponse(null, { status: 204 })),
   // V14 업적 (데이터모델 — UI placeholder)
   http.get(`${base}/achievements`, () => HttpResponse.json(mockAchievements)),
 ];

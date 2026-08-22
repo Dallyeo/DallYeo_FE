@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { AuthProvider } from '@/domain/types';
 import { BridgeError } from '@/shared/bridge';
 import { useAuth } from '@/features/login/model/useAuth';
-import { LoginErrorNotice } from '@/features/login/ui/LoginErrorNotice';
+import { AlertDialog } from '@/shared/ui/AlertDialog';
 import Logo from '@/shared/ui/icons/dallyeo_primary.svg?react';
 
 type Phase = 'idle' | 'pending' | 'error';
@@ -14,6 +14,7 @@ type Phase = 'idle' | 'pending' | 'error';
 export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
   const { login } = useAuth();
   const [phase, setPhase] = useState<Phase>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
 
   async function handleLogin(provider: AuthProvider): Promise<void> {
     setPhase('pending');
@@ -21,8 +22,13 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
       await login(provider);
       onNext();
     } catch (e) {
-      if (e instanceof BridgeError && e.kind === 'cancelled') setPhase('idle');
-      else setPhase('error');
+      if (e instanceof BridgeError && e.kind === 'cancelled') {
+        // 사용자가 로그인 창을 닫은 것 — 오류가 아니다
+        setPhase('idle');
+        return;
+      }
+      setErrorMessage(e instanceof Error ? e.message : undefined);
+      setPhase('error');
     }
   }
 
@@ -31,7 +37,7 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
   return (
     <section
       data-testid="onboarding-intro"
-      className="flex flex-1 flex-col px-4 pb-[60px] pt-safe-top"
+      className="flex min-h-0 flex-1 flex-col px-4 pb-[69px] pt-screen"
     >
       {/* 로고 — 시안 T272(가용영역 중앙보다 32 위). 로고 SVG는 primary 색이 내장됨 */}
       <div className="flex flex-1 flex-col items-center justify-center pb-16">
@@ -40,8 +46,6 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
 
       {/* 하단 로그인 액션 — 시안: 버튼 높이 56, 간격 20, 아이콘 없이 라벨만 중앙 */}
       <div className="flex flex-col gap-5">
-        {phase === 'error' && <LoginErrorNotice onRetry={() => setPhase('idle')} />}
-
         <button
           type="button"
           data-testid="login-kakao-button"
@@ -72,6 +76,16 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
           게스트로 시작
         </button>
       </div>
+
+      <AlertDialog
+        isOpen={phase === 'error'}
+        title="로그인에 실패했어요"
+        description={errorMessage ?? '잠시 후 다시 시도해 주세요.'}
+        confirmLabel="다시 시도"
+        testId="login-error-alert"
+        onConfirm={() => setPhase('idle')}
+        onClose={() => setPhase('idle')}
+      />
     </section>
   );
 }

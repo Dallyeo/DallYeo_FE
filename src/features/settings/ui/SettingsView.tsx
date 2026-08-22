@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GateAction } from '@/domain/types';
 import { SETTINGS_LINKS } from '@/domain/constants';
@@ -5,6 +6,9 @@ import { SafeAreaLayout } from '@/app/SafeAreaLayout';
 import { bridgeService } from '@/shared/services/BridgeService';
 import { useAuth } from '@/features/login/model/useAuth';
 import { useGate } from '@/features/login/model/useGate';
+import { AlertDialog } from '@/shared/ui/AlertDialog';
+import { toast } from '@/shared/ui/toastStore';
+import { profileRepository } from '@/features/settings/api/profileRepository';
 import { SettingsAppBar } from './SettingsAppBar';
 import IcChevron from '@/shared/ui/icons/ic-chevron-forward.svg?react';
 
@@ -18,6 +22,20 @@ export function SettingsView() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { guard } = useGate();
+  /** 되돌릴 수 없는 동작은 확인 알럿을 거친다 */
+  const [confirming, setConfirming] = useState<'logout' | 'delete' | null>(null);
+
+  /** 계정 삭제 — `DELETE /users/me`(하드 삭제) 후 세션 정리하고 메인으로 */
+  async function deleteAccount(): Promise<void> {
+    try {
+      await profileRepository.remove();
+      await logout();
+      toast.show('계정이 삭제되었어요.');
+      navigate('/main', { replace: true });
+    } catch (e) {
+      toast.show(e instanceof Error ? e.message : '계정 삭제에 실패했어요.');
+    }
+  }
 
   /** 로그인 필요한 항목: 게이트 통과 시 실행, 아니면 로그인 시트 */
   function runGated(action: GateAction, run: () => void): void {
@@ -56,16 +74,45 @@ export function SettingsView() {
             label="로그아웃"
             border="top"
             testId="settings-logout"
-            onClick={() => runGated('myPageAccount', () => void logout())}
+            onClick={() => runGated('myPageAccount', () => setConfirming('logout'))}
           />
           <MenuItem
             label="계정 삭제"
             danger
             testId="settings-account"
-            onClick={() => runGated('myPageAccount', () => navigate('/settings/account'))}
+            onClick={() => runGated('myPageAccount', () => setConfirming('delete'))}
           />
         </nav>
       </main>
+
+      <AlertDialog
+        isOpen={confirming === 'logout'}
+        title="로그아웃 할까요?"
+        description="다시 로그인하면 기록을 계속 볼 수 있어요."
+        confirmLabel="로그아웃"
+        cancelLabel="취소"
+        testId="logout-alert"
+        onConfirm={() => {
+          setConfirming(null);
+          void logout();
+        }}
+        onClose={() => setConfirming(null)}
+      />
+
+      <AlertDialog
+        isOpen={confirming === 'delete'}
+        title="정말 계정을 삭제할까요?"
+        description={'러닝 기록과 업적이 모두 사라지고\n되돌릴 수 없어요.'}
+        confirmLabel="계정 삭제"
+        cancelLabel="취소"
+        danger
+        testId="delete-account-alert"
+        onConfirm={() => {
+          setConfirming(null);
+          void deleteAccount();
+        }}
+        onClose={() => setConfirming(null)}
+      />
     </SafeAreaLayout>
   );
 }

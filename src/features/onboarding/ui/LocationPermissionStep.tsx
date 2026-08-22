@@ -24,7 +24,7 @@ export function LocationPermissionStep({
   return (
     <section
       data-testid="onboarding-permission"
-      className="flex flex-1 flex-col px-4 pt-safe-top"
+      className="flex flex-1 flex-col px-4 pt-screen"
     >
       <OnboardingStepHeader
         onBack={onBack}

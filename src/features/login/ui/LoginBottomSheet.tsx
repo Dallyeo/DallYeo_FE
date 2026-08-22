@@ -5,7 +5,7 @@ import { BridgeError } from '@/shared/bridge';
 import { useAuth } from '@/features/login/model/useAuth';
 import { useLoginSheetStore } from '@/features/login/model/loginSheetStore';
 import { ProviderButton } from './ProviderButton';
-import { LoginErrorNotice } from './LoginErrorNotice';
+import { AlertDialog } from '@/shared/ui/AlertDialog';
 
 type Phase = 'idle' | 'pending' | 'error';
 
@@ -51,7 +51,15 @@ export function LoginBottomSheet() {
           onClick={handleLogin}
         />
       ))}
-      {phase === 'error' && <LoginErrorNotice onRetry={() => setPhase('idle')} />}
+      <AlertDialog
+        isOpen={phase === 'error'}
+        title="로그인에 실패했어요"
+        description="잠시 후 다시 시도해 주세요."
+        confirmLabel="다시 시도"
+        testId="login-error-alert"
+        onConfirm={() => setPhase('idle')}
+        onClose={() => setPhase('idle')}
+      />
     </div>
   );
 }

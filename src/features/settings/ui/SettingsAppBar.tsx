@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import IcBack from '@/shared/ui/icons/ic-back.svg?react';
 
 /**
@@ -9,13 +10,19 @@ export function SettingsAppBar({
   title,
   onBack,
   backTestId,
+  trailing,
 }: {
   title: string;
   onBack: () => void;
   backTestId: string;
+  /** 우측 액션 슬롯 (예: 내정보 수정의 "저장") */
+  trailing?: ReactNode;
 }) {
   return (
-    <header className="relative flex h-10 items-center px-4 pt-safe-top">
+    // 안전영역 패딩은 **바깥**에 — 고정 높이(h-10)와 같은 요소에 주면 패딩이 높이를 파먹어
+    // 내용이 상태바에 붙는다.
+    <header className="shrink-0">
+      <div className="relative flex h-10 items-center px-4">
       <button
         type="button"
         data-testid={backTestId}
@@ -25,9 +32,12 @@ export function SettingsAppBar({
       >
         <IcBack aria-hidden className="h-10 w-10" />
       </button>
-      <h1 className="pointer-events-none absolute inset-x-0 mt-0.5 text-center text-label text-black">
-        {title}
-      </h1>
+        <h1 className="pointer-events-none absolute inset-x-0 mt-0.5 text-center text-label text-black">
+          {title}
+        </h1>
+        {/* 우측 액션 — 제목이 absolute라 클릭이 막히지 않도록 뒤에 둔다 */}
+        <div className="relative ml-auto mt-0.5 flex items-center">{trailing}</div>
+      </div>
     </header>
   );
 }

@@ -147,7 +147,37 @@ pnpm build    # dist/ 생성 → 앱에 번들
 - 응답은 200이지만 브라우저/WebView가 차단한다(`TypeError: Failed to fetch`).
 - 웹 개발은 Vite 프록시(`/public-api`)로 우회 중이지만 **WKWebView에도 CORS가 적용되므로 실기기에서는 그대로 실패한다.**
 - **백엔드에 CORS 허용 요청 필요.** 웹을 로컬 번들로 싣는 구조라 Origin이 `file://`/커스텀 스킴/`null`이 될 수 있으니, 허용 오리진을 백엔드와 미리 맞춰야 한다.
-- 대안: 네이티브가 공개 API를 대신 호출해 브릿지로 전달(계약 추가 필요).
+### 증상
+웹 브라우저에서는 코스가 보이는데 **앱에 심으면 "불러오지 못했어요"**가 뜬다.
+(웹 개발은 Vite 프록시를 타지만 앱은 `https://dallyeo.cloud`를 직접 호출하기 때문)
+
+Web Inspector 콘솔에 다음이 찍히면 CORS/네트워크 차단이 확정이다:
+```
+[api] 요청 실패 — 네트워크 또는 CORS 차단  { url: "https://dallyeo.cloud/courses?region=GUNSAN", cause: "TypeError: Load failed" }
+```
+
+### 해결 방법 (둘 중 하나)
+
+**A. 백엔드에 CORS 허용 (권장, 가장 간단)**
+공개 GET 엔드포인트(`/regions`, `/courses`, `/courses/{id}`, `/places/nearby`)에 응답 헤더 추가:
+```
+Access-Control-Allow-Origin: *
+```
+인증이 필요 없는 공개 데이터라 `*`로 충분하다(쿠키를 안 쓰므로 credentials 이슈 없음).
+⚠️ 로컬 번들이라 요청 Origin이 `null`이 될 수 있어 **특정 오리진만 허용하면 실패**한다.
+
+**B. 네이티브가 프록시 (백엔드 수정 없이)**
+1. 웹 번들을 `file://`가 아닌 **커스텀 스킴**으로 로드하고 `WKURLSchemeHandler`를 등록
+2. 웹 로드 **전에** base를 주입:
+   ```swift
+   // WKUserScript, .atDocumentStart
+   window.__DALLYEO_PUBLIC_API_BASE__ = "/public-api";
+   ```
+3. 핸들러에서 `/public-api/*` 요청을 받아 네이티브가 `https://dallyeo.cloud/*`로 대신 호출해 응답 반환
+   → 네이티브 요청이라 CORS가 적용되지 않는다.
+
+`window.__DALLYEO_PUBLIC_API_BASE__`는 **리빌드 없이** 공개 API base를 바꾸는 공식 훅이다
+(우선순위: 런타임 주입 > 빌드 환경변수 > 기본값).
 
 ## 10. 백엔드 미제공 필드 (웹에서 확인 요청 중)
 

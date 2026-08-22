@@ -27,7 +27,7 @@ export function BodyInfoStep({ onBack }: { onBack: () => void }) {
   return (
     <section
       data-testid="onboarding-bodyinfo"
-      className="flex flex-1 flex-col px-4 pt-safe-top"
+      className="flex flex-1 flex-col px-4 pt-screen"
     >
       <OnboardingStepHeader
         onBack={onBack}

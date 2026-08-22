@@ -21,7 +21,7 @@ const GENDERS: { key: Gender; label: string }[] = [
  * V13 내정보 수정 (V13_설정_내정보 618:1124).
  * 앱바 → 39 → [키] → 30 → [현재 체중] → 30 → [성별]. 각 그룹 라벨→입력 간격 15.
  * 입력 행 50: 좌우 23 / 상 15, 하단 언더라인 **gray-disabled**(V01 온보딩은 gray-700 — 시안이 서로 다름).
- * 시안에 저장 버튼이 없으므로 **뒤로가기 시 저장**한다(값이 바뀐 경우에만).
+ * 저장은 **앱바 우상단 "저장"**(primary) — `PATCH /users/me`. 뒤로가기는 저장 없이 이동한다.
  */
 export function EditProfileView() {
   const { status } = useAuth();
@@ -51,18 +51,17 @@ function EditForm({
   const heightValid = height === '' || isValidHeight(height);
   const weightValid = weight === '' || isValidWeight(weight);
 
-  /** 뒤로가기 = 저장 후 이동. 값이 그대로거나 유효하지 않으면 저장 없이 이동. */
-  async function saveAndBack(): Promise<void> {
-    const nextHeight = height !== '' ? Number(height) : undefined;
-    const nextWeight = weight !== '' ? Number(weight) : undefined;
-    const changed =
-      nextHeight !== initial.heightCm || nextWeight !== initial.weightKg || gender !== initial.gender;
+  const nextHeight = height !== '' ? Number(height) : undefined;
+  const nextWeight = weight !== '' ? Number(weight) : undefined;
+  const changed =
+    nextHeight !== initial.heightCm ||
+    nextWeight !== initial.weightKg ||
+    gender !== initial.gender;
+  const canSave = changed && heightValid && weightValid && !saving;
 
-    if (!changed || !heightValid || !weightValid || saving) {
-      navigate(-1);
-      return;
-    }
-
+  /** 저장 — 바뀐 필드만 PATCH /users/me 로 전송(부분 갱신) */
+  async function save(): Promise<void> {
+    if (!canSave) return;
     const patch: UserProfilePatch = {
       ...(nextHeight !== undefined ? { heightCm: nextHeight } : {}),
       ...(nextWeight !== undefined ? { weightKg: nextWeight } : {}),
@@ -72,9 +71,10 @@ function EditForm({
     try {
       await profileRepository.update(patch);
       await queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast.show('저장했어요.');
       navigate(-1);
-    } catch {
-      toast.show('저장에 실패했어요. 다시 시도해주세요.');
+    } catch (e) {
+      toast.show(e instanceof Error ? e.message : '저장에 실패했어요. 다시 시도해주세요.');
     } finally {
       setSaving(false);
     }
@@ -84,8 +84,19 @@ function EditForm({
     <>
       <SettingsAppBar
         title="내 정보 수정하기"
-        onBack={() => void saveAndBack()}
+        onBack={() => navigate(-1)}
         backTestId="edit-back"
+        trailing={
+          <button
+            type="button"
+            data-testid="edit-save"
+            disabled={!canSave}
+            onClick={() => void save()}
+            className="px-1 text-label text-green-700 disabled:text-gray-disabled"
+          >
+            {saving ? '저장 중' : '저장'}
+          </button>
+        }
       />
       <main
         data-testid="edit-profile-view"

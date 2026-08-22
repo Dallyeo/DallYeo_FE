@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import {
   ACHIEVEMENT_REGIONS,
   regionOfAchievement,
@@ -28,15 +28,20 @@ export function AchievementsView() {
   const query = useAchievements(isLoggedIn);
 
   return (
-    <SafeAreaLayout withTabBar>
-      <main data-testid="achievements-view" className="relative flex flex-1 flex-col pt-[6px]">
+    // 상단 여백을 공통(12)보다 더 준다
+    <SafeAreaLayout withTabBar style={{ '--screen-top-gap': '24px' } as CSSProperties}>
+      <main data-testid="achievements-view" className="relative flex flex-1 flex-col">
         <RegionTabs value={region} onChange={setRegion} />
 
         {/* 지역 지도 — 시트 위 공간을 채운다. 시트를 내리면 영역이 커져 `object-cover`가
             이미지를 더 크게 잡아 **확대돼 보인다**(시안 _1 402×242 → _2 1100×662). */}
         <div
-          className="absolute inset-x-0 top-[46px] overflow-hidden bg-gray-200 transition-[bottom] duration-300 ease-out"
-          style={{ bottom: sheetRaised ? '60dvh' : '17dvh' }}
+          className="absolute inset-x-0 overflow-hidden bg-gray-200 transition-[bottom] duration-300 ease-out"
+          style={{
+            // 탭(46) 아래부터 시트 위까지. 상단 여백은 부모(pt-screen)가 이미 처리한다.
+            top: 46,
+            bottom: sheetRaised ? '60dvh' : '17dvh',
+          }}
         >
           <img
             src={mapGunsan}

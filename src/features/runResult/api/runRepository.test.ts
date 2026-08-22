@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { runRepository } from './runRepository';
-import type { NearbyPlace, RunResult } from '@/domain/types';
+import type { RunResult } from '@/domain/types';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -26,26 +26,26 @@ const sampleResult: RunResult = {
 
 describe('runRepository (V10)', () => {
   it('listNearbyPlaces는 runId 경로로 주변장소 반환', async () => {
-    const places: NearbyPlace[] = [
+    stubJson([
       {
         id: 'p1',
-        segment: 'amenity',
         name: '편의점',
+        category: 'ETC',
+        latitude: 35.9,
+        longitude: 126.7,
         address: '주소',
-        distanceM: 120,
-        externalMapUrl: 'https://map',
+        distanceMeters: 120,
       },
-    ];
-    stubJson(places);
-    const result = await runRepository.listNearbyPlaces('r1');
-    expect(result).toEqual(places);
+    ]);
+    const result = await runRepository.listNearbyPlaces({ lat: 35.9, lng: 126.7 });
+    expect(result[0]).toMatchObject({ id: 'p1', segment: 'amenity', distanceM: 120 });
     const [url] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
-    expect(String(url)).toContain('/runs/r1/nearby');
+    expect(String(url)).toContain('/places/nearby?lat=35.9&lng=126.7&radius=500');
   });
 
   it('saveResult는 recordId 반환', async () => {
-    stubJson({ recordId: 'rec-1' });
-    await expect(runRepository.saveResult(sampleResult)).resolves.toEqual({ recordId: 'rec-1' });
+    stubJson({ id: 42 });
+    await expect(runRepository.saveResult(sampleResult)).resolves.toEqual({ recordId: '42' });
     const [url, init] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
     expect(String(url)).toContain('/runs');
     expect((init as RequestInit).method).toBe('POST');
