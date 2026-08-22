@@ -409,18 +409,62 @@ export function patchMockProfile(patch: UserProfilePatch): UserProfile {
 }
 
 /** 업적 mock (V14 — 데이터모델 검증용). UI는 placeholder. */
+/** 업적 목 — backend-api.md §8.1 고정 8종 */
 export const mockAchievements: Achievement[] = [
   {
-    id: 'a1',
-    title: '경유의 악마',
-    description: '경유지 100개 통과하기',
-    achievedAt: '2026-06-12T00:00:00Z',
+    code: 'GUNSAN_BEGINNER',
+    name: '군산 초보 러너',
+    description: '군산에서 러닝 1회 완료',
+    unlocked: true,
+    unlockedAt: '2026-06-12T09:00:00Z',
   },
   {
-    id: 'a2',
-    title: '먹으려고 뛰는 사람',
-    description: '맛집 100개 추천 받기',
-    achievedAt: '2026-05-13T00:00:00Z',
+    code: 'JJAMPPONG',
+    name: '짬뽕을 먹을 자격이 있는 자',
+    description: '군산 짬뽕거리 코스를 완주한 사람',
+    unlocked: true,
+    unlockedAt: '2026-07-09T07:35:10Z',
   },
-  { id: 'a3', title: '인간 자동차', description: '누적 100km 달리기' },
+  {
+    code: 'GUNSAN_CONQUEROR',
+    name: '군산 런트립 정복자',
+    description: '군산의 모든 추천 코스를 완주한 사람',
+    unlocked: false,
+    unlockedAt: null,
+  },
+  {
+    code: 'NATURE_LOVER',
+    name: '자연을 사랑해!',
+    description: '군산 편백나무 숲 코스를 완주한 사람',
+    unlocked: true,
+    unlockedAt: '2026-08-01T10:12:00Z',
+  },
+  {
+    code: 'BETWEEN_WAVES',
+    name: '부숴지는 파도를 사이에서',
+    description: '군산 새만금 방파제 코스를 완주한 사람',
+    unlocked: false,
+    unlockedAt: null,
+  },
+  {
+    code: 'JEONJU_BEGINNER',
+    name: '전주 초보 러너',
+    description: '전주에서 러닝 1회 완료',
+    unlocked: true,
+    unlockedAt: '2026-07-20T08:30:00Z',
+  },
+  {
+    code: 'JEONJU_CONQUEROR',
+    name: '전주 런트립 정복자',
+    description: '전주의 모든 추천 코스를 완주한 사람',
+    unlocked: false,
+    unlockedAt: null,
+  },
+  {
+    code: 'JEONJU_PILGRIM',
+    name: '전주 성지순례자',
+    description: '전주 천주교 성지 코스를 완주한 사람',
+    unlocked: false,
+    unlockedAt: null,
+  },
 ];

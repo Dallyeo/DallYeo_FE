@@ -22,4 +22,5 @@ export type {
 } from './record';
 export { STATS_PERIODS } from './record';
 export type { UserProfile, UserProfilePatch } from './profile';
-export type { Achievement, RegionProgress, AchievementSummary } from './achievement';
+export type { Achievement, AchievementRegion } from './achievement';
+export { ACHIEVEMENT_REGIONS, regionOfAchievement } from './achievement';
