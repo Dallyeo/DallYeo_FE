@@ -39,3 +39,54 @@ a,
   display: flex;
   flex-direction: column;
 }
+
+/*
+ * 티켓 절취선 — 시안(V10_결과 785:2701 `Subtract`) 기반.
+ * 원본: 좌우 가장자리 반원 노치(r10) + 천공(r5) 16개. 천공은 사용자 결정으로 양 끝 1개씩 제외한 **14개**.
+ *
+ * 배치는 **px 고정이 아니라 폭의 15등분(비율)** 이다.
+ *   - px 고정이면 기기 폭에 따라 양 끝 여백만 변해서 간격이 들쭉날쭉해 보인다.
+ *   - 비율 배치는 여백과 간격이 함께 비례해 어느 기기에서나 같은 리듬으로 보인다.
+ *   - 402 기준 간격 ≈ 24.7px (시안 21px과 근사).
+ *
+ * `--tear-y` = 카드 상단 기준 절취선 위치. 값 하나만 바꾸면 선이 통째로 이동한다.
+ */
+.ticket-card {
+  --tear-y: 170px;
+  -webkit-mask-image:
+    radial-gradient(circle 5px at 6.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 13.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 20.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 26.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 33.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 40.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 46.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 53.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 60.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 66.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 73.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 80.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 86.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 93.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 10px at 0 var(--tear-y), transparent 10px, #000 10.5px),
+    radial-gradient(circle 10px at 100% var(--tear-y), transparent 10px, #000 10.5px);
+  mask-image:
+    radial-gradient(circle 5px at 6.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 13.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 20.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 26.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 33.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 40.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 46.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 53.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 60.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 66.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 73.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 80.0000% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 86.6667% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 5px at 93.3333% var(--tear-y), transparent 5px, #000 5.5px),
+    radial-gradient(circle 10px at 0 var(--tear-y), transparent 10px, #000 10.5px),
+    radial-gradient(circle 10px at 100% var(--tear-y), transparent 10px, #000 10.5px);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}

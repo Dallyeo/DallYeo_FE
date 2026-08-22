@@ -40,7 +40,7 @@ export function BottomTabBar() {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-gray-300 bg-white"
+      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-gray-300 bg-off-white"
       style={{
         height: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)',

@@ -24,4 +24,21 @@ export interface Course {
   estimatedTime: string;
   previewImageUrl: string;
   regionCode: string;
+  /**
+   * 난이도(거리 분류). 코스정보 팝업의 "난이도" 행에 표시.
+   * 백엔드 마이그레이션(U10-B) 전까지 목에만 존재 → optional.
+   */
+  distanceCategory?: DistanceCategory;
+  /**
+   * 경유지 이름 목록. 코스정보 팝업 하단 목록에 표시.
+   * U10-B의 `waypointAnchors`로 대체 예정 → optional.
+   */
+  waypoints?: string[];
 }
+
+/** 난이도 표시 문구 (코스정보 팝업). */
+export const DISTANCE_CATEGORY_LABEL: Record<DistanceCategory, string> = {
+  SHORT: 'Easy',
+  MEDIUM: 'Medium',
+  LONG: 'Hard',
+};

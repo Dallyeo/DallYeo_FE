@@ -25,12 +25,13 @@ export function OnboardingStepFooter({
         data-testid={primaryTestId}
         disabled={primaryDisabled}
         onClick={onPrimary}
-        className={`w-full rounded-md py-4 text-subheading ${
-          primaryDisabled ? 'bg-gray-disabled text-white' : 'bg-green-700 text-white'
+        className={`h-[59px] w-full rounded-md text-subheading text-white ${
+          primaryDisabled ? 'bg-gray-disabled' : 'bg-green-700'
         }`}
       >
         {primaryLabel}
       </button>
+      {/* 시안 건너뛰기 색 #919191은 published Style이 아닌 일회성 값 → 가장 가까운 시스템 색 gray-500 사용 */}
       <button
         type="button"
         data-testid={skipTestId}

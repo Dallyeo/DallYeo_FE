@@ -34,13 +34,25 @@ export interface RunResult {
   endLocation: GeoPoint;
   /** 완주 시각 (ISO 8601) */
   completedAt: string;
+  /** 시작 시각 (ISO 8601). 시안의 "12:00 - 12:30" 구간 표시에 사용 — 없으면 완주 시각만 표시 */
+  startedAt?: string;
+  /** 출발 지점명 (시안: "청송 과수원 → 신시 전망대") */
+  startPlaceName?: string;
+  /** 도착 지점명 */
+  endPlaceName?: string;
 }
 
 /** 완주율 메시지 티어 (BR: 100% / 50%↑ / 50%↓) */
 export type CompletionTier = 'complete' | 'half' | 'low';
 
-/** 주변 장소 세그먼트 — 편의시설 / 음식점 (FR-V10 하단 패널) */
-export type PlaceSegment = 'amenity' | 'restaurant';
+/** 주변 장소 세그먼트 — 음식점 / 편의시설 (FR-V10 「주변 둘러보기」 모달) */
+export type PlaceSegment = 'restaurant' | 'amenity';
+
+/** 세그먼트 탭 라벨 (시안 순서: 음식점 → 편의시설) */
+export const PLACE_SEGMENTS: { key: PlaceSegment; label: string }[] = [
+  { key: 'restaurant', label: '음식점' },
+  { key: 'amenity', label: '편의시설' },
+];
 
 /**
  * 완주 위치 근방 주변 장소 (FR-V10, 반경 500m).
@@ -52,6 +64,14 @@ export interface NearbyPlace {
   name: string;
   address: string;
   photoUrl?: string;
+  /** 업종 (시안: 이름 옆 "디저트") */
+  category?: string;
+  /** 영업시간 표시 문자열 (시안: "00:00-00:00") */
+  businessHours?: string;
+  /** 현재 영업중 여부 (시안: 초록 "영업중" 배지) */
+  isOpenNow?: boolean;
+  /** 전화번호 — 있으면 「전화하기」 노출 */
+  phoneNumber?: string;
   /** 완주 위치와의 거리(m) */
   distanceM: number;
   /** 외부 지도 연결 URL (카카오/네이버) */

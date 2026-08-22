@@ -1,9 +1,10 @@
 import { bridgeService } from '@/shared/services/BridgeService';
-import IcRoute from '@/shared/ui/icons/ic-route.svg?react';
+import IcAddLocation from '@/shared/ui/icons/ic-add-location.svg?react';
 
 /**
- * 코스 만들기 → 네이티브 검색뷰 (V02-S3, FR-V02-05).
+ * 코스 생성 → 네이티브 검색뷰 (V02-S3, FR-V02-05).
  * 우하단 플로팅 그린 필 버튼(탭바 위). 안전영역 인셋만큼 띄움.
+ * Figma: 158×55, radius 32, 우여백 16, 탭바와 간격 16, 아이콘→라벨 간격 4.
  */
 export function CreateCourseButton() {
   return (
@@ -11,11 +12,11 @@ export function CreateCourseButton() {
       type="button"
       data-testid="create-course-button"
       onClick={() => bridgeService.openCourseSearch()}
-      className="fixed right-4 z-20 flex items-center gap-2 rounded-full bg-green-700 py-4 pl-5 pr-6 text-label text-white shadow-lg"
+      className="fixed right-4 z-20 flex h-[55px] items-center gap-1 rounded-[32px] bg-green-700 px-[37px] text-label text-off-white shadow-lg"
       style={{ bottom: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 16px)' }}
     >
-      <IcRoute aria-hidden className="h-5 w-5" />
-      코스 만들기
+      <IcAddLocation aria-hidden className="h-[19px] w-auto" />
+      코스 생성
     </button>
   );
 }

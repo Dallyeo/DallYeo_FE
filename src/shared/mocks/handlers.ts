@@ -24,7 +24,17 @@ export const handlers = [
     const url = new URL(request.url);
     const region = url.searchParams.get('region');
     const list = region ? mockCourses.filter((c) => c.regionCode === region) : mockCourses;
-    return HttpResponse.json(list);
+    // 목록은 **요약** — 상세 전용 필드(경유지/설명)는 제외해 실제 백엔드 계약과 맞춘다.
+    return HttpResponse.json(
+      list.map(({ waypoints: _w, description: _d, ...summary }) => summary),
+    );
+  }),
+  // 코스 상세 — 경유지(waypointAnchors)·설명은 여기서만 내려온다 (be-api-spec §3.2)
+  http.get(`${publicBase}/courses/:courseId`, ({ params }) => {
+    const course = mockCourses.find((c) => c.id === String(params.courseId));
+    return course
+      ? HttpResponse.json(course)
+      : HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
   }),
   // V10 완주결과: 주변 장소(500m) + 결과 저장
   http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),

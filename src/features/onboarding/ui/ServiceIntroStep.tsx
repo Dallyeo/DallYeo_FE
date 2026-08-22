@@ -3,9 +3,7 @@ import type { AuthProvider } from '@/domain/types';
 import { BridgeError } from '@/shared/bridge';
 import { useAuth } from '@/features/login/model/useAuth';
 import { LoginErrorNotice } from '@/features/login/ui/LoginErrorNotice';
-import Logo from '@/shared/ui/icons/DallYeo.svg?react';
-import IcKakao from '@/shared/ui/icons/ic-kakao.svg?react';
-import IcApple from '@/shared/ui/icons/ic-apple.svg?react';
+import Logo from '@/shared/ui/icons/dallyeo_primary.svg?react';
 
 type Phase = 'idle' | 'pending' | 'error';
 
@@ -35,36 +33,32 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
       data-testid="onboarding-intro"
       className="flex flex-1 flex-col px-4 pb-[60px] pt-safe-top"
     >
-      {/* 로고 (세로 중앙) */}
-      <div className="flex flex-1 flex-col items-center justify-center">
-        <Logo aria-label="달여" className="h-6 w-auto text-green-700" />
+      {/* 로고 — 시안 T272(가용영역 중앙보다 32 위). 로고 SVG는 primary 색이 내장됨 */}
+      <div className="flex flex-1 flex-col items-center justify-center pb-16">
+        <Logo aria-label="달여" className="h-[27px] w-auto" />
       </div>
 
-      {/* 하단 로그인 액션 */}
-      <div className="flex flex-col gap-3">
+      {/* 하단 로그인 액션 — 시안: 버튼 높이 56, 간격 20, 아이콘 없이 라벨만 중앙 */}
+      <div className="flex flex-col gap-5">
         {phase === 'error' && <LoginErrorNotice onRetry={() => setPhase('idle')} />}
 
         <button
           type="button"
           data-testid="login-kakao-button"
-          aria-label="카카오 로그인"
           disabled={pending}
           onClick={() => void handleLogin('kakao')}
-          className="flex items-center justify-center gap-2 rounded-md bg-kakao py-4 text-label text-black disabled:opacity-40"
+          className="h-14 rounded-md bg-kakao text-subheading text-black disabled:opacity-40"
         >
-          <IcKakao aria-hidden className="h-5 w-5" />
           카카오 로그인
         </button>
 
         <button
           type="button"
           data-testid="login-apple-button"
-          aria-label="애플 로그인"
           disabled={pending}
           onClick={() => void handleLogin('apple')}
-          className="flex items-center justify-center gap-2 rounded-md bg-gray-700 py-4 text-label text-white disabled:opacity-40"
+          className="h-14 rounded-md bg-gray-700 text-subheading text-white disabled:opacity-40"
         >
-          <IcApple aria-hidden className="h-5 w-5" />
           애플 로그인
         </button>
 
@@ -73,7 +67,7 @@ export function ServiceIntroStep({ onNext }: { onNext: () => void }) {
           data-testid="onboarding-intro-next"
           disabled={pending}
           onClick={onNext}
-          className="rounded-md bg-gray-200 py-4 text-label text-black disabled:opacity-40"
+          className="h-14 rounded-md bg-gray-250 text-subheading text-black disabled:opacity-40"
         >
           게스트로 시작
         </button>

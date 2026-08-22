@@ -2,6 +2,7 @@ export type { AppSession, AuthStatus, AuthProvider } from './auth';
 export type { Gender, OnboardingProfile, OnboardingState } from './onboarding';
 export type { PermissionType, PermissionStatus } from './permission';
 export type { Region, Course, RegionCode, DistanceCategory } from './course';
+export { DISTANCE_CATEGORY_LABEL } from './course';
 export type { GateAction } from './gate';
 export type { SharePayload, Unsubscribe } from './shared';
 export type {
@@ -11,6 +12,7 @@ export type {
   PlaceSegment,
   NearbyPlace,
 } from './run';
+export { PLACE_SEGMENTS } from './run';
 export type {
   RunRecord,
   RunRecordDetail,
