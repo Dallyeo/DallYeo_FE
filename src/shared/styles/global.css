@@ -10,8 +10,9 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  /* 100dvh 사용 (100vh 금지) */
-  min-height: 100dvh;
+  /* 100dvh 사용 (100vh 금지). 화면 전체 스크롤은 막고 **필요한 영역만** 내부 스크롤한다. */
+  height: 100dvh;
+  overflow: hidden;
 }
 
 body {

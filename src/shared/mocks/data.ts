@@ -213,6 +213,14 @@ export const mockNearbyPlaces: NearbyPlace[] = [
  * ⚠️ `calories`는 백엔드 명세에 없는 필드 — 목에서만 채운다.
  */
 export const mockRunSeeds = [
+  // ── 이번 주(일~토) 채우기용 — 주가 바뀌어도 항상 이번 주에 걸리도록 **주 시작일 기준 오프셋**을 쓴다.
+  //    daysAgo만 쓰면 오늘이 일요일일 때 나머지가 전부 지난주로 밀려 그래프가 비어 보인다.
+  { id: 101, courseId: 'c1', courseName: '선유도 해변 런', distanceMeters: 5181, durationSeconds: 1860, averagePaceSeconds: 359, calories: 128, fromWeekStart: 0 },
+  { id: 102, courseId: null, courseName: null, distanceMeters: 7300, durationSeconds: 2640, averagePaceSeconds: 362, calories: 182, fromWeekStart: 1 },
+  { id: 103, courseId: 'c2', courseName: '짬뽕런', distanceMeters: 5894, durationSeconds: 2100, averagePaceSeconds: 356, calories: 147, fromWeekStart: 2 },
+  { id: 104, courseId: null, courseName: null, distanceMeters: 11200, durationSeconds: 4020, averagePaceSeconds: 359, calories: 280, fromWeekStart: 3 },
+  { id: 105, courseId: 'c1', courseName: '은파호수 둘레길', distanceMeters: 3400, durationSeconds: 1260, averagePaceSeconds: 371, calories: 85, fromWeekStart: 5 },
+
   {
     id: 1,
     courseId: 'c1',
@@ -357,9 +365,14 @@ export const mockRunSeeds = [
 
 /** daysAgo → 실제 ISO 시각으로 변환한 목 응답 (목록/상세 공용) */
 export function buildMockRuns() {
-  const now = Date.now();
-  return mockRunSeeds.map(({ daysAgo, durationSeconds, ...rest }) => {
-    const finished = new Date(now - daysAgo * 86400000);
+  const now = new Date();
+  // 이번 주 시작(일요일) 00:00
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  return mockRunSeeds.map(({ daysAgo, fromWeekStart, durationSeconds, ...rest }) => {
+    const finished =
+      fromWeekStart !== undefined
+        ? new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + fromWeekStart)
+        : new Date(now.getTime() - (daysAgo ?? 0) * 86400000);
     finished.setHours(8, 30, 0, 0);
     const started = new Date(finished.getTime() - durationSeconds * 1000);
     return {

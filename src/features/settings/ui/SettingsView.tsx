@@ -28,7 +28,7 @@ export function SettingsView() {
     <SafeAreaLayout>
       <SettingsAppBar title="설정" onBack={() => navigate(-1)} backTestId="settings-back" />
 
-      <main data-testid="settings-view" className="flex flex-1 flex-col overflow-y-auto pt-[19px]">
+      <main data-testid="settings-view" className="flex flex-1 flex-col pt-[19px]">
         <nav className="flex flex-col">
           <MenuItem
             label="내정보 수정하기"

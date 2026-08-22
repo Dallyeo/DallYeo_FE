@@ -19,6 +19,8 @@ export function RegionSelector() {
           if (next) setRegion(next);
         }}
         className="h-[29px] w-[60px] appearance-none rounded-md bg-green-700 text-center text-label text-off-white"
+        // WebKit(iOS)에서 <select>는 `text-align: center`가 무시된다 — `text-align-last`가 필요.
+        style={{ textAlignLast: 'center' }}
       >
         {options.map((r) => (
           <option key={r.code} value={r.code}>

@@ -89,7 +89,7 @@ function EditForm({
       />
       <main
         data-testid="edit-profile-view"
-        className="flex flex-1 flex-col gap-[30px] overflow-y-auto px-4 pb-10 pt-[39px]"
+        className="flex flex-1 flex-col gap-[30px] px-4 pb-10 pt-[39px]"
       >
         <NumberField
           label="키"
