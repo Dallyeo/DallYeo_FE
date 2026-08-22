@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Gender, UserProfilePatch } from '@/domain/types';
 import { isValidHeight, isValidWeight } from '@/domain/logic';
 import { SafeAreaLayout } from '@/app/SafeAreaLayout';
 import { AsyncBoundary } from '@/shared/ui/AsyncBoundary';
-import { Button } from '@/shared/ui';
-import { bridgeService } from '@/shared/services/BridgeService';
 import { toast } from '@/shared/ui/toastStore';
 import { useAuth } from '@/features/login/model/useAuth';
 import { useProfile } from '@/features/settings/model/useProfile';
 import { profileRepository } from '@/features/settings/api/profileRepository';
-import { Avatar } from './ProfileCard';
+import { SettingsAppBar } from './SettingsAppBar';
 
+/** 시안(V13_설정_내정보)은 남성/여성 2개만 노출. `unspecified`는 도메인에만 남긴다. */
 const GENDERS: { key: Gender; label: string }[] = [
   { key: 'male', label: '남성' },
   { key: 'female', label: '여성' },
-  { key: 'unspecified', label: '입력 안함' },
 ];
 
 /**
- * V13 내정보 수정 폼 (lo-fi 스켈레톤). 닉네임/사진/키/체중/성별.
- * 키·체중은 온보딩과 동일 하드 검증(비정상값 저장 차단).
+ * V13 내정보 수정 (V13_설정_내정보 618:1124).
+ * 앱바 → 39 → [키] → 30 → [현재 체중] → 30 → [성별]. 각 그룹 라벨→입력 간격 15.
+ * 입력 행 50: 좌우 23 / 상 15, 하단 언더라인 **gray-disabled**(V01 온보딩은 gray-700 — 시안이 서로 다름).
+ * 시안에 저장 버튼이 없으므로 **뒤로가기 시 저장**한다(값이 바뀐 경우에만).
  */
 export function EditProfileView() {
   const { status } = useAuth();
@@ -29,12 +29,9 @@ export function EditProfileView() {
 
   return (
     <SafeAreaLayout>
-      <BackHeader title="내정보 수정하기" />
-      <main data-testid="edit-profile-view" className="flex flex-1 flex-col gap-6 overflow-y-auto p-5 pb-10">
-        <AsyncBoundary query={profileQuery} loadingLabel="불러오는 중..." testId="edit-profile">
-          {(profile) => <EditForm initial={profile} />}
-        </AsyncBoundary>
-      </main>
+      <AsyncBoundary query={profileQuery} loadingLabel="불러오는 중..." testId="edit-profile">
+        {(profile) => <EditForm initial={profile} />}
+      </AsyncBoundary>
     </SafeAreaLayout>
   );
 }
@@ -42,48 +39,39 @@ export function EditProfileView() {
 function EditForm({
   initial,
 }: {
-  initial: { nickname: string; photoUrl?: string; heightCm?: number; weightKg?: number; gender?: Gender };
+  initial: { heightCm?: number; weightKg?: number; gender?: Gender };
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [nickname, setNickname] = useState(initial.nickname);
-  const [photoUrl, setPhotoUrl] = useState<string | undefined>(initial.photoUrl);
   const [height, setHeight] = useState(initial.heightCm != null ? String(initial.heightCm) : '');
   const [weight, setWeight] = useState(initial.weightKg != null ? String(initial.weightKg) : '');
   const [gender, setGender] = useState<Gender | undefined>(initial.gender);
   const [saving, setSaving] = useState(false);
 
-  // 값 재수신 시 폼 동기화(최초 1회)
-  useEffect(() => {
-    setNickname(initial.nickname);
-  }, [initial.nickname]);
-
   const heightValid = height === '' || isValidHeight(height);
   const weightValid = weight === '' || isValidWeight(weight);
-  const canSave = nickname.trim().length > 0 && heightValid && weightValid && !saving;
 
-  async function pickPhoto(): Promise<void> {
-    try {
-      const url = await bridgeService.pickProfilePhoto();
-      if (url) setPhotoUrl(url);
-    } catch {
-      toast.show('사진을 불러오지 못했어요.');
+  /** 뒤로가기 = 저장 후 이동. 값이 그대로거나 유효하지 않으면 저장 없이 이동. */
+  async function saveAndBack(): Promise<void> {
+    const nextHeight = height !== '' ? Number(height) : undefined;
+    const nextWeight = weight !== '' ? Number(weight) : undefined;
+    const changed =
+      nextHeight !== initial.heightCm || nextWeight !== initial.weightKg || gender !== initial.gender;
+
+    if (!changed || !heightValid || !weightValid || saving) {
+      navigate(-1);
+      return;
     }
-  }
 
-  async function save(): Promise<void> {
     const patch: UserProfilePatch = {
-      nickname: nickname.trim(),
-      ...(photoUrl ? { photoUrl } : {}),
-      ...(height !== '' ? { heightCm: Number(height) } : {}),
-      ...(weight !== '' ? { weightKg: Number(weight) } : {}),
+      ...(nextHeight !== undefined ? { heightCm: nextHeight } : {}),
+      ...(nextWeight !== undefined ? { weightKg: nextWeight } : {}),
       ...(gender ? { gender } : {}),
     };
     setSaving(true);
     try {
       await profileRepository.update(patch);
       await queryClient.invalidateQueries({ queryKey: ['profile'] });
-      toast.show('저장했어요.');
       navigate(-1);
     } catch {
       toast.show('저장에 실패했어요. 다시 시도해주세요.');
@@ -94,103 +82,100 @@ function EditForm({
 
   return (
     <>
-      {/* 아바타 + 닉네임 */}
-      <div className="flex items-center gap-4">
-        <button type="button" data-testid="edit-photo" onClick={pickPhoto} aria-label="프로필 사진 변경">
-          <Avatar photoUrl={photoUrl} nickname={nickname || '?'} />
-        </button>
-        <label className="flex flex-1 flex-col gap-1">
-          <span className="text-caption text-subtle">닉네임</span>
-          <input
-            data-testid="edit-nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-body text-text-strong"
-          />
-        </label>
-      </div>
-
-      <Field label="키" hint={heightValid ? undefined : '올바른 키를 입력해주세요'}>
-        <input
-          data-testid="edit-height"
-          inputMode="decimal"
+      <SettingsAppBar
+        title="내 정보 수정하기"
+        onBack={() => void saveAndBack()}
+        backTestId="edit-back"
+      />
+      <main
+        data-testid="edit-profile-view"
+        className="flex flex-1 flex-col gap-[30px] overflow-y-auto px-4 pb-10 pt-[39px]"
+      >
+        <NumberField
+          label="키"
+          unit="cm"
           value={height}
-          onChange={(e) => setHeight(e.target.value)}
+          onChange={setHeight}
           placeholder="167.5"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-body"
+          testId="edit-height"
+          invalid={!heightValid}
+          hint="올바른 키를 입력해주세요"
         />
-      </Field>
 
-      <Field label="현재 체중" hint={weightValid ? undefined : '올바른 체중을 입력해주세요'}>
-        <input
-          data-testid="edit-weight"
-          inputMode="decimal"
+        <NumberField
+          label="현재 체중"
+          unit="kg"
           value={weight}
-          onChange={(e) => setWeight(e.target.value)}
+          onChange={setWeight}
           placeholder="55.0"
-          className="w-full rounded-lg border border-border bg-surface px-3 py-3 text-body"
+          testId="edit-weight"
+          invalid={!weightValid}
+          hint="올바른 체중을 입력해주세요"
         />
-      </Field>
 
-      <Field label="성별">
-        <div className="flex gap-2">
-          {GENDERS.map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              data-testid={`edit-gender-${key}`}
-              aria-pressed={gender === key}
-              onClick={() => setGender(key)}
-              className={`flex-1 rounded-lg py-3 text-body ${
-                gender === key ? 'bg-primary text-primary-contrast' : 'bg-surface text-subtle'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* 성별 — 시안: 버튼 177×45 r8, 간격 15 */}
+        <div className="flex flex-col gap-[15px]">
+          <span className={`text-body-sm ${gender ? 'text-gray-700' : 'text-gray-disabled'}`}>
+            성별
+          </span>
+          <div className="flex gap-[15px]">
+            {GENDERS.map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                data-testid={`edit-gender-${key}`}
+                aria-pressed={gender === key}
+                onClick={() => setGender(key)}
+                className={`h-[45px] flex-1 rounded-md text-body-sm ${
+                  gender === key ? 'bg-green-700 text-off-white' : 'bg-gray-200 text-gray-disabled'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </Field>
-
-      <Button className="h-14 rounded-2xl" data-testid="edit-save" disabled={!canSave} onClick={save}>
-        저장
-      </Button>
+      </main>
     </>
   );
 }
 
-function Field({
+/** 언더라인 숫자 입력 — 값 좌측 / 단위 우측 (시안 양끝 정렬) */
+function NumberField({
   label,
+  unit,
+  value,
+  onChange,
+  placeholder,
+  testId,
+  invalid,
   hint,
-  children,
 }: {
   label: string;
-  hint?: string | undefined;
-  children: React.ReactNode;
+  unit: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  testId: string;
+  invalid: boolean;
+  hint: string;
 }) {
+  const toned = value ? 'text-gray-700' : 'text-gray-disabled';
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-caption text-subtle">{label}</span>
-      {children}
-      {hint && <span className="text-caption text-danger">{hint}</span>}
-    </div>
-  );
-}
-
-function BackHeader({ title }: { title: string }) {
-  const navigate = useNavigate();
-  return (
-    <header className="flex items-center gap-2 px-4 py-3">
-      <button
-        type="button"
-        data-testid="edit-back"
-        aria-label="뒤로가기"
-        onClick={() => navigate(-1)}
-        className="text-heading text-text-strong"
-      >
-        ‹
-      </button>
-      <h1 className="flex-1 text-center text-body text-text-strong">{title}</h1>
-      <span className="w-5" aria-hidden />
-    </header>
+    <label className="flex flex-col gap-[15px]">
+      <span className={`text-body-sm ${toned}`}>{label}</span>
+      <div className="flex items-baseline justify-between gap-2 border-b border-gray-disabled px-[23px] pb-[13px] pt-[15px]">
+        <input
+          data-testid={testId}
+          inputMode="decimal"
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className="min-w-0 flex-1 bg-transparent text-subheading text-gray-700 outline-none placeholder:text-gray-disabled"
+        />
+        <span className={`text-label ${toned}`}>{unit}</span>
+      </div>
+      {invalid && <span className="text-footnote text-red">{hint}</span>}
+    </label>
   );
 }

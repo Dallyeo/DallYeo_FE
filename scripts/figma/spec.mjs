@@ -91,6 +91,18 @@ function line(n, depth, parentBox) {
   if (f) parts.push(f);
   const t = typoOf(n);
   if (t) parts.push(t);
+  // ── 놓치기 쉬운 속성들 (과거 V10에서 밑줄·스탬프·천공을 전부 놓쳤던 원인) ──
+  if (n.style?.textDecoration && n.style.textDecoration !== 'NONE')
+    parts.push(`**${n.style.textDecoration}**`);
+  if ((n.fills ?? []).some((x) => x.type === 'IMAGE' && x.visible !== false)) parts.push('🖼IMAGE');
+  if ((n.strokes ?? []).length) parts.push(`stroke${n.strokeWeight ?? ''}`);
+  if (n.effects?.length) parts.push(n.effects.map((e) => e.type).join(','));
+  // 불리언 도형의 구멍(서브패스 2개 이상) — 티켓 천공 같은 형상
+  const geo = n.fillGeometry?.[0]?.path;
+  if (geo) {
+    const holes = (geo.match(/M/g) || []).length - 1;
+    if (holes > 0) parts.push(`⚠️구멍${holes}개`);
+  }
   if (n.cornerRadius) parts.push(`r${n.cornerRadius}`);
   if (n.layoutMode && n.layoutMode !== 'NONE')
     parts.push(`AL:${n.layoutMode === 'VERTICAL' ? 'V' : 'H'} gap${n.itemSpacing ?? 0}`);
