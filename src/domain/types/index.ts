@@ -20,5 +20,6 @@ export type {
   DailyDistance,
   PeriodStats,
 } from './record';
+export { STATS_PERIODS } from './record';
 export type { UserProfile, UserProfilePatch } from './profile';
 export type { Achievement, RegionProgress, AchievementSummary } from './achievement';

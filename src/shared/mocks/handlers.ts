@@ -1,12 +1,12 @@
 import { http, HttpResponse } from 'msw';
 import { env } from '@/shared/config/env';
 import {
-  buildMockRecordDetail,
+  buildMockRunDetail,
   getMockProfile,
   mockAchievements,
   mockCourses,
   mockNearbyPlaces,
-  mockRecords,
+  buildMockRuns,
   mockRegions,
   patchMockProfile,
 } from './data';
@@ -40,9 +40,20 @@ export const handlers = [
   http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),
   http.post(`${base}/runs`, () => HttpResponse.json({ recordId: 'rec-mock-1' })),
   // V11/V12 기록: 목록 + 상세 (통계 /records/stats 는 MVP3 — 미제공)
-  http.get(`${base}/records`, () => HttpResponse.json(mockRecords)),
-  http.get(`${base}/records/:recordId`, ({ params }) =>
-    HttpResponse.json(buildMockRecordDetail(String(params.recordId))),
+  http.get(`${base}/runs`, ({ request }) => {
+    const url = new URL(request.url);
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    let runs = buildMockRuns();
+    // finishedAt(날짜) 기준 [from, to] 포함 필터 — backend §7.2와 동일 의미
+    if (from) runs = runs.filter((r) => r.finishedAt.slice(0, 10) >= from);
+    if (to) runs = runs.filter((r) => r.finishedAt.slice(0, 10) <= to);
+    // 최신순
+    runs.sort((a, b) => b.finishedAt.localeCompare(a.finishedAt));
+    return HttpResponse.json(runs);
+  }),
+  http.get(`${base}/runs/:recordId`, ({ params }) =>
+    HttpResponse.json(buildMockRunDetail(String(params.recordId))),
   ),
   // V13 설정: 프로필 조회/수정
   http.get(`${base}/me`, () => HttpResponse.json(getMockProfile())),

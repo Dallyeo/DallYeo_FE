@@ -3,8 +3,6 @@ import type {
   Course,
   NearbyPlace,
   Region,
-  RunRecord,
-  RunRecordDetail,
   UserProfile,
   UserProfilePatch,
 } from '@/domain/types';
@@ -209,41 +207,179 @@ export const mockNearbyPlaces: NearbyPlace[] = [
 ];
 
 /** 기록 목록 mock (V11). 최신순. */
-export const mockRecords: RunRecord[] = [
+/**
+ * 러닝 기록 목(backend-api.md §7 형태). `finishedAt`은 조회 시점 기준으로 생성해
+ * 주간/월간/연간 탭이 항상 데이터를 갖도록 한다(daysAgo = 며칠 전).
+ * ⚠️ `calories`는 백엔드 명세에 없는 필드 — 목에서만 채운다.
+ */
+export const mockRunSeeds = [
   {
-    id: 'rec1',
-    completedAt: '2026-06-10T09:00:00Z',
-    distanceKm: 10,
-    durationSec: 1930,
-    avgPaceSecPerKm: 193,
+    id: 1,
+    courseId: 'c1',
+    courseName: '근대 역사 박물관 런',
+    distanceMeters: 10230,
+    durationSeconds: 3660,
+    averagePaceSeconds: 358,
     calories: 250,
+    daysAgo: 0,
   },
   {
-    id: 'rec2',
-    completedAt: '2026-06-06T08:30:00Z',
-    distanceKm: 10.23,
-    durationSec: 5064,
-    avgPaceSecPerKm: 495,
-    calories: 200,
+    id: 2,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 6100,
+    durationSeconds: 2280,
+    averagePaceSeconds: 374,
+    calories: 150,
+    daysAgo: 1,
   },
   {
-    id: 'rec3',
-    completedAt: '2026-05-30T07:00:00Z',
-    distanceKm: 5.4,
-    durationSec: 2160,
-    avgPaceSecPerKm: 400,
+    id: 3,
+    courseId: 'c1',
+    courseName: '은파호수 둘레길',
+    distanceMeters: 4050,
+    durationSeconds: 1560,
+    averagePaceSeconds: 385,
+    calories: 100,
+    daysAgo: 2,
+  },
+  {
+    id: 4,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 8400,
+    durationSeconds: 3120,
+    averagePaceSeconds: 371,
+    calories: 205,
+    daysAgo: 3,
+  },
+  {
+    id: 5,
+    courseId: 'c1',
+    courseName: '초원사진관 코스',
+    distanceMeters: 2200,
+    durationSeconds: 900,
+    averagePaceSeconds: 409,
+    calories: 55,
+    daysAgo: 4,
+  },
+  {
+    id: 6,
+    courseId: 'c1',
+    courseName: '군산 원도심 코스',
+    distanceMeters: 12000,
+    durationSeconds: 4440,
+    averagePaceSeconds: 370,
+    calories: 300,
+    daysAgo: 5,
+  },
+  {
+    id: 7,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 5300,
+    durationSeconds: 1980,
+    averagePaceSeconds: 374,
     calories: 130,
+    daysAgo: 6,
+  },
+  {
+    id: 8,
+    courseId: 'c1',
+    courseName: '은파호수 둘레길',
+    distanceMeters: 7750,
+    durationSeconds: 2820,
+    averagePaceSeconds: 364,
+    calories: 190,
+    daysAgo: 9,
+  },
+  {
+    id: 9,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 3600,
+    durationSeconds: 1380,
+    averagePaceSeconds: 383,
+    calories: 88,
+    daysAgo: 12,
+  },
+  {
+    id: 10,
+    courseId: 'c1',
+    courseName: '근대 역사 박물관 런',
+    distanceMeters: 9100,
+    durationSeconds: 3360,
+    averagePaceSeconds: 369,
+    calories: 225,
+    daysAgo: 16,
+  },
+  {
+    id: 11,
+    courseId: 'c1',
+    courseName: '장자도 코스',
+    distanceMeters: 15200,
+    durationSeconds: 5700,
+    averagePaceSeconds: 375,
+    calories: 380,
+    daysAgo: 21,
+  },
+  {
+    id: 12,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 4800,
+    durationSeconds: 1800,
+    averagePaceSeconds: 375,
+    calories: 118,
+    daysAgo: 28,
+  },
+  {
+    id: 13,
+    courseId: 'c1',
+    courseName: '군산 원도심 코스',
+    distanceMeters: 11000,
+    durationSeconds: 4080,
+    averagePaceSeconds: 371,
+    calories: 275,
+    daysAgo: 40,
+  },
+  {
+    id: 14,
+    courseId: null,
+    courseName: null,
+    distanceMeters: 6600,
+    durationSeconds: 2460,
+    averagePaceSeconds: 373,
+    calories: 162,
+    daysAgo: 55,
   },
 ];
 
-/** 기록 상세 mock (V12). 목록 항목 + 경로/정적지도 보강. */
-export function buildMockRecordDetail(recordId: string): RunRecordDetail {
-  const base = mockRecords.find((r) => r.id === recordId) ?? mockRecords[0]!;
+/** daysAgo → 실제 ISO 시각으로 변환한 목 응답 (목록/상세 공용) */
+export function buildMockRuns() {
+  const now = Date.now();
+  return mockRunSeeds.map(({ daysAgo, durationSeconds, ...rest }) => {
+    const finished = new Date(now - daysAgo * 86400000);
+    finished.setHours(8, 30, 0, 0);
+    const started = new Date(finished.getTime() - durationSeconds * 1000);
+    return {
+      ...rest,
+      durationSeconds,
+      startedAt: started.toISOString(),
+      finishedAt: finished.toISOString(),
+    };
+  });
+}
+
+
+/** 기록 상세 mock (V12) — backend §7.3 형태(목록 + polyline). */
+export function buildMockRunDetail(recordId: string) {
+  const runs = buildMockRuns();
+  const base = runs.find((r) => String(r.id) === recordId) ?? runs[0]!;
   return {
     ...base,
-    id: recordId,
     completionRate: 100,
-    routePolyline: [
+    polyline: [
       { lat: 35.9678, lng: 126.7369 },
       { lat: 35.9701, lng: 126.7402 },
     ],

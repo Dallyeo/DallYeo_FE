@@ -3,18 +3,18 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RecordDetailView } from './RecordDetailView';
-import type { RunRecordDetail } from '@/domain/types';
 
-const detail: RunRecordDetail = {
-  id: 'rec2',
-  completedAt: '2026-06-06T08:30:00Z',
-  distanceKm: 10.23,
-  durationSec: 5064,
-  avgPaceSecPerKm: 495,
-  calories: 200,
+const detail = {
+  id: 'rec1',
+  courseName: '테스트 코스',
+  distanceMeters: 10230,
+  durationSeconds: 1930,
+  averagePaceSeconds: 193,
+  calories: 250,
+  finishedAt: '2026-06-10T09:00:00Z',
   completionRate: 100,
-  routePolyline: [],
-  staticMapImageUrl: 'https://example.com/map.png',
+  polyline: [{ lat: 35.9, lng: 126.7 }],
+  staticMapImageUrl: 'https://example.com/m.png',
 };
 
 function renderDetail() {
