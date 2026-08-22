@@ -379,6 +379,10 @@ export function buildMockRunDetail(recordId: string) {
   return {
     ...base,
     completionRate: 100,
+    // 지정 코스면 코스 지점명, 자유 러닝이면 출발지 미상 → 뷰가 "지정된 위치"로 표기
+    ...(base.courseName
+      ? { startPlaceName: '청송 과수원', endPlaceName: '신시 전망대' }
+      : { endPlaceName: '신시 전망대' }),
     polyline: [
       { lat: 35.9678, lng: 126.7369 },
       { lat: 35.9701, lng: 126.7402 },

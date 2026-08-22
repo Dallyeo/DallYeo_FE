@@ -17,11 +17,19 @@ export interface RunRecord {
   calories?: number;
   /** 완주한 코스명. 자유 러닝이면 없음. */
   courseName?: string;
+  /** 시작 시각 (ISO 8601). V12 "12:00 - 12:30" 구간 표시용 — 목록 응답엔 없다. */
+  startedAt?: string;
 }
 
 /** 기록 상세 (V12). 정적 지도 + 경로. */
 export interface RunRecordDetail extends RunRecord {
   completionRate: number;
+  /**
+   * 출발/도착 지점명 (V12 "청송 과수원 → 신시 전망대").
+   * ⚠️ 백엔드 명세에 없음 — 지정 코스면 코스의 지점명, 자유 러닝이면 출발지는 "지정된 위치"로 대체.
+   */
+  startPlaceName?: string;
+  endPlaceName?: string;
   routePolyline: GeoPoint[];
   /** 정적 지도 이미지 URL (줌 없음) */
   staticMapImageUrl: string;

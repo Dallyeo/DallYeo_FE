@@ -12,7 +12,7 @@ export function CreateCourseButton() {
       type="button"
       data-testid="create-course-button"
       onClick={() => bridgeService.openCourseSearch()}
-      className="fixed right-4 z-20 flex h-[55px] items-center gap-1 rounded-[32px] bg-green-700 px-[37px] text-label text-off-white shadow-lg"
+      className="fixed right-4 z-20 flex h-[55px] items-center gap-1 rounded-[32px] bg-green-700 px-[37px] text-label text-off-white shadow-[0_0_8px_rgba(0,0,0,0.1)]"
       style={{ bottom: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom) + 16px)' }}
     >
       <IcAddLocation aria-hidden className="h-[19px] w-auto" />

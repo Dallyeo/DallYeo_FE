@@ -41,7 +41,8 @@ export function BottomTabBar() {
   return (
     <nav
       data-testid="bottom-tab-bar"
-      className="fixed inset-x-0 bottom-0 z-10 flex border-t border-gray-300 bg-off-white"
+      // 시안 탭바 그림자: 0 -4px 4px rgba(0,0,0,0.05)
+      className="fixed inset-x-0 bottom-0 z-10 flex bg-off-white shadow-[0_-4px_4px_rgba(0,0,0,0.05)]"
       style={{
         height: 'calc(var(--tabbar-height) + env(safe-area-inset-bottom))',
         paddingBottom: 'env(safe-area-inset-bottom)',

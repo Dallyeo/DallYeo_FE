@@ -35,7 +35,7 @@ export function ChartCarousel({
             ) : (
               <div
                 data-testid="chart-placeholder"
-                className="flex h-[195px] items-center justify-center rounded-sm bg-off-white text-body text-gray-disabled shadow-[0px_0px_5.7px_rgba(0,0,0,0.15)]"
+                className="flex h-[195px] items-center justify-center rounded-sm bg-off-white text-body text-gray-disabled shadow-[0_0_4px_rgba(0,0,0,0.15)]"
               >
                 그래프 준비중이에요
               </div>

@@ -14,7 +14,7 @@ export function WeeklyChart({ daily, today }: { daily: DailyDistance[]; today: s
   return (
     <div data-testid="weekly-chart">
       {/* 차트 카드 — 막대는 카드 위에 겹쳐 그린다 */}
-      <div className="relative h-[195px] rounded-sm bg-off-white shadow-[0px_0px_5.7px_rgba(0,0,0,0.15)]">
+      <div className="relative h-[195px] rounded-sm bg-off-white shadow-[0_0_4px_rgba(0,0,0,0.15)]">
         {/* 그리드선 — 시안 T68 / T128 */}
         <span aria-hidden className="absolute inset-x-0 top-[68px] border-t border-gray-250" />
         <span aria-hidden className="absolute inset-x-0 top-[128px] border-t border-gray-250" />

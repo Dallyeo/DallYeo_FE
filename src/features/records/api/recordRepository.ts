@@ -17,6 +17,8 @@ interface RunDto {
   polyline?: { lat: number; lng: number }[];
   /** ⚠️ 명세에 없는 필드 — 목에서만 온다 */
   calories?: number;
+  startPlaceName?: string;
+  endPlaceName?: string;
   completionRate?: number;
   staticMapImageUrl?: string;
 }
@@ -33,6 +35,7 @@ function toRecord(d: RunDto): RunRecord {
       d.averagePaceSeconds ?? (distanceKm > 0 ? Math.round(d.durationSeconds / distanceKm) : 0),
     ...(d.calories !== undefined ? { calories: d.calories } : {}),
     ...(d.courseName ? { courseName: d.courseName } : {}),
+    ...(d.startedAt ? { startedAt: d.startedAt } : {}),
   };
 }
 
@@ -47,6 +50,8 @@ export const recordRepository: RecordRepository = {
     return {
       ...toRecord(d),
       completionRate: d.completionRate ?? 0,
+      ...(d.startPlaceName ? { startPlaceName: d.startPlaceName } : {}),
+      ...(d.endPlaceName ? { endPlaceName: d.endPlaceName } : {}),
       routePolyline: d.polyline ?? [],
       staticMapImageUrl: d.staticMapImageUrl ?? '',
     };

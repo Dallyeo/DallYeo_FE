@@ -132,7 +132,9 @@ export function RunResultView() {
         {/* 결과 카드 — 시안 `Subtract`: 양옆 노치가 있는 **티켓 모양**(global.css `.ticket-card`).
             카드 내부 인셋이 요소마다 다름(거리·날짜 29 / 코스명 23 / 지도 20).
             세로: 상35 → 거리 → 36 → 코스명 → 72 → 지도 → 30 → 통계 → 하34 */}
-        <section className="ticket-card mx-4 mt-[26px] rounded-lg bg-off-white px-5 pb-[34px] pt-[35px]">
+        {/* 그림자는 마스크 바깥 래퍼에 (같은 요소면 잘린다) */}
+        <div className="mx-4 mt-[26px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+        <section className="ticket-card rounded-lg bg-off-white px-5 pb-[34px] pt-[35px]">
           <div className="flex items-start justify-between gap-3 px-[9px]">
             <p data-testid="run-distance" className="text-display-lg text-black">
               {formatDistanceKm(result.distanceKm)}km
@@ -177,6 +179,7 @@ export function RunResultView() {
             <Stat label="칼로리" value={String(result.calories)} />
           </dl>
         </section>
+        </div>
 
         {/* 「주변 둘러보기」 — 텍스트형 버튼. 누르면 모달(스크롤 아님). */}
         <div className="flex flex-1 items-start justify-center pb-8 pt-8">
