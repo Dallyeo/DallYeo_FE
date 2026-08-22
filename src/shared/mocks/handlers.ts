@@ -4,38 +4,17 @@ import {
   buildMockRunDetail,
   getMockProfile,
   mockAchievements,
-  mockCourses,
   mockNearbyPlaces,
   buildMockRuns,
-  mockRegions,
   patchMockProfile,
 } from './data';
 import type { UserProfilePatch } from '@/domain/types';
 
 const base = env.apiBaseUrl;
-/** 공개계 base — 기본은 인증계와 동일(dev 프리뷰 목). 실연동 시 dallyeo.cloud로 분리됨. */
-const publicBase = env.publicApiBaseUrl;
 
 /** 백엔드 미준비 엔드포인트 mock (NFR-DATA-01). 준비되면 해당 핸들러 제거로 passthrough. */
 export const handlers = [
-  // 공개계(regions/courses) — 배포됨. 실연동 전까지 목 유지.
-  http.get(`${publicBase}/regions`, () => HttpResponse.json(mockRegions)),
-  http.get(`${publicBase}/courses`, ({ request }) => {
-    const url = new URL(request.url);
-    const region = url.searchParams.get('region');
-    const list = region ? mockCourses.filter((c) => c.regionCode === region) : mockCourses;
-    // 목록은 **요약** — 상세 전용 필드(경유지/설명)는 제외해 실제 백엔드 계약과 맞춘다.
-    return HttpResponse.json(
-      list.map(({ waypoints: _w, description: _d, ...summary }) => summary),
-    );
-  }),
-  // 코스 상세 — 경유지(waypointAnchors)·설명은 여기서만 내려온다 (be-api-spec §3.2)
-  http.get(`${publicBase}/courses/:courseId`, ({ params }) => {
-    const course = mockCourses.find((c) => c.id === String(params.courseId));
-    return course
-      ? HttpResponse.json(course)
-      : HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-  }),
+  // 공개계(regions/courses)는 **실 백엔드**(env.publicApiBaseUrl)로 직접 나간다 — 목 없음.
   // V10 완주결과: 주변 장소(500m) + 결과 저장
   http.get(`${base}/runs/:runId/nearby`, () => HttpResponse.json(mockNearbyPlaces)),
   http.post(`${base}/runs`, () => HttpResponse.json({ recordId: 'rec-mock-1' })),
@@ -45,9 +24,15 @@ export const handlers = [
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
     let runs = buildMockRuns();
-    // finishedAt(날짜) 기준 [from, to] 포함 필터 — backend §7.2와 동일 의미
-    if (from) runs = runs.filter((r) => r.finishedAt.slice(0, 10) >= from);
-    if (to) runs = runs.filter((r) => r.finishedAt.slice(0, 10) <= to);
+    // finishedAt(날짜) 기준 [from, to] 포함 필터 — backend §7.2와 동일 의미.
+    // ⚠️ ISO를 `.slice(0,10)`으로 자르면 **UTC 날짜**라 KST 오전 기록이 전날로 밀린다 → 로컬 날짜로 비교.
+    const localDate = (iso: string) => {
+      const d = new Date(iso);
+      const p = (n: number) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    };
+    if (from) runs = runs.filter((r) => localDate(r.finishedAt) >= from);
+    if (to) runs = runs.filter((r) => localDate(r.finishedAt) <= to);
     // 최신순
     runs.sort((a, b) => b.finishedAt.localeCompare(a.finishedAt));
     return HttpResponse.json(runs);

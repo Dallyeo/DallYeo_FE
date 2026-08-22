@@ -50,7 +50,7 @@ export function RecordsView() {
 
   return (
     <SafeAreaLayout withTabBar>
-      <main data-testid="records-view" className="flex flex-1 flex-col overflow-y-auto pt-[5px]">
+      <main data-testid="records-view" className="flex min-h-0 flex-1 flex-col pt-[5px]">
         <PeriodTabs value={period} onChange={setPeriod} />
 
         {!isLoggedIn ? (
@@ -97,7 +97,7 @@ export function RecordsView() {
                   </div>
 
                   {/* 기록 리스트 */}
-                  <section className="mt-[38px] px-4 pb-6">
+                  <section className="mt-[38px] flex min-h-0 flex-1 flex-col px-4 pb-6">
                     {records.length === 0 ? (
                       <p
                         data-testid="records-empty"
@@ -108,7 +108,8 @@ export function RecordsView() {
                     ) : (
                       <>
                         <RecordListHeader />
-                        <ul>
+                        {/* 화면 전체는 고정 — 목록만 내부 스크롤 */}
+                        <ul className="min-h-0 flex-1 overflow-y-auto">
                           {records.map((record) => (
                             <li key={record.id}>
                               <RecordCard record={record} />

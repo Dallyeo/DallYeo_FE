@@ -82,7 +82,8 @@ export function RecordDetailView() {
   }
 
   return (
-    <SafeAreaLayout>
+    // 상태바(safe-area)까지 primary로 채운다 — iOS에서 상단이 흰 띠로 남지 않게
+    <SafeAreaLayout topInset={false} bgClass="bg-green-700">
       <AsyncBoundary query={detailQuery} loadingLabel="기록을 불러오는 중..." testId="record-detail">
         {(detail) => {
           const route = resolveRoutePoints(detail);

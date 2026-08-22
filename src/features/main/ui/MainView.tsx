@@ -22,7 +22,7 @@ export function MainView() {
 
   return (
     <SafeAreaLayout withTabBar topInset={false}>
-      <main data-testid="main-view" className="relative flex flex-1 flex-col">
+      <main data-testid="main-view" className="relative flex min-h-0 flex-1 flex-col">
         {/* 그린 헤더 — 노치까지 채움. Figma: 로고/설정 행 T64(상태바 아래 2) 높이30, 인사말 간격21, 하단 28 */}
         <header className="bg-green-700 px-4 pb-7 pt-safe-top text-off-white">
           <div className="flex h-[30px] items-center justify-between pt-0.5">
@@ -46,7 +46,7 @@ export function MainView() {
         </header>
 
         {/* 추천 코스 카드 패널 — 시안상 패널이 하단까지 늘어남 */}
-        <section className="flex flex-1 flex-col p-4">
+        <section className="flex min-h-0 flex-1 flex-col p-4">
           <div className="flex flex-1 flex-col overflow-hidden rounded-lg shadow-[0px_0px_5.7px_rgba(0,0,0,0.15)]">
             <div className="flex items-center justify-between gap-2 bg-white py-4 pl-[23px] pr-[10px]">
               <h2 className="text-body text-gray-700">추천코스</h2>
