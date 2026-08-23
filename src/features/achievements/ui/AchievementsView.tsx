@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import {
   ACHIEVEMENT_REGIONS,
   regionOfAchievement,
@@ -28,8 +28,7 @@ export function AchievementsView() {
   const query = useAchievements(isLoggedIn);
 
   return (
-    // 상단 여백을 공통(12)보다 더 준다
-    <SafeAreaLayout withTabBar style={{ '--screen-top-gap': '24px' } as CSSProperties}>
+    <SafeAreaLayout withTabBar>
       <main data-testid="achievements-view" className="relative flex flex-1 flex-col">
         <RegionTabs value={region} onChange={setRegion} />
 

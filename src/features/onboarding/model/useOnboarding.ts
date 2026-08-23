@@ -1,8 +1,12 @@
 import { useCallback } from 'react';
+import type { UserProfilePatch } from '@/domain/types';
 import { useNavigate } from 'react-router-dom';
 import type { Gender, OnboardingProfile, PermissionStatus } from '@/domain/types';
 import { isProfileComplete, isHeightInRange, isWeightInRange } from '@/domain/logic';
 import { bridgeService } from '@/shared/services/BridgeService';
+import { useSessionStore } from '@/shared/auth/sessionStore';
+import { profileRepository } from '@/features/settings/api/profileRepository';
+import { logger } from '@/shared/observability/logger';
 import { onboardingRepository } from '@/features/onboarding/api/onboardingRepository';
 import { useOnboardingStore, type OnboardingStep } from './onboardingStore';
 
@@ -55,6 +59,7 @@ function toProfile(
 
 export function useOnboarding(): UseOnboarding {
   const navigate = useNavigate();
+  const isLoggedIn = useSessionStore((st) => st.status) === 'authenticated';
   const store = useOnboardingStore();
   const { heightRaw, weightRaw, gender } = store;
 
@@ -68,16 +73,42 @@ export function useOnboarding(): UseOnboarding {
 
   const requestLocation = useCallback(() => bridgeService.requestPermission('location'), []);
 
+  /**
+   * 온보딩 신체정보는 **백엔드 프로필과 같은 자리**다(backend-api.md §6.2:
+   * "온보딩 신체정보 입력과 설정 수정을 겸합니다 … 호출 시 온보딩 완료로 처리").
+   * 여기서 PATCH 하지 않으면 설정 > 내정보 수정이 계속 비어 보인다.
+   * 게스트(비로그인)는 토큰이 없어 401이 나므로 로컬 저장만 한다.
+   */
+  const syncToServer = useCallback(
+    async (body: UserProfilePatch) => {
+      if (!isLoggedIn) return;
+      try {
+        await profileRepository.update(body);
+      } catch (e) {
+        // 저장 실패로 온보딩을 막지는 않는다 — 설정에서 다시 입력할 수 있다
+        logger.error('[onboarding] 프로필 서버 저장 실패', { cause: String(e) });
+      }
+    },
+    [isLoggedIn],
+  );
+
   const complete = useCallback(async () => {
     await onboardingRepository.saveProfile(profile);
     await onboardingRepository.markCompleted();
+    await syncToServer({
+      ...(profile.heightCm !== undefined ? { heightCm: profile.heightCm } : {}),
+      ...(profile.weightKg !== undefined ? { weightKg: profile.weightKg } : {}),
+      ...(profile.gender ? { gender: profile.gender } : {}),
+    });
     navigate('/main', { replace: true });
-  }, [profile, navigate]);
+  }, [profile, navigate, syncToServer]);
 
   const skip = useCallback(async () => {
     await onboardingRepository.markCompleted();
+    // 빈 바디 = 신체정보 유지 + 온보딩만 완료 처리(§6.2)
+    await syncToServer({});
     navigate('/main', { replace: true });
-  }, [navigate]);
+  }, [navigate, syncToServer]);
 
   return {
     step: store.step,

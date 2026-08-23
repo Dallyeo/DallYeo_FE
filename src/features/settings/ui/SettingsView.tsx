@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GateAction } from '@/domain/types';
 import { SETTINGS_LINKS } from '@/domain/constants';
@@ -8,7 +8,11 @@ import { useAuth } from '@/features/login/model/useAuth';
 import { useGate } from '@/features/login/model/useGate';
 import { AlertDialog } from '@/shared/ui/AlertDialog';
 import { toast } from '@/shared/ui/toastStore';
+import { sessionService } from '@/shared/auth/SessionService';
+import { logger } from '@/shared/observability/logger';
 import { profileRepository } from '@/features/settings/api/profileRepository';
+import { onboardingRepository } from '@/features/onboarding/api/onboardingRepository';
+import { useOnboardingStore } from '@/features/onboarding/model/onboardingStore';
 import { SettingsAppBar } from './SettingsAppBar';
 import IcChevron from '@/shared/ui/icons/ic-chevron-forward.svg?react';
 
@@ -25,16 +29,45 @@ export function SettingsView() {
   /** 되돌릴 수 없는 동작은 확인 알럿을 거친다 */
   const [confirming, setConfirming] = useState<'logout' | 'delete' | null>(null);
 
-  /** 계정 삭제 — `DELETE /users/me`(하드 삭제) 후 세션 정리하고 메인으로 */
+  /**
+   * 계정 삭제 — `DELETE /users/me`(하드 삭제) 후 **이 기기에 남은 흔적까지** 지우고 온보딩으로.
+   *
+   * 되돌릴 수 없는 연산의 경계는 `profileRepository.remove()`다. 그게 성공한 뒤로는
+   * 계정이 이미 서버에서 사라졌으므로 **뒤따르는 정리 작업이 실패해도 흐름을 막지 않는다** —
+   * "삭제 실패" 토스트를 띄우면 사실과 다르고, 사용자가 할 수 있는 일도 없다.
+   * 로그아웃도 같은 이유로 best-effort: 브릿지 결과와 무관하게 로컬 세션은 무조건 파기한다
+   * (탈퇴 직후의 `POST /auth/logout` 401은 정상이다 — 서버 토큰은 이미 지워졌고,
+   *  이 호출의 목적은 네이티브 Keychain을 비우는 것이라 401이어도 달성된다).
+   *
+   * RootLayout의 온보딩 가드는 마운트 1회만 평가하므로(SPA 내에서 재평가 없음)
+   * 플래그 삭제에 기대지 말고 여기서 직접 `/onboarding`으로 보낸다.
+   */
   async function deleteAccount(): Promise<void> {
     try {
       await profileRepository.remove();
-      await logout();
-      toast.show('계정이 삭제되었어요.');
-      navigate('/main', { replace: true });
     } catch (e) {
+      // 여기서만 "삭제 실패"가 사실이다 — 계정은 그대로 남아 있다.
       toast.show(e instanceof Error ? e.message : '계정 삭제에 실패했어요.');
+      return;
     }
+
+    // ↓ 이 아래는 전부 비차단 정리 작업
+    await onboardingRepository.reset();
+    useOnboardingStore.getState().reset();
+    try {
+      await logout();
+    } catch (e) {
+      logger.warn('[settings] 탈퇴 후 로그아웃 실패(로컬 세션은 파기)', { cause: String(e) });
+    } finally {
+      // 브릿지가 실패해도 삭제된 계정의 토큰을 들고 남아 있으면 안 된다.
+      // logout()이 성공했다면 이미 무효화됐으므로 1회 가드에 걸려 no-op.
+      sessionService.invalidate('account-deleted');
+    }
+
+    // logout/invalidate가 '로그아웃되었습니다' 토스트 + /main 이동을 먼저 일으키므로
+    // 탈퇴 문구와 목적지는 그 뒤에 덮어쓴다.
+    toast.show('계정이 삭제되었어요.');
+    navigate('/onboarding', { replace: true });
   }
 
   /** 로그인 필요한 항목: 게이트 통과 시 실행, 아니면 로그인 시트 */
@@ -43,7 +76,8 @@ export function SettingsView() {
   }
 
   return (
-    <SafeAreaLayout>
+    // 네비게이션바 화면은 상단 여백을 줄인다
+    <SafeAreaLayout style={{ '--screen-top-gap': '6px' } as CSSProperties}>
       <SettingsAppBar title="설정" onBack={() => navigate(-1)} backTestId="settings-back" />
 
       <main data-testid="settings-view" className="flex flex-1 flex-col pt-[19px]">

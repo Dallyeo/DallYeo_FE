@@ -33,8 +33,10 @@ body {
   font-size: var(--text-base);
   color: var(--color-text);
   background: var(--color-bg);
-  /* overscroll bounce 비활성 */
+  /* overscroll bounce 비활성 (가로 패닝 포함) */
   overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overflow-x: hidden;
   /* tap highlight 비활성 */
   -webkit-tap-highlight-color: transparent;
   /* long-press callout 비활성 */

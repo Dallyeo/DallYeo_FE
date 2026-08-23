@@ -5,7 +5,6 @@ import { OnboardingFlow } from '@/features/onboarding/ui/OnboardingFlow';
 import { MainView } from '@/features/main/ui/MainView';
 import { SettingsView } from '@/features/settings/ui/SettingsView';
 import { EditProfileView } from '@/features/settings/ui/EditProfileView';
-import { AccountView } from '@/features/settings/ui/AccountView';
 import { RunResultView } from '@/features/runResult/ui/RunResultView';
 import { RecordsView } from '@/features/records/ui/RecordsView';
 import { RecordDetailView } from '@/features/records/ui/RecordDetailView';
@@ -30,7 +29,6 @@ const router = createBrowserRouter([
       { path: 'achievements', element: <AchievementsView /> },
       { path: 'settings', element: <SettingsView /> },
       { path: 'settings/edit', element: <EditProfileView /> },
-      { path: 'settings/account', element: <AccountView /> },
       { path: '*', element: <Navigate to="/main" replace /> },
     ],
   },

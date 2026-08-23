@@ -44,6 +44,7 @@ export function createMockBridgeAdapter(
         return wait(result) as Promise<T>;
       }
       case 'logout':
+      case 'deleteAccount':
         return wait(undefined) as Promise<T>;
       case 'getCurrentSession':
         return wait(null) as Promise<T>;
