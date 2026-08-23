@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { Gender, UserProfile, UserProfilePatch } from '@/domain/types';
 import { useSessionStore } from '@/shared/auth/sessionStore';
+import { queryClient } from '@/shared/api/queryClient';
 import { logger } from '@/shared/observability/logger';
 import { profileRepository } from '@/features/settings/api/profileRepository';
 import {
@@ -93,6 +94,9 @@ async function reconcileWithServer(): Promise<void> {
       };
       if (Object.keys(patch).length > 0) {
         server = await profileRepository.update(patch);
+        // 승격 전에 이미 캐시된 빈 프로필이 있으면 "내정보 수정"이 계속 비어 보인다
+        // (staleTime 30s). 서버를 바꿨으니 캐시도 무효화한다.
+        await queryClient.invalidateQueries({ queryKey: ['profile'] });
         logger.info('onboarding.guestProfilePromoted', { fields: Object.keys(patch) });
       }
     }

@@ -7,6 +7,7 @@ import { bridgeService } from '@/shared/services/BridgeService';
 import { useSessionStore } from '@/shared/auth/sessionStore';
 import { profileRepository } from '@/features/settings/api/profileRepository';
 import { logger } from '@/shared/observability/logger';
+import { toast } from '@/shared/ui/toastStore';
 import { onboardingRepository } from '@/features/onboarding/api/onboardingRepository';
 import { useOnboardingStore, type OnboardingStep } from './onboardingStore';
 
@@ -85,8 +86,15 @@ export function useOnboarding(): UseOnboarding {
       try {
         await profileRepository.update(body);
       } catch (e) {
-        // 저장 실패로 온보딩을 막지는 않는다 — 설정에서 다시 입력할 수 있다
+        // 저장 실패로 온보딩을 막지는 않는다 — 설정에서 다시 입력할 수 있다.
+        // 다만 **조용히 삼키면 안 된다**: 화면상 성공처럼 보이는데 서버엔 없어서
+        // "내정보 수정이 비어 있다"로만 드러나고 원인 추적이 불가능해진다.
         logger.error('[onboarding] 프로필 서버 저장 실패', { cause: String(e) });
+        toast.show(
+          e instanceof Error && e.message
+            ? `신체정보 저장 실패: ${e.message}`
+            : '신체정보를 서버에 저장하지 못했어요. 설정 > 내정보 수정에서 다시 입력해주세요.',
+        );
       }
     },
     [isLoggedIn],
