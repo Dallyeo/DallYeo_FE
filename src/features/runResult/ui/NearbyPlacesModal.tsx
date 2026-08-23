@@ -71,7 +71,7 @@ export function NearbyPlacesModal({
           testId="nearby"
         >
           {(places) => (
-            <ul className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-4">
+            <ul className="flex min-h-0 flex-1 flex-col gap-5 overflow-x-hidden overflow-y-auto pb-4">
               {places
                 .filter((p) => p.segment === segment)
                 .map((place) => (

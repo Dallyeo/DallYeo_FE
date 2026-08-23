@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Gender, UserProfilePatch } from '@/domain/types';
@@ -28,7 +28,8 @@ export function EditProfileView() {
   const profileQuery = useProfile(status === 'authenticated');
 
   return (
-    <SafeAreaLayout>
+    // 네비게이션바 화면은 상단 여백을 줄인다
+    <SafeAreaLayout style={{ '--screen-top-gap': '6px' } as CSSProperties}>
       <AsyncBoundary query={profileQuery} loadingLabel="불러오는 중..." testId="edit-profile">
         {(profile) => <EditForm initial={profile} />}
       </AsyncBoundary>

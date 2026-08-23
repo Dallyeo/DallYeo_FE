@@ -72,7 +72,7 @@ export function AchievementSheet({
           이 지역의 업적이 아직 없어요.
         </p>
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pb-6 pt-[15px]">
+        <ul className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto px-4 pb-6 pt-[15px]">
           {achievements.map((a) => (
             <li
               key={a.code}

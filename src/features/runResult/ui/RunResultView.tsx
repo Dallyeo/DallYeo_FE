@@ -90,10 +90,12 @@ export function RunResultView() {
   const route = [result.startPlaceName, result.endPlaceName].filter(Boolean);
 
   return (
-    <SafeAreaLayout>
+    // 화면 전체가 primary인 뷰 — 상태바/홈인디케이터 safe-area까지 함께 칠한다(V12와 동일).
+    // 초록을 안쪽 main에만 주면 SafeAreaLayout이 패딩으로 잡은 인셋이 흰 띠로 남는다.
+    <SafeAreaLayout bgClass="bg-green-700">
       <main
         data-testid="run-result-view"
-        className="flex flex-1 flex-col overflow-y-auto bg-green-700"
+        className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto bg-green-700"
       >
         {/* 상단 액션 — 시안: 40×40, 좌16 / 우16, 상단 2 */}
         <div className="flex items-center justify-between px-4 text-off-white">

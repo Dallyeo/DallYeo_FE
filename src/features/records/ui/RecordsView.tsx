@@ -97,7 +97,8 @@ export function RecordsView() {
                   </div>
 
                   {/* 기록 리스트 */}
-                  <section className="mt-[38px] flex min-h-0 flex-1 flex-col px-4 pb-6">
+                  {/* 목록은 탭바 바로 위까지 채운다 — 하단 여백을 두면 스크롤 영역이 줄어 마지막 행이 잘려 보인다 */}
+                  <section className="mt-[38px] flex min-h-0 flex-1 flex-col px-4">
                     {records.length === 0 ? (
                       <p
                         data-testid="records-empty"
@@ -109,7 +110,7 @@ export function RecordsView() {
                       <>
                         <RecordListHeader />
                         {/* 화면 전체는 고정 — 목록만 내부 스크롤 */}
-                        <ul className="min-h-0 flex-1 overflow-y-auto">
+                        <ul className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
                           {records.map((record) => (
                             <li key={record.id}>
                               <RecordCard record={record} />

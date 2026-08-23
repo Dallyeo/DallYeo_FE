@@ -83,15 +83,15 @@ export function RecordDetailView() {
 
   return (
     // 상태바(safe-area)까지 primary로 채운다 — iOS에서 상단이 흰 띠로 남지 않게
-    // 상단 여백을 공통(12)보다 더 준다
-    <SafeAreaLayout topInset={false} bgClass="bg-green-700" style={{ '--screen-top-gap': '24px' } as CSSProperties}>
+    // 네비게이션바 화면은 상단 여백을 줄인다
+    <SafeAreaLayout topInset={false} bgClass="bg-green-700" style={{ '--screen-top-gap': '6px' } as CSSProperties}>
       <AsyncBoundary query={detailQuery} loadingLabel="기록을 불러오는 중..." testId="record-detail">
         {(detail) => {
           const route = resolveRoutePoints(detail);
           return (
             <main
               data-testid="record-detail-view"
-              className="relative flex flex-1 flex-col overflow-y-auto bg-green-700"
+              className="relative flex flex-1 flex-col overflow-x-hidden overflow-y-auto bg-green-700"
             >
               {/* 앱바 — 뒤로 40×40(좌16) / 가운데 날짜.
                   안전영역 패딩은 바깥에 (고정 높이와 같은 요소에 주면 내용이 상태바에 붙는다) */}

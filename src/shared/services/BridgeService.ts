@@ -40,6 +40,19 @@ export class BridgeService {
     return this.adapter.invoke<void>('logout');
   }
 
+  /**
+   * 계정 삭제(탈퇴) — 네이티브가 자기 토큰으로 `DELETE /users/me` 호출 + Keychain 파기 +
+   * `sessionChanged(unauthenticated)` emit 까지 한 번에 처리한다.
+   *
+   * ⚠️ **아직 호출하지 않는다.** 현재 탈퇴는 웹이 `DELETE /users/me`를 직접 친다
+   * (`SettingsView.deleteAccount`). 자격증명을 소유한 쪽이 그 자격증명을 쓰는 연산을
+   * 수행하는 게 옳지만, 어댑터에 capability 감지가 없어 미구현 플랫폼에서 호출하면
+   * 10초 타임아웃(`bridgeAdapter.ts`)이 난다 → **네이티브 구현이 확인된 뒤** 전환한다.
+   */
+  deleteAccount(): Promise<void> {
+    return this.adapter.invoke<void>('deleteAccount');
+  }
+
   /** 네이티브 주입 세션 조회 — 로그인 상태면 세션+토큰, 미로그인이면 null (부트스트랩용) */
   getCurrentSession(): Promise<BridgeSessionResult> {
     return this.adapter.invoke<BridgeSessionResult>('getCurrentSession');

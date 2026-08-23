@@ -19,6 +19,13 @@ function safeSet(key: string, value: string): void {
     // 저장 실패는 비차단(프라이빗 모드 등)
   }
 }
+function safeRemove(key: string): void {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // 삭제 실패도 비차단
+  }
+}
 
 /** 동기 헬퍼 — 라우팅 가드용(BR-U2-1) */
 export function readOnboardingCompleted(): boolean {
@@ -47,6 +54,11 @@ export const onboardingRepository: OnboardingRepository = {
   },
   markCompleted(): Promise<void> {
     safeSet(COMPLETED_KEY, 'true');
+    return Promise.resolve();
+  },
+  reset(): Promise<void> {
+    safeRemove(COMPLETED_KEY);
+    safeRemove(PROFILE_KEY);
     return Promise.resolve();
   },
 };
