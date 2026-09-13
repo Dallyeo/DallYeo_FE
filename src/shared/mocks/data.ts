@@ -206,12 +206,59 @@ export const mockRunSeeds = [
   },
 ];
 
+/**
+ * 연간 차트 확인용 — **올해 1월부터 지난달까지** 달마다 3회씩 채운다.
+ * `daysAgo` 시드는 최대 55일이라 연간 탭이 두세 칸만 서 있었다. 미래 달은 비워 둔다
+ * (아직 오지 않은 달에 기록이 있으면 그래프가 거짓말을 한다).
+ */
+const EARLIER_MONTH_PATTERNS = [
+  { courseId: 'c1', courseName: '은파호수 둘레길', distanceMeters: 6200, durationSeconds: 2280, averagePaceSeconds: 368, calories: 155, day: 7 },
+  { courseId: null, courseName: null, distanceMeters: 9800, durationSeconds: 3540, averagePaceSeconds: 361, calories: 245, day: 16 },
+  { courseId: 'c1', courseName: '군산 원도심 코스', distanceMeters: 13400, durationSeconds: 4980, averagePaceSeconds: 372, calories: 335, day: 24 },
+];
+
+interface MockRunRow {
+  id: number;
+  courseId: string | null;
+  courseName: string | null;
+  distanceMeters: number;
+  durationSeconds: number;
+  averagePaceSeconds: number;
+  calories: number;
+  startedAt: string;
+  finishedAt: string;
+}
+
+function buildEarlierMonthRuns(now: Date): MockRunRow[] {
+  const rows: MockRunRow[] = [];
+  for (let month = 0; month < now.getMonth(); month++) {
+    EARLIER_MONTH_PATTERNS.forEach((p, i) => {
+      // 달마다 거리를 조금씩 흔들어 막대 높이가 다 같아 보이지 않게 한다
+      const wobble = 1 + (((month * 7 + i * 3) % 5) - 2) * 0.12;
+      const finished = new Date(now.getFullYear(), month, p.day, 8, 30, 0, 0);
+      const durationSeconds = Math.round(p.durationSeconds * wobble);
+      rows.push({
+        id: 200 + month * 10 + i,
+        courseId: p.courseId,
+        courseName: p.courseName,
+        distanceMeters: Math.round(p.distanceMeters * wobble),
+        durationSeconds,
+        averagePaceSeconds: p.averagePaceSeconds,
+        calories: Math.round(p.calories * wobble),
+        startedAt: new Date(finished.getTime() - durationSeconds * 1000).toISOString(),
+        finishedAt: finished.toISOString(),
+      });
+    });
+  }
+  return rows;
+}
+
 /** daysAgo → 실제 ISO 시각으로 변환한 목 응답 (목록/상세 공용) */
 export function buildMockRuns() {
   const now = new Date();
   // 이번 주 시작(일요일) 00:00
   const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
-  return mockRunSeeds.map(({ daysAgo, fromWeekStart, durationSeconds, ...rest }) => {
+  const seeded = mockRunSeeds.map(({ daysAgo, fromWeekStart, durationSeconds, ...rest }) => {
     const finished =
       fromWeekStart !== undefined
         ? new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + fromWeekStart)
@@ -225,6 +272,7 @@ export function buildMockRuns() {
       finishedAt: finished.toISOString(),
     };
   });
+  return [...seeded, ...buildEarlierMonthRuns(now)];
 }
 
 

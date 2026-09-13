@@ -43,6 +43,8 @@ window.__dallyeoBridgeEmit({ event, payload })
 | `getPermissionStatus` | `{ type: 'location' \| 'notification' }` | `PermissionStatus` |
 | `requestPermission` | `{ type }` | `PermissionStatus` |
 | `pickProfilePhoto` | — | `string` (이미지 URL 또는 data URI) |
+| `saveImage` | `{ payload: ImagePayload }` | `'saved' \| 'denied' \| 'failed'` |
+| `shareImage` | `{ payload: ImagePayload }` | `void` (시트를 닫은 뒤 resolve) |
 
 `PermissionStatus` = `'granted' | 'denied' | 'blocked' | 'undetermined'`
 
@@ -51,13 +53,33 @@ session: { userId: string; displayName?: string; expiresAt?: string }  // ISO 86
 token:   string   // 백엔드 Bearer 토큰
 ```
 
+#### `saveImage` / `shareImage` — 완주 티켓 이미지 (V10·V12) · **신규, 네이티브 구현 필요**
+
+```ts
+ImagePayload = {
+  dataUrl: string    // "data:image/png;base64,..." — 배경이 투명한 PNG
+  fileName: string   // "dallyeo-ticket-<runId>.png"
+  text?: string      // 공유 시트 문구 ("10.23km 완주!") — saveImage는 무시
+}
+```
+
+- **이미지는 웹이 만든다.** 티켓은 CSS 마스크로 절취선 구멍을 뚫고 transform으로 기울어 있어
+  `WKWebView.takeSnapshot(rect:)`으로 찍으면 **구멍·모서리에 뒤 배경(초록)이 같이 찍힌다**.
+  엘리먼트만 떼어내려면 웹 렌더가 필요하다 → 네이티브는 **받은 PNG를 전달만** 하면 된다.
+- `saveImage` — iOS `PHPhotoLibrary`(Info.plist에 **`NSPhotoLibraryAddUsageDescription` 필요**),
+  Android `MediaStore`(API 29+ 권한 불필요). 권한 거부 시 `'denied'`를 돌려주고 설정 안내는 네이티브가 띄운다.
+- `shareImage` — iOS `UIActivityViewController(activityItems: [UIImage])`,
+  Android `ACTION_SEND` + `image/png`(FileProvider). 사용자가 취소해도 **정상 resolve**(에러 아님).
+- 페이로드는 수 MB 문자열이다. 캡처·전달을 한 번에 끝내도록 설계했으니 **이미지를 되돌려보내지 말 것**.
+- 미구현 상태로 호출되면 웹은 10초 뒤 타임아웃 → "앱을 업데이트하면 사용할 수 있어요" 안내로 처리한다.
+
 ### 응답이 없는 것 (`post` — 단방향)
 
 | method | params |
 |---|---|
 | `openCourseSearch` | — |
 | `openCourseConfirm` | `{ course }` |
-| `share` | `{ payload: { title?, text?, url? } }` |
+| `share` | `{ payload: { title?, text?, url? } }` — *V10/V12에서는 `shareImage`로 대체됨* |
 | `openExternalUrl` | `{ url: string }` |
 
 ---

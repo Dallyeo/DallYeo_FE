@@ -70,26 +70,11 @@ export function useRunResult() {
 
   const closeConfirm = useCallback((): void => setConfirmOpen(false), []);
 
-  /** 공유하기 → 네이티브 공유 시트 */
-  const share = useCallback((): void => {
-    if (!result) return;
-    bridgeService.share({
-      title: '달여 완주 기록',
-      text: `${result.distanceKm.toFixed(2)}km 완주!`,
-      url: shareUrlOf(result.runId),
-    });
-  }, [result]);
-
-  /** 링크복사 → 클립보드(웹뷰 미지원 시 안내) */
-  const copyLink = useCallback(async (): Promise<void> => {
-    if (!result) return;
-    try {
-      await navigator.clipboard?.writeText(shareUrlOf(result.runId));
-      toast.show('링크를 복사했어요.');
-    } catch {
-      toast.show('링크 복사를 지원하지 않는 환경이에요.');
-    }
-  }, [result]);
+  /*
+   * 공유/링크복사는 **티켓 이미지 기준**으로 바뀌어 뷰의 `useCaptureShare`가 담당한다.
+   * 이전 구현은 `https://dallyeo.app/runs/{id}` 링크를 공유했지만 앱은 로컬 번들이고
+   * 라우터에 `/runs/:id`가 없어 받는 사람에게는 죽은 링크였다.
+   */
 
   /** 주변 장소 → 외부 지도 열기 */
   const openPlace = useCallback((place: NearbyPlace): void => {
@@ -105,12 +90,6 @@ export function useRunResult() {
     confirmLogin,
     leaveWithoutSave,
     closeConfirm,
-    share,
-    copyLink,
     openPlace,
   };
-}
-
-function shareUrlOf(runId: string): string {
-  return `https://dallyeo.app/runs/${encodeURIComponent(runId)}`;
 }

@@ -4,7 +4,7 @@ export type { PermissionType, PermissionStatus } from './permission';
 export type { Region, Course, RegionCode, DistanceCategory } from './course';
 export { DISTANCE_CATEGORY_LABEL } from './course';
 export type { GateAction } from './gate';
-export type { SharePayload, Unsubscribe } from './shared';
+export type { SharePayload, ImagePayload, SaveImageResult, Unsubscribe } from './shared';
 export type {
   GeoPoint,
   RunResult,

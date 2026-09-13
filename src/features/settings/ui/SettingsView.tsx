@@ -105,6 +105,11 @@ export function SettingsView() {
             onClick={() => bridgeService.openExternalUrl(SETTINGS_LINKS.privacy)}
           />
           <MenuItem
+            label="위치서비스 이용약관"
+            testId="settings-location-terms"
+            onClick={() => bridgeService.openExternalUrl(SETTINGS_LINKS.locationTerms)}
+          />
+          <MenuItem
             label="로그아웃"
             border="top"
             testId="settings-logout"

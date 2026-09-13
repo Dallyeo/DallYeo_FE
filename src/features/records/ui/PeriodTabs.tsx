@@ -17,10 +17,7 @@ export function PeriodTabs({
   return (
     // 시안: 스트립 46 높이 (탭 38 + 위아래 4). 구분선은 아래에서 4 띄우고 좌우 19 인셋.
     <div className="relative h-[46px] pl-[15px] pt-1">
-      <span
-        aria-hidden
-        className="absolute inset-x-[19px] bottom-1 border-b border-gray-250"
-      />
+      <span aria-hidden className="absolute inset-x-[19px] bottom-1 border-b border-gray-250" />
       <div className="relative inline-flex gap-2.5" role="tablist">
         {STATS_PERIODS.map(({ key, label }) => (
           <button

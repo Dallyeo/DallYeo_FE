@@ -47,6 +47,40 @@ function resolveToken(): string {
   return env.devAccessToken ?? MOCK_TOKEN;
 }
 
+interface MockImagePayload {
+  dataUrl: string;
+  fileName: string;
+  text?: string;
+}
+
+/** data URL → 파일 다운로드 (브라우저 전용 확인 경로) */
+function downloadDataUrl({ dataUrl, fileName }: MockImagePayload): void {
+  if (typeof document === 'undefined') return;
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = fileName;
+  a.click();
+}
+
+/** 브라우저가 파일 공유를 지원하면 실제 공유 시트를, 아니면 다운로드로 폴백 */
+async function tryWebShare(payload: MockImagePayload): Promise<void> {
+  let file: File | null = null;
+  try {
+    const blob = await (await fetch(payload.dataUrl)).blob();
+    file = new File([blob], payload.fileName, { type: 'image/png' });
+  } catch {
+    // data URL 파싱 실패 — 폴백
+  }
+  if (file && navigator.canShare?.({ files: [file] })) {
+    // 여기서 실패하면 대개 사용자 취소다 — 다운로드로 대신하지 않는다
+    await navigator
+      .share({ files: [file], ...(payload.text ? { text: payload.text } : {}) })
+      .catch(() => undefined);
+    return;
+  }
+  downloadDataUrl(payload);
+}
+
 /**
  * 브라우저 단독 개발용 mock 브릿지 (NFR-BRIDGE-03).
  * 실제처럼 비동기로 응답. 로그인 시나리오는 ?mockLogin=cancel|fail 로 토글.
@@ -91,6 +125,17 @@ export function createMockBridgeAdapter(
         return wait('granted') as Promise<T>;
       case 'pickProfilePhoto':
         return wait('https://placehold.co/120x120?text=Photo') as Promise<T>;
+      case 'saveImage':
+      case 'shareImage': {
+        // 브라우저에는 앨범이 없다 — 대신 **파일로 내려받아** 결과 이미지를 눈으로 확인한다.
+        // (공유는 지원하는 브라우저에 한해 Web Share로 시도한 뒤 다운로드로 폴백)
+        const { payload } = (_params ?? {}) as { payload?: MockImagePayload };
+        if (payload) {
+          if (method === 'shareImage') await tryWebShare(payload);
+          else downloadDataUrl(payload);
+        }
+        return wait(method === 'saveImage' ? 'saved' : undefined) as Promise<T>;
+      }
       default:
         return wait(null) as Promise<T>;
     }
