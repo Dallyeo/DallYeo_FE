@@ -10,8 +10,7 @@ function stubJson(body: unknown) {
   );
 }
 
-const calledUrl = () =>
-  String((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]![0]);
+const calledUrl = () => String((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]![0]);
 
 /** 백엔드 목록 응답(backend-api.md §7.2) — 페이스·칼로리 없음 */
 const runDto = {

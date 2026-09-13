@@ -57,58 +57,9 @@ a,
 }
 
 /*
- * 티켓 절취선 — 시안(V10_결과 785:2701 `Subtract`) 기반.
- * 원본: 좌우 가장자리 반원 노치(r10) + 천공(r5) 16개. 천공은 사용자 결정으로 양 끝 1개씩 제외한 **14개**.
- *
- * 배치는 **px 고정이 아니라 폭의 15등분(비율)** 이다.
- *   - px 고정이면 기기 폭에 따라 양 끝 여백만 변해서 간격이 들쭉날쭉해 보인다.
- *   - 비율 배치는 여백과 간격이 함께 비례해 어느 기기에서나 같은 리듬으로 보인다.
- *   - 402 기준 간격 ≈ 24.7px (시안 21px과 근사).
- *
- * `--tear-y` = 카드 상단 기준 절취선 위치. 값 하나만 바꾸면 선이 통째로 이동한다.
- */
-.ticket-card {
-  --tear-y: 170px;
-  -webkit-mask-image:
-    radial-gradient(circle 5px at 6.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 13.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 20.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 26.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 33.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 40.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 46.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 53.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 60.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 66.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 73.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 80.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 86.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 93.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 10px at 0 var(--tear-y), transparent 10px, #000 10.5px),
-    radial-gradient(circle 10px at 100% var(--tear-y), transparent 10px, #000 10.5px);
-  mask-image:
-    radial-gradient(circle 5px at 6.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 13.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 20.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 26.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 33.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 40.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 46.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 53.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 60.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 66.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 73.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 80.0000% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 86.6667% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 5px at 93.3333% var(--tear-y), transparent 5px, #000 5.5px),
-    radial-gradient(circle 10px at 0 var(--tear-y), transparent 10px, #000 10.5px),
-    radial-gradient(circle 10px at 100% var(--tear-y), transparent 10px, #000 10.5px);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
-}
-
-/*
- * V12 티켓 뜯김 — 시안 4단계(V12_기록_1~4) relativeTransform 실측 경로 기반.
+ * 티켓 뜯김 애니메이션 — **V10 완주결과뷰 전용**(2026-09-06 이전).
+ * V12는 뜯긴 결과만 고정으로 보여주므로 애니메이션을 쓰지 않는다(`.ticket-piece--settled`).
+ * 시안 4단계(V12_기록_1~4) relativeTransform 실측 경로 기반.
  * Figma는 노드 **좌상단** 기준 회전 → CSS도 `transform-origin: 0 0`.
  *
  * 시안 대비 조정(사용자 요청):
@@ -207,6 +158,55 @@ a,
   100% { transform: translate(0.00px, 40.00px) rotate(0.000deg); }
 }
 
+/*
+ * 아랫조각 **아래에 오는 콘텐츠**(V10 「주변 둘러보기」)가 낙차를 따라오도록.
+ * 뜯김은 transform이라 레이아웃이 그대로다 → 따라오지 않으면 떨어진 카드가 글자를 덮는다.
+ * 회전은 빼고 `ticket-tear-bottom`의 **세로 성분만** 그대로 복사한다(어긋나면 간격이 출렁인다).
+ */
+@keyframes ticket-tear-follow {
+  0% { transform: translateY(0.00px); }
+  2.5% { transform: translateY(0.47px); }
+  5% { transform: translateY(0.92px); }
+  7.5% { transform: translateY(1.33px); }
+  10% { transform: translateY(1.72px); }
+  12.5% { transform: translateY(2.08px); }
+  15% { transform: translateY(2.41px); }
+  17.5% { transform: translateY(2.70px); }
+  20% { transform: translateY(2.98px); }
+  22.5% { transform: translateY(3.22px); }
+  25% { transform: translateY(3.43px); }
+  27.5% { transform: translateY(3.61px); }
+  30% { transform: translateY(3.77px); }
+  32.5% { transform: translateY(3.89px); }
+  35% { transform: translateY(3.99px); }
+  37.5% { transform: translateY(4.05px); }
+  40% { transform: translateY(4.09px); }
+  42.5% { transform: translateY(4.12px); }
+  45% { transform: translateY(4.71px); }
+  47.5% { transform: translateY(6.13px); }
+  50% { transform: translateY(8.31px); }
+  52.5% { transform: translateY(11.16px); }
+  55% { transform: translateY(14.55px); }
+  57.5% { transform: translateY(18.36px); }
+  60% { transform: translateY(22.40px); }
+  62.5% { transform: translateY(26.52px); }
+  65% { transform: translateY(30.53px); }
+  67.5% { transform: translateY(34.26px); }
+  70% { transform: translateY(37.56px); }
+  72.5% { transform: translateY(40.29px); }
+  75% { transform: translateY(42.32px); }
+  77.5% { transform: translateY(43.58px); }
+  80% { transform: translateY(44.00px); }
+  82.5% { transform: translateY(43.85px); }
+  85% { transform: translateY(43.41px); }
+  87.5% { transform: translateY(42.77px); }
+  90% { transform: translateY(42.00px); }
+  92.5% { transform: translateY(41.23px); }
+  95% { transform: translateY(40.59px); }
+  97.5% { transform: translateY(40.15px); }
+  100% { transform: translateY(40.00px); }
+}
+
 .ticket-piece {
   transform-origin: 0 0;
 }
@@ -226,16 +226,38 @@ a,
   animation-name: ticket-tear-bottom;
 }
 
+.ticket-follow--torn {
+  animation: ticket-tear-follow 900ms linear both;
+}
+
+/*
+ * **뜯긴 상태 고정** (V12 기록상세). 애니메이션 없이 최종 포즈만 준다.
+ * 시안 `V12_결과_new`(956:2130) 실측: 윗조각 relativeTransform
+ *   [[0.997573, 0.069623, 10.492], [-0.069623, 0.997573, 142.807]]
+ * = 원위치(16, 140) 기준 translate(-5.508, +2.807) + rotate(-3.9924deg), 좌상단 기준.
+ * 아랫조각은 시안에서 **움직이지 않는다**(16, 310 그대로) → 별도 규칙 없음.
+ */
+.ticket-piece--settled.ticket-piece--top {
+  transform: translate(-5.508px, 2.807px) rotate(-3.9924deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ticket-piece--torn {
+  .ticket-piece--torn,
+  .ticket-follow--torn {
     animation-duration: 1ms;
   }
 }
 
 /*
- * 절취선 구멍 — V10과 같은 모양(가장자리 반원 r10 + 천공 r5).
- * 윗조각은 **아래 가장자리**, 아랫조각은 **위 가장자리**에 파이므로 `--tear-y`만 다르다.
- * (V10 `.ticket-card`와 동일한 마스크 공식 — 폭의 15등분 비율 배치)
+ * 절취선 구멍 — 시안 `Subtract`(V10_결과 785:2701 / V12_기록_전 904:1390) 기반.
+ * 가장자리 반원 노치(r10) + 천공(r5). 천공은 사용자 결정으로 양 끝 1개씩 제외한 **14개**.
+ * 윗조각은 **아래 가장자리**, 아랫조각은 **위 가장자리**에 파이므로 `--tear-y`만 다르다
+ * — 두 조각이 붙어 있으면 반원끼리 만나 시안의 온전한 구멍이 된다.
+ *
+ * 배치는 **px 고정이 아니라 폭의 15등분(비율)** 이다.
+ *   - px 고정이면 기기 폭에 따라 양 끝 여백만 변해서 간격이 들쭉날쭉해 보인다.
+ *   - 비율 배치는 여백과 간격이 함께 비례해 어느 기기에서나 같은 리듬으로 보인다.
+ *   - 402 기준 간격 ≈ 24.7px (시안 21px과 근사).
  */
 .ticket-notch {
   -webkit-mask-image:
@@ -284,8 +306,14 @@ a,
   --tear-y: 0%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ticket-piece {
-    animation-duration: 1ms;
-  }
+
+/*
+ * 티켓 캡처 범위 (V10·V12 저장/공유).
+ * 뜯긴 티켓은 아랫조각이 +40 내려가고 윗조각이 기울어 **부모 박스 밖으로 넘친다**.
+ * 캡처는 노드 크기만큼만 그리므로 그대로 두면 잘린다 → 패딩으로 여유를 주고,
+ * 같은 크기의 음수 마진으로 되돌려 **화면 레이아웃은 손대지 않는다**.
+ */
+.ticket-capture {
+  padding: 12px 12px 56px;
+  margin: -12px -12px -56px;
 }
