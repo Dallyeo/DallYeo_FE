@@ -75,12 +75,66 @@ ImagePayload = {
 
 ### 응답이 없는 것 (`post` — 단방향)
 
-| method | params |
-|---|---|
-| `openCourseSearch` | — |
-| `openCourseConfirm` | `{ course }` |
-| `share` | `{ payload: { title?, text?, url? } }` — *V10/V12에서는 `shareImage`로 대체됨* |
-| `openExternalUrl` | `{ url: string }` |
+| method | params | 상태 |
+|---|---|---|
+| `openCourseSearch` | — | |
+| `openCourseConfirm` | `{ course }` | |
+| `share` | `{ payload: { title?, text?, url? } }` | *V10/V12에서는 `shareImage`로 대체됨* |
+| `openExternalUrl` | `{ url: string }` | **미동작 확인됨 — 네이티브 구현 필요** |
+
+> ⚠️ **단방향 메시지에는 `id`가 없다.** `{ method, params }`만 들어온다
+> (`bridgeAdapter.ts:74`). 네이티브 핸들러가 `id`를 필수로 읽고 있으면 이 호출들이
+> **조용히 버려진다** — 응답도 타임아웃도 없어서 웹은 실패를 감지할 수 없다.
+
+#### `openExternalUrl` — 외부 링크 열기 · **네이티브 구현 필요**
+
+```ts
+params = { url: string }   // 항상 https:// 절대 URL
+```
+
+**웹에서 호출되는 지점 (전부 5곳)**
+
+| 화면 | 항목 | URL |
+|---|---|---|
+| V13 설정 | 문의하기 | `https://forms.gle/ysoPxd5yVm8AW5AV7` (Google Form) |
+| V13 설정 | 이용약관 | `https://palrang22.notion.site/3dace2dd63a980599370f4eb0fe1c657` |
+| V13 설정 | 개인정보 보호약관 | `https://palrang22.notion.site/3dace2dd63a98092b40ef532dd3fe6de` |
+| V13 설정 | 위치서비스 이용약관 | `https://palrang22.notion.site/3dace2dd63a980fa8032caa4b1c3702f` |
+| V10 완주결과 | 주변 장소 카드 탭 | `https://map.kakao.com/link/map/{이름},{lat},{lng}` |
+
+웹 코드: `SettingsView.tsx:95~112`, `useRunResult.ts:81` → `BridgeService.openExternalUrl()`.
+URL 상수는 `src/domain/constants.ts`의 `SETTINGS_LINKS`. **웹 쪽 배선은 완료 상태**이고,
+네이티브가 이 메서드를 처리하는 순간 5곳이 한꺼번에 동작한다.
+
+**iOS**
+
+```swift
+case "openExternalUrl":
+    guard let url = (params["url"] as? String).flatMap(URL.init(string:)) else { return }
+    // (A) 앱 밖으로 — 사파리/설치된 앱(카카오맵 등)으로 전환
+    UIApplication.shared.open(url)
+    // (B) 앱 안에서 — 약관처럼 읽고 바로 돌아오는 링크에 권장
+    // present(SFSafariViewController(url: url), animated: true)
+```
+
+**Android**
+
+```kotlin
+"openExternalUrl" -> {
+    val url = params.optString("url").takeIf { it.isNotBlank() } ?: return
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    // 또는 CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(url))
+}
+```
+
+- **절대 같은 WebView에서 열지 말 것.** 웹은 로컬 번들 SPA라 외부 주소로 네비게이션하면
+  앱 화면이 통째로 외부 페이지로 바뀌고 **돌아올 방법이 없다**(히스토리도 라우터 상태도 날아간다).
+  새 사파리/커스텀탭/외부 앱으로 띄워야 한다.
+- 약관 3종은 **Notion 공개 페이지**다. 로그인 없이 열리지만 렌더가 느린 편이라
+  `SFSafariViewController`/Custom Tabs 쪽이 체감이 낫다.
+- 카카오맵 링크는 유니버설 링크라 **카카오맵 앱이 깔려 있으면 앱으로 전환**된다(정상 동작).
+- 단방향이라 **실패해도 웹은 모른다.** 처리 못 한 method는 네이티브에서 로그를 남겨 줄 것.
+- `https` 이외 스킴은 웹에서 만들지 않는다. 방어적으로 `url.scheme == "https"`만 열어도 된다.
 
 ---
 
@@ -130,8 +184,8 @@ ImagePayload = {
 | 항목 | 상태 |
 |---|---|
 | `startRun(course)` | CLAUDE.md 초안엔 있으나 **웹에 미구현**. 코스 시작을 네이티브가 어떻게 트리거할지 확정 필요 |
-| 티켓 이미지 **저장** | V10/V12 다운로드 버튼은 **배선만** 됨. 이미지 생성 주체(웹 canvas vs 네이티브 캡처)와 사진 권한 미합의 |
-| 이미지 **공유** | 현재 `share`는 `{title, text, url}`만. 이미지 공유하려면 payload 확장 필요 |
+| 티켓 이미지 **저장/공유** | ~~미합의~~ → **§2 `saveImage`/`shareImage`로 확정**(웹이 PNG 생성, 네이티브는 전달만). 네이티브 구현 대기 |
+| `openExternalUrl` | 계약은 확정(§2). **네이티브 미구현으로 설정 약관·주변 장소 링크가 동작하지 않음** |
 
 ---
 

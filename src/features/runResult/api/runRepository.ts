@@ -2,6 +2,7 @@ import type { RunRepository } from '@/domain/repositories';
 import type { GeoPoint, NearbyPlace, PlaceSegment, RunResult } from '@/domain/types';
 import { apiClient } from '@/shared/api/apiClient';
 import { env } from '@/shared/config/env';
+import { logger } from '@/shared/observability/logger';
 
 /** 백엔드 장소 항목 (backend-api.md §4 PlaceSummary) */
 interface PlaceDto {
@@ -66,7 +67,21 @@ export const runRepository: RunRepository = {
     return rows.map(toPlace);
   },
   async saveResult(result: RunResult): Promise<{ recordId: string }> {
-    const saved = await apiClient.post<{ id: number | string }>('/runs', toRunBody(result));
+    const body = toRunBody(result);
+    // 무엇을 보냈는지 남긴다 — 거리 0 / 폴리라인 0개처럼 **보낸 값 자체가 문제**인 경우가 많다.
+    // (폴리라인 좌표열은 통째로 남기면 로그가 터지므로 개수만)
+    logger.info('run_save_request', {
+      distanceMeters: body.distanceMeters,
+      durationSeconds: body.durationSeconds,
+      averagePaceSeconds: body.averagePaceSeconds,
+      polylineCount: body.polyline.length,
+      courseId: body.courseId,
+      startedAt: body.startedAt,
+      finishedAt: body.finishedAt,
+      nativeRunId: result.runId,
+      note: '네이티브 runId는 바디에 포함되지 않는다(백엔드가 새 id를 발급)',
+    });
+    const saved = await apiClient.post<{ id: number | string }>('/runs', body);
     return { recordId: String(saved.id) };
   },
 };

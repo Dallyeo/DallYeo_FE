@@ -27,13 +27,25 @@ export function useRunResult() {
 
   const save = useCallback(async (): Promise<void> => {
     const current = useRunResultStore.getState();
-    if (!current.result || current.saved) return;
+    // 저장을 **건너뛴 이유**도 남긴다 — 실기기에서 "아무 일도 안 일어남"이 제일 진단하기 어렵다
+    if (!current.result || current.saved) {
+      logger.info('run_save_skipped', {
+        reason: !current.result ? '완주 결과 없음(runCompleted 미수신)' : '이미 저장됨',
+      });
+      return;
+    }
     setSaving(true);
     try {
-      await runRepository.saveResult(current.result);
+      const { recordId } = await runRepository.saveResult(current.result);
+      logger.info('run_saved', { recordId });
       markSaved();
     } catch (e) {
-      logger.error('run_save_failed', { message: (e as Error)?.message });
+      const err = e as { status?: number; code?: string; message?: string };
+      logger.error('run_save_failed', {
+        status: err?.status,
+        code: err?.code,
+        message: err?.message,
+      });
       toast.show('기록 저장에 실패했어요. 잠시 후 다시 시도해주세요.');
     } finally {
       setSaving(false);
@@ -44,6 +56,11 @@ export function useRunResult() {
   useEffect(() => {
     if (result && status === 'authenticated' && !saved) {
       void save();
+      return;
+    }
+    // 비로그인이면 **설계상** 저장하지 않는다 — 버그로 오인되기 쉬워 명시적으로 남긴다
+    if (result && status !== 'authenticated') {
+      logger.info('run_save_gated', { status, hint: '비로그인 상태 — 로그인 후 저장된다' });
     }
   }, [result, status, saved, save]);
 
