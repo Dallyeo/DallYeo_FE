@@ -142,10 +142,13 @@ describe('RunResultView (V10)', () => {
       newAchievements: [
         {
           code: 'JJAMPPONG',
+          category: 'GUNSAN',
+          sortOrder: 30,
           name: '짬뽕을 먹을 자격이 있는 자',
           description: '짬뽕거리 코스를 완주했다.',
           unlocked: true,
           iconOnUrl: 'https://example.com/jjamppong_on.webp',
+          iconOffUrl: 'https://example.com/jjamppong_off.webp',
         },
       ],
     });
@@ -169,10 +172,13 @@ describe('RunResultView (V10)', () => {
         newAchievements: [
           {
             code: 'EARLY_BIRD',
+            category: 'COMMON',
+            sortOrder: 170,
             name: '얼리버드',
             description: '한국시간 08시 이전에 시작했다.',
             unlocked: true,
             iconOnUrl: 'https://example.com/early_bird_on.webp',
+            iconOffUrl: 'https://example.com/early_bird_off.webp',
           },
         ],
       },
