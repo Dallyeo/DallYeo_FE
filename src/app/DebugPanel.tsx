@@ -1,4 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { emitMockBridgeEvent } from '@/shared/bridge';
 import { clearLogs, getLogs, subscribeLogs, type LogEntry } from '@/shared/observability/logger';
 import { env } from '@/shared/config/env';
 import { useSessionStore } from '@/shared/auth/sessionStore';
@@ -102,6 +103,7 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
   const status = useSessionStore((s) => s.status);
   const runPayload = useRunResultStore((s) => s.payload);
   const [copied, setCopied] = useState(false);
+  const [recordId, setRecordId] = useState('1');
 
   const report = [
     `# 달여 디버그 ${new Date().toISOString()}`,
@@ -111,7 +113,7 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
     `publicApiBaseUrl=${env.publicApiBaseUrl}`,
     `msw=${env.enableMsw} forceMockBridge=${env.forceMockBridge}`,
     // 저장은 네이티브가 한다 — 웹이 받는 건 runId와 도착 좌표뿐이다(2026-09-14 계약 변경)
-    `runCompleted=${runPayload ? `runId=${runPayload.runId} end=${runPayload.end.lat},${runPayload.end.lng}` : '없음'}`,
+    `runCompleted=${runPayload ? `recordId=${runPayload.recordId ?? '없음(조회 불가)'} end=${runPayload.end.lat},${runPayload.end.lng}` : '없음'}`,
     '',
     ...logs.map(formatEntry),
   ].join('\n');
@@ -167,6 +169,8 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
         </button>
       </div>
 
+      <RunCompletedTrigger recordId={recordId} onRecordIdChange={setRecordId} onFired={onClose} />
+
       {/* 클립보드가 막힌 WebView를 대비해 **선택 가능한 원문**을 그대로 둔다 (길게 눌러 복사 / 스크린샷) */}
       <pre
         data-testid="debug-report"
@@ -174,6 +178,67 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
       >
         {report}
       </pre>
+    </div>
+  );
+}
+
+/**
+ * 완주결과뷰(V10) 수동 트리거.
+ *
+ * V10은 **실제로 달려야만** 뜨는 화면이라 브라우저에서는 확인할 길이 없었다. 여기서
+ * `runCompleted`를 직접 쏘면 네이티브가 보낸 것과 **완전히 같은 경로**를 탄다 —
+ * 리스너의 페이로드 검증 → store → 라우팅 → `GET /runs/{recordId}` → 티켓 렌더.
+ * (mock 브릿지일 때만 동작한다. 실기기에서는 버튼이 비활성으로 보인다.)
+ *
+ * 기록 id는 **실제로 존재하는 본인 기록**이어야 한다 — 없는 id면 404, 숫자가 아니면 400이다.
+ * MSW를 켜면 목 기록이 응답하므로 아무 숫자나 써도 된다.
+ */
+function RunCompletedTrigger({
+  recordId,
+  onRecordIdChange,
+  onFired,
+}: {
+  recordId: string;
+  onRecordIdChange: (value: string) => void;
+  onFired: () => void;
+}) {
+  const [result, setResult] = useState<string | null>(null);
+
+  function fire(): void {
+    // 좌표는 군산 은파호수 부근 — 「주변 둘러보기」가 실제로 뭔가를 찾는 자리여야 의미가 있다
+    const ok = emitMockBridgeEvent('runCompleted', {
+      recordId: recordId.trim(),
+      end: { lat: 35.9701, lng: 126.7402 },
+    });
+    if (!ok) {
+      setResult('네이티브 브릿지에서는 쓸 수 없어요 (브라우저 전용)');
+      return;
+    }
+    onFired();
+  }
+
+  return (
+    <div className="shrink-0 border-t border-white/10 px-3 py-2">
+      <div className="flex items-center gap-2">
+        <span className="shrink-0 text-caption text-white/70">V10 완주결과</span>
+        <input
+          value={recordId}
+          onChange={(e) => onRecordIdChange(e.target.value)}
+          inputMode="numeric"
+          aria-label="기록 id"
+          placeholder="기록 id"
+          className="w-20 rounded bg-white/10 px-2 py-1 text-caption text-white"
+        />
+        <button
+          type="button"
+          data-testid="debug-fire-run-completed"
+          onClick={fire}
+          className="rounded bg-white/15 px-2 py-1 text-caption"
+        >
+          runCompleted 발행
+        </button>
+      </div>
+      {result && <p className="pt-1 text-caption text-white/60">{result}</p>}
     </div>
   );
 }

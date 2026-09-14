@@ -44,23 +44,52 @@ function isGeoPoint(value: unknown): value is GeoPoint {
 
 /**
  * 계약에 맞는 페이로드만 통과시킨다.
- * runId는 네이티브가 숫자로 줄 수도 있어(백엔드 `id`가 number다) 문자열로 정규화한다.
+ *
+ * **통과 기준은 도착 좌표 하나다.** 기록 id는 없어도 화면을 띄운다 — 저장이 실패했거나
+ * 비로그인이면 id가 없는 게 정상이고, 그때도 좌표만으로 「주변 둘러보기」는 동작한다.
  */
 function parsePayload(raw: unknown): RunCompletedPayload | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const p = raw as Record<string, unknown>;
-  const runId = p['runId'];
-  if (typeof runId !== 'string' && typeof runId !== 'number') return null;
-  if (String(runId).length === 0) return null;
   // 도착 좌표는 `end`가 계약이지만, 이전 계약의 `endLocation`으로 와도 받아준다
   const end = isGeoPoint(p['end']) ? p['end'] : isGeoPoint(p['endLocation']) ? p['endLocation'] : null;
   if (!end) return null;
+  const recordId = pickRecordId(p);
   const newAchievements = parseAchievements(p['newAchievements']);
   return {
-    runId: String(runId),
+    ...(recordId ? { recordId } : {}),
     end,
     ...(newAchievements.length > 0 ? { newAchievements } : {}),
   };
+}
+
+/**
+ * 조회에 쓸 **백엔드 기록 id** 고르기.
+ *
+ * 계약상 이름은 `runId`지만, iOS는 현재 `runId`에 **`clientRunId`(UUID 멱등키)** 를 싣고
+ * 진짜 기록 id를 `recordId`로 따로 보낸다(2026-09-14 확인). 백엔드 `GET /runs/{id}`는
+ * `@PathVariable Long`이라 UUID를 보내면 **무조건 400**이다.
+ *
+ * 그래서 이름을 믿지 않고 **값의 모양**으로 고른다 — 후보 중 숫자로만 이루어진 첫 값.
+ * 어느 쪽이 먼저 배포되든 동작하고, 양쪽이 `runId`로 정리되면 이 함수는 그대로 통과한다.
+ */
+function pickRecordId(p: Record<string, unknown>): string | undefined {
+  for (const key of ['recordId', 'runId'] as const) {
+    const value = p[key];
+    if (typeof value !== 'string' && typeof value !== 'number') continue;
+    const text = String(value).trim();
+    // 백엔드 id는 Long — 숫자가 아니면 조회에 쓸 수 없다(400)
+    if (/^\d+$/.test(text)) return text;
+  }
+  // 값은 왔는데 전부 숫자가 아니면 **계약 불일치**다. 화면은 띄우되 원인을 남긴다.
+  const seen = ['recordId', 'runId'].filter((k) => p[k] !== undefined);
+  if (seen.length > 0) {
+    logger.error('runCompleted_unusable_record_id', {
+      seen: Object.fromEntries(seen.map((k) => [k, String(p[k])])),
+      hint: 'GET /runs/{id}는 Long만 받는다 — clientRunId(UUID)가 아니라 POST /runs 응답의 data.id를 보내야 한다',
+    });
+  }
+  return undefined;
 }
 
 /**

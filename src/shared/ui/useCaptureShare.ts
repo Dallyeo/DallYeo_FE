@@ -66,8 +66,14 @@ export function useCaptureShare({ fileName, text }: Options) {
         else if (outcome === 'denied') toast.show('사진 접근 권한이 필요해요. 설정에서 허용해주세요.');
         else toast.show('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
       } catch (e) {
-        // 네이티브가 아직 이 메서드를 구현하지 않았으면 타임아웃으로 떨어진다
-        const unsupported = e instanceof BridgeError && e.kind === 'timeout';
+        /*
+         * 네이티브가 이 메서드를 아직 구현하지 않은 경우가 두 갈래다:
+         *  - 아예 응답이 없으면 10초 뒤 `timeout`
+         *  - 메서드 화이트리스트에서 거절하면 즉시 `failed` + "unknown method" 메시지
+         * (2026-09-14 현재 iOS `BridgeMethod` enum에 saveImage/shareImage가 없어 후자로 온다)
+         * 둘 다 "앱을 업데이트하세요"가 맞는 안내다 — "이미지를 만들지 못했어요"는 오해를 준다.
+         */
+        const unsupported = isUnsupportedMethod(e);
         logger.error('ticket_capture_failed', {
           action,
           message: (e as Error)?.message,
@@ -92,4 +98,11 @@ export function useCaptureShare({ fileName, text }: Options) {
     saveImage: useCallback(() => run('save'), [run]),
     shareImage: useCallback(() => run('share'), [run]),
   };
+}
+
+/** 네이티브가 아직 구현하지 않은 메서드인지 — 타임아웃 또는 unknown method 거절 */
+function isUnsupportedMethod(e: unknown): boolean {
+  if (!(e instanceof BridgeError)) return false;
+  if (e.kind === 'timeout') return true;
+  return e.kind === 'failed' && /unknown[_ ]?method|unsupported|not implemented/i.test(e.message);
 }
