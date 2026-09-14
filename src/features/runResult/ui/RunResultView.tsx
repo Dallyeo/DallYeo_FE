@@ -65,6 +65,7 @@ export function RunResultView() {
   const navigate = useNavigate();
   const {
     payload,
+    hasRecord,
     resultQuery,
     confirmOpen,
     leaveToMain,
@@ -79,7 +80,7 @@ export function RunResultView() {
   const result = resultQuery.data;
   // 티켓만 투명 배경 PNG로 떠서 네이티브 앨범 저장 / 공유 시트로 넘긴다
   const ticket = useCaptureShare({
-    fileName: () => `dallyeo-ticket-${result?.runId ?? payload?.runId ?? 'run'}`,
+    fileName: () => `dallyeo-ticket-${result?.runId ?? payload?.recordId ?? 'run'}`,
     text: () => (result ? `${formatDistanceKm(result.distanceKm)}km 완주!` : '달여 완주 기록'),
   });
   const [nearbyOpen, setNearbyOpen] = useState(false);
@@ -162,6 +163,22 @@ export function RunResultView() {
             <p className="text-subheading text-off-white">로그인하면 기록이 저장돼요.</p>
             <p className="text-body text-off-white/80">
               로그인 후에 이번 러닝 기록을 다시 확인할 수 있어요.
+            </p>
+          </div>
+        ) : !hasRecord ? (
+          /*
+            로그인은 됐는데 조회할 기록 id가 없다 — 네이티브 저장이 실패했거나,
+            `runId`에 `clientRunId`(UUID)가 실려 와 조회에 못 쓰는 경우다.
+            여기서 스피너를 돌리면 영원히 멈춰 있으므로 상태를 분명히 드러낸다
+            (원인은 디버그 패널의 `runCompleted_unusable_record_id` 로그에 남는다).
+          */
+          <div
+            data-testid="run-result-no-record"
+            className="flex flex-1 flex-col items-center justify-center gap-2 px-8 text-center"
+          >
+            <p className="text-subheading text-off-white">기록을 불러오지 못했어요.</p>
+            <p className="text-body text-off-white/80">
+              완주는 정상적으로 끝났어요. 기록은 잠시 뒤 기록 탭에서 확인할 수 있어요.
             </p>
           </div>
         ) : (

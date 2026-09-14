@@ -29,9 +29,11 @@ export function useRunResult() {
   // 비로그인이면 애초에 저장이 없어 401이 난다 → AsyncBoundary가 에러 상태로 잡는다.
   const stamps = payload?.newAchievements;
   const resultQuery = useQuery<RunResult>({
-    queryKey: ['runResult', payload?.runId],
-    queryFn: () => runRepository.getResult(payload!.runId),
-    enabled: !!payload?.runId && status === 'authenticated',
+    queryKey: ['runResult', payload?.recordId],
+    queryFn: () => runRepository.getResult(payload!.recordId!),
+    // 기록 id가 없으면 **조회를 아예 하지 않는다** — 백엔드는 Long만 받아 400이 확정이고,
+    // 비로그인이면 애초에 저장된 기록이 없다.
+    enabled: !!payload?.recordId && status === 'authenticated',
     // 완주 직후 한 번 받으면 끝 — 화면을 오가며 같은 기록을 다시 받을 이유가 없다
     staleTime: Infinity,
     /*
@@ -75,6 +77,8 @@ export function useRunResult() {
 
   return {
     payload,
+    /** 조회 가능한 기록 id가 왔는지 — 없으면 티켓을 그릴 원본이 없다 */
+    hasRecord: !!payload?.recordId,
     resultQuery,
     confirmOpen,
     leaveToMain,

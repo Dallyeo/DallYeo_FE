@@ -22,11 +22,11 @@ vi.mock('@/shared/ui/captureElement', () => ({
   prewarmCapture: () => undefined,
 }));
 
-/** 네이티브가 주는 건 runId와 도착 좌표뿐 — 내용은 `GET /runs/{id}`가 채운다 */
-const payload: RunCompletedPayload = { runId: 'r1', end: { lat: 35.9, lng: 126.7 } };
+/** 네이티브가 주는 건 기록 id와 도착 좌표뿐 — 내용은 `GET /runs/{id}`가 채운다 */
+const payload: RunCompletedPayload = { recordId: '1', end: { lat: 35.9, lng: 126.7 } };
 
 const result: RunResult = {
-  runId: 'r1',
+  runId: '1',
   courseName: '짬뽕런',
   distanceKm: 10.23,
   durationSec: 3661,
@@ -88,7 +88,7 @@ describe('RunResultView (V10)', () => {
   });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('runId로 GET /runs/{id} 를 불러 결과를 그린다 (웹은 저장하지 않는다)', async () => {
+  it('기록 id로 GET /runs/{id} 를 불러 결과를 그린다 (웹은 저장하지 않는다)', async () => {
     useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
     renderView();
 
@@ -102,7 +102,7 @@ describe('RunResultView (V10)', () => {
     const requested = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.map((c) =>
       String(c[0]),
     );
-    expect(requested.some((u) => u.includes('/runs/r1'))).toBe(true);
+    expect(requested.some((u) => u.includes('/runs/1'))).toBe(true);
     // ⚠️ 저장은 네이티브 소관 — 웹이 POST /runs 를 부르면 안 된다
     const methods = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.map(
       (c) => (c[1] as RequestInit | undefined)?.method,
@@ -202,6 +202,19 @@ describe('RunResultView (V10)', () => {
     expect(requested.some((u) => u.includes('/runs/'))).toBe(false);
   });
 
+  it('로그인했는데 조회할 기록 id가 없으면 스피너 대신 사유를 보여준다 (저장 실패·계약 불일치)', () => {
+    useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
+    useRunResultStore.setState({ payload: { end: { lat: 35.9, lng: 126.7 } } });
+    renderView();
+    expect(screen.getByTestId('run-result-no-record')).toBeInTheDocument();
+    // 좌표만으로 동작하는 「주변 둘러보기」는 그대로 열려 있어야 한다
+    expect(screen.getByTestId('open-nearby')).toBeInTheDocument();
+    const requested = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.map((c) =>
+      String(c[0]),
+    );
+    expect(requested.some((u) => u.includes('/runs/'))).toBe(false);
+  });
+
   it('비로그인: 메인화면 → 이탈 확인 팝업, 로그인 클릭 시 로그인 시트 오픈(saveRunResult)', () => {
     useSessionStore.setState({ status: 'unauthenticated', session: null });
     renderView();
@@ -249,7 +262,7 @@ describe('RunResultView (V10)', () => {
       expect(saveImage).toHaveBeenCalledWith(
         expect.objectContaining({
           dataUrl: 'data:image/png;base64,AAA',
-          fileName: 'dallyeo-ticket-r1.png',
+          fileName: 'dallyeo-ticket-1.png',
         }),
       );
       await waitFor(() => expect(useToastStore.getState().message).toBe('사진에 저장했어요.'));

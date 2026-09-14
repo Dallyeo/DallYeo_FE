@@ -21,8 +21,14 @@ export interface GeoPoint {
  * 통계·경로는 들어 있지 않다 — 전부 `GET /runs/{runId}`로 받아온다.
  */
 export interface RunCompletedPayload {
-  /** 네이티브가 `POST /runs`로 저장하고 받은 백엔드 기록 id */
-  runId: string;
+  /**
+   * `GET /runs/{id}` 조회에 쓸 **백엔드 기록 id**(`POST /runs` 응답의 `data.id`).
+   *
+   * ⚠️ 백엔드는 `@PathVariable Long`이라 **숫자가 아니면 400**이다. 그래서 리스너가
+   * 숫자로 보이는 값만 여기에 넣는다 — `clientRunId`(UUID 멱등키)가 섞여 들어오면 버린다.
+   * 저장 실패·비로그인이면 없을 수 있고, 그때도 좌표만으로 「주변 둘러보기」는 동작한다.
+   */
+  recordId?: string;
   /** 완주 종료 좌표 — 주변 장소(500m) 조회 기준 */
   end: GeoPoint;
   /**
