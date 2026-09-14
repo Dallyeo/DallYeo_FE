@@ -112,6 +112,7 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
     `apiBaseUrl=${env.apiBaseUrl}`,
     `publicApiBaseUrl=${env.publicApiBaseUrl}`,
     `msw=${env.enableMsw} forceMockBridge=${env.forceMockBridge}`,
+    ...readViewportDiagnostics(),
     // 저장은 네이티브가 한다 — 웹이 받는 건 runId와 도착 좌표뿐이다(2026-09-14 계약 변경)
     `runCompleted=${runPayload ? `recordId=${runPayload.recordId ?? '없음(조회 불가)'} end=${runPayload.end.lat},${runPayload.end.lng}` : '없음'}`,
     '',
@@ -180,6 +181,80 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
       </pre>
     </div>
   );
+}
+
+/**
+ * 뷰포트 진단 — **웹 높이 vs 웹뷰 높이**를 갈라 보기 위한 계측.
+ *
+ * "WKScrollView가 화면보다 훨씬 큰데 내용은 위에 붙는다"는 증상은 원인이 두 갈래고,
+ * 둘은 숫자로 구분된다:
+ *   ① 웹 문서가 뷰포트보다 크다 → 웹(CSS) 책임
+ *   ② 웹뷰 **프레임/인셋**이 화면보다 크다 → 네이티브 책임. 웹은 그 큰 높이를 그대로 믿고
+ *      `100dvh`로 늘어나므로, 아래쪽(탭바 등)이 화면 밖으로 밀리고 내용만 위에 남는다.
+ *
+ * 그래서 문서 높이만이 아니라 **화면 높이·dvh 실측·safe-area 인셋**을 함께 남긴다.
+ * 실기기 WebView에는 콘솔이 없어 이 패널이 유일한 창구다.
+ */
+function readViewportDiagnostics(): string[] {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return [];
+  const de = document.documentElement;
+
+  // env()와 dvh는 JS에서 직접 못 읽는다 — 화면 밖 프로브에 실제로 적용해 계산값을 회수한다
+  const probe = document.createElement('div');
+  probe.setAttribute('aria-hidden', 'true');
+  probe.style.cssText = [
+    'position:fixed',
+    'top:0',
+    'left:0',
+    'width:0',
+    'visibility:hidden',
+    'pointer-events:none',
+    'height:100dvh',
+    'padding-top:env(safe-area-inset-top)',
+    'padding-right:env(safe-area-inset-right)',
+    'padding-bottom:env(safe-area-inset-bottom)',
+    'padding-left:env(safe-area-inset-left)',
+  ].join(';');
+  document.body.appendChild(probe);
+  const cs = getComputedStyle(probe);
+  const dvh = Math.round(probe.getBoundingClientRect().height);
+  const inset = {
+    top: cs.paddingTop,
+    right: cs.paddingRight,
+    bottom: cs.paddingBottom,
+    left: cs.paddingLeft,
+  };
+  probe.remove();
+
+  const vv = window.visualViewport;
+  const screenH = window.screen?.height ?? 0;
+  // 문서가 뷰포트보다 크면 웹 책임 — global.css가 html/body/#root를 100dvh + overflow:hidden으로
+  // 묶어두었으므로 정상이라면 **항상 같아야 한다**
+  const overflowing = de.scrollHeight > de.clientHeight;
+  // dvh가 화면보다 크면 웹뷰 프레임/인셋이 과대하다는 뜻 — 네이티브 책임
+  const oversized = screenH > 0 && dvh > screenH + 1;
+
+  return [
+    '',
+    '## 뷰포트 (레이아웃 원인 판별)',
+    `screen=${window.screen?.width ?? '?'}x${screenH} dpr=${window.devicePixelRatio}`,
+    `innerHeight=${window.innerHeight} outerHeight=${window.outerHeight} 100dvh=${dvh}`,
+    `document scrollHeight=${de.scrollHeight} clientHeight=${de.clientHeight}`,
+    vv
+      ? `visualViewport h=${Math.round(vv.height)} offsetTop=${Math.round(vv.offsetTop)} scale=${vv.scale}`
+      : 'visualViewport=미지원',
+    `safe-area top=${inset.top} bottom=${inset.bottom} left=${inset.left} right=${inset.right}`,
+    `판정: ${
+      overflowing
+        ? '❌ 웹 문서가 뷰포트보다 크다 → CSS 책임'
+        : oversized
+          ? `❌ 웹뷰 뷰포트(${dvh})가 화면(${screenH})보다 크다 → 네이티브 프레임/인셋 책임`
+          : inset.top === '0px' && screenH > 0 && dvh >= screenH
+            ? '⚠️ safe-area top=0 — 웹뷰가 노치 아래로 확장되지 않았거나 컨테이너가 인셋을 먹었다(네이티브)'
+            : '✅ 웹 레이아웃은 뷰포트와 일치'
+    }`,
+    '',
+  ];
 }
 
 /**

@@ -118,8 +118,8 @@ describe('runRepository (V10)', () => {
       stubJson([
         {
           id: 'p1',
-          name: '편의점',
-          category: 'ETC',
+          name: '한일옥',
+          category: 'RESTAURANT',
           latitude: 35.9,
           longitude: 126.7,
           address: '주소',
@@ -128,8 +128,33 @@ describe('runRepository (V10)', () => {
         },
       ]);
       const result = await runRepository.listNearbyPlaces({ lat: 35.9, lng: 126.7 });
-      expect(result[0]).toMatchObject({ id: 'p1', segment: 'amenity', distanceM: 120 });
+      expect(result[0]).toMatchObject({ id: 'p1', name: '한일옥', distanceM: 120 });
       expect(String(calls()[0]![0])).toContain('/places/nearby?lat=35.9&lng=126.7&radius=500');
+    });
+
+    /*
+     * 「편의시설」 탭이 사라졌으므로(2026-09-15) 먹는 곳이 아닌 카테고리는 아예 목록에 넣지 않는다.
+     * 서버 `category` 파라미터로 거르지 않는 이유는 RESTAURANT·CAFE 둘 다 필요해서다.
+     */
+    it('먹는 곳(RESTAURANT·CAFE)만 남기고 나머지 카테고리는 버린다', async () => {
+      const row = (id: string, category: string) => ({
+        id,
+        name: id,
+        category,
+        latitude: 35.9,
+        longitude: 126.7,
+        address: '주소',
+        distanceMeters: 10,
+      });
+      stubJson([
+        row('r', 'RESTAURANT'),
+        row('c', 'CAFE'),
+        row('t', 'TOUR'),
+        row('s', 'STAY'),
+        row('e', 'ETC'),
+      ]);
+      const result = await runRepository.listNearbyPlaces({ lat: 35.9, lng: 126.7 });
+      expect(result.map((p) => p.id)).toEqual(['r', 'c']);
     });
 
     it('카드 한 줄에는 대표 영업시간(openHours)을 쓴다', async () => {
@@ -147,7 +172,7 @@ describe('runRepository (V10)', () => {
         },
       ]);
       const [place] = await runRepository.listNearbyPlaces({ lat: 35.9, lng: 126.7 });
-      expect(place).toMatchObject({ segment: 'restaurant', businessHours: '12:00~21:00' });
+      expect(place).toMatchObject({ name: '카페', businessHours: '12:00~21:00' });
     });
 
     it('openHours만 비어 오면 businessHours 첫 줄로 대신한다 (첫 호출에 종종 빈다)', async () => {

@@ -86,22 +86,16 @@ export interface RunResult {
 /** 완주율 메시지 티어 (BR: 100% / 50%↑ / 50%↓) — 백엔드 완주율 제공 시 재사용 */
 export type CompletionTier = 'complete' | 'half' | 'low';
 
-/** 주변 장소 세그먼트 — 음식점 / 편의시설 (FR-V10 「주변 둘러보기」 모달) */
-export type PlaceSegment = 'restaurant' | 'amenity';
-
-/** 세그먼트 탭 라벨 (시안 순서: 음식점 → 편의시설) */
-export const PLACE_SEGMENTS: { key: PlaceSegment; label: string }[] = [
-  { key: 'restaurant', label: '음식점' },
-  { key: 'amenity', label: '편의시설' },
-];
-
 /**
- * 완주 위치 근방 주변 장소 (FR-V10, 반경 500m).
+ * 완주 위치 근방 **음식점** (FR-V10, 반경 500m).
  * 선택 시 외부 지도(카카오/네이버)로 연결 → externalMapUrl.
+ *
+ * ⚠️ 시안에는 「음식점 / 편의시설」 2탭이 있었으나 **편의시설은 제거**됐다
+ * (2026-09-15 사용자 결정). TourAPI 카테고리 10종 중 먹는 곳(RESTAURANT·CAFE)만 남기고,
+ * 관광지·숙박 같은 나머지는 애초에 목록에 넣지 않는다 — "편의시설"로 묶기에 어색했다.
  */
 export interface NearbyPlace {
   id: string;
-  segment: PlaceSegment;
   name: string;
   address: string;
   photoUrl?: string;

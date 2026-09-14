@@ -10,10 +10,8 @@ export type {
   RunCompletedPayload,
   RunResult,
   CompletionTier,
-  PlaceSegment,
   NearbyPlace,
 } from './run';
-export { PLACE_SEGMENTS } from './run';
 export type {
   RunRecord,
   RunRecordDetail,
@@ -23,5 +21,5 @@ export type {
 } from './record';
 export { STATS_PERIODS } from './record';
 export type { UserProfile, UserProfilePatch } from './profile';
-export type { Achievement, AchievementRegion } from './achievement';
-export { ACHIEVEMENT_REGIONS, regionOfAchievement } from './achievement';
+export type { Achievement, AchievementCategory } from './achievement';
+export { ACHIEVEMENT_TABS } from './achievement';
