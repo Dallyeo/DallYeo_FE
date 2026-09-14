@@ -1,5 +1,5 @@
 import type { RunRepository } from '@/domain/repositories';
-import type { Achievement, GeoPoint, NearbyPlace, PlaceSegment, RunResult } from '@/domain/types';
+import type { Achievement, GeoPoint, NearbyPlace, RunResult } from '@/domain/types';
 import { apiClient, withRetry } from '@/shared/api/apiClient';
 import { toAssetUrl } from '@/shared/api/assetUrl';
 import { env } from '@/shared/config/env';
@@ -44,25 +44,39 @@ interface RunDto {
 }
 
 /**
- * TourAPI 카테고리(10종) → 화면 세그먼트(2종) 매핑.
- * 시안이 음식점/편의시설 2탭이므로 **먹는 곳만 restaurant**, 나머지는 편의시설로 묶는다.
- * ⚠️ 관광지(TOUR)까지 "편의시설"에 들어가는 건 어색하다 — 세그먼트 확장은 기획 확정 후.
+ * 「주변 둘러보기」에 넣을 카테고리 — **먹는 곳만**.
+ *
+ * 시안에는 「음식점 / 편의시설」 2탭이 있었지만 편의시설 탭은 제거됐다(2026-09-15 사용자 결정).
+ * TourAPI 카테고리 10종 중 나머지(TOUR·STAY·SHOPPING…)를 "편의시설"로 묶는 게 어색했고,
+ * 실제로 반경 500m 안에서 거의 비어 있었다.
+ *
+ * ⚠️ 서버 `category` 파라미터로 거르지 않고 **받아서 거른다** — 파라미터는 한 종류만 받는데
+ * 우리는 RESTAURANT과 CAFE 둘 다 필요해서 두 번 호출해야 하기 때문이다.
  */
-const RESTAURANT_CATEGORIES = new Set(['RESTAURANT', 'CAFE']);
-function toSegment(category: string): PlaceSegment {
-  return RESTAURANT_CATEGORIES.has(category) ? 'restaurant' : 'amenity';
+const FOOD_CATEGORIES = new Set(['RESTAURANT', 'CAFE']);
+
+/**
+ * TourAPI 이미지가 **`http://`로 온다** — 그대로 쓰면 사진이 안 뜬다.
+ *  - 웹: `index.html`의 CSP가 `img-src 'self' https: data:` 라 평문 http를 막는다
+ *  - iOS: ATS(App Transport Security)가 기본적으로 http를 막는다
+ * `tong.visitkorea.or.kr`은 https로도 같은 파일을 주므로(실측 200) 스킴만 올린다.
+ * 백엔드가 https로 정규화해 주면 이 함수는 그대로 통과한다.
+ */
+function toHttps(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  return url.startsWith('http://') ? `https://${url.slice('http://'.length)}` : url;
 }
 
 function toPlace(d: PlaceDto): NearbyPlace {
   // 카드 한 줄에는 대표 영업시간(openHours)을 쓴다. 없으면 전체(businessHours)의 첫 줄로 대신한다
   // — 첫 호출에서 드물게 openHours만 비는 경우가 있다(§4 주의).
   const hours = d.openHours ?? d.businessHours?.split('\n')[0];
+  const photo = toHttps(d.thumbnailUrl);
   return {
     id: d.id,
-    segment: toSegment(d.category),
     name: d.name,
     address: d.address ?? '',
-    ...(d.thumbnailUrl ? { photoUrl: d.thumbnailUrl } : {}),
+    ...(photo ? { photoUrl: photo } : {}),
     ...(d.category ? { category: d.category } : {}),
     ...(hours ? { businessHours: hours } : {}),
     distanceM: Math.round(d.distanceMeters ?? 0),
@@ -135,6 +149,6 @@ export const runRepository: RunRepository = {
         { baseUrl: env.publicApiBaseUrl },
       ),
     );
-    return rows.map(toPlace);
+    return rows.filter((row) => FOOD_CATEGORIES.has(row.category)).map(toPlace);
   },
 };

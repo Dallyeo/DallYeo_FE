@@ -13,10 +13,10 @@ import { buildDevRunPayload } from '@/features/runResult/model/buildDevRunResult
 import type { Achievement, RunResult } from '@/domain/types';
 import { NearbyPlacesModal } from './NearbyPlacesModal';
 import { LeaveConfirmDialog } from './LeaveConfirmDialog';
+import { stampSlots, stampShadow } from './achievementStampSlots';
 import IcBack from '@/shared/ui/icons/ic-back.svg?react';
 import IcLink from '@/shared/ui/icons/ic-link-2.svg?react';
 import IcDownload from '@/shared/ui/icons/ic-download.svg?react';
-import runStamp from '@/shared/ui/images/run-stamp.png';
 
 /** "2026/07/20" */
 function formatDate(iso: string): string {
@@ -313,8 +313,9 @@ function ResultTicket({
         >
           <section className="ticket-notch ticket-notch--top-edge rounded-lg bg-off-white px-5 pb-[34px] pt-[35px]">
             {/* 경로 이미지(줌 없음) — 네이티브가 `POST /runs`에 올린 그림을 그대로 받아 쓴다.
-                시안 정사각 330 r16. 스탬프(Group 130, 120×120)는 우하단에 걸쳐 바깥으로 넘치고
-                살짝 기울어져 있다. 이미지가 아직 없으면(업로드 실패 등) 회색 자리만 남긴다. */}
+                시안 정사각 330 r16. 이미지가 아직 없으면(업로드 실패 등) 회색 자리만 남긴다.
+                업적 도장은 이 상자의 **우하단 모서리에 걸쳐** 놓인다(`achievementStampSlots`).
+                ⚠️ 예전의 초록 완주 스탬프는 새 시안에서 **빠졌다** — 그 자리를 도장이 대신한다. */}
             <div className="relative">
               {result.routeImageUrl ? (
                 <img
@@ -331,13 +332,7 @@ function ResultTicket({
                   경로 이미지
                 </div>
               )}
-              <img
-                src={runStamp}
-                alt=""
-                aria-hidden
-                data-testid="run-stamp"
-                className="pointer-events-none absolute bottom-[-35px] right-[-22px] h-[120px] w-[120px] rotate-[-2.82deg]"
-              />
+              <AchievementStamps achievements={result.newAchievements ?? []} />
             </div>
 
             {/* 통계 — 진행 시간 / 최고 페이스 / 칼로리.
@@ -357,45 +352,43 @@ function ResultTicket({
         </div>
       </div>
 
-      {/* 이번 러닝으로 **처음 달성한** 업적 도장 (§7.1 newAchievements). 최대 7개까지 온다.
-          없으면(대부분) 아무것도 그리지 않는다 — 재달성은 두 번 다시 내려오지 않는다. */}
-      {result.newAchievements && result.newAchievements.length > 0 && (
-        <NewAchievementStamps achievements={result.newAchievements} torn={torn} />
-      )}
     </>
   );
 }
 
-/** 새로 딴 업적 도장 줄 — 시안에 자리가 없어 티켓 아래에 덧붙인다(있을 때만 노출) */
-function NewAchievementStamps({
-  achievements,
-  torn,
-}: {
-  achievements: Achievement[];
-  torn: boolean;
-}) {
+/**
+ * 이번 러닝으로 **처음 달성한** 업적 도장 (§7.1 `newAchievements`).
+ *
+ * 지도 상자를 기준으로 **개수별 고정 배치**를 쓴다 — 자리·크기는 전부 Figma 실측값이고
+ * 표는 `achievementStampSlots.ts`에 있다. 0개면 아무것도 그리지 않는다(= V12_기록_후_new).
+ * 재달성 도장은 두 번 다시 내려오지 않으므로 대부분의 러닝에서는 빈 상태가 정상이다.
+ */
+function AchievementStamps({ achievements }: { achievements: Achievement[] }) {
+  const slots = stampSlots(achievements.length);
+  if (slots.length === 0) return null;
+
   return (
-    <div
-      data-testid="new-achievements"
-      className={`flex flex-col items-center gap-3 px-4 pt-10 ${torn ? 'ticket-follow--torn' : ''}`}
-    >
-      <p className="text-subheading text-off-white">새로 획득한 업적</p>
-      <ul className="flex flex-wrap items-start justify-center gap-4">
-        {achievements.map((a) => (
-          <li
+    <div data-testid="new-achievements" className="pointer-events-none absolute inset-0">
+      {achievements.map((a, i) => {
+        const slot = slots[i];
+        if (!slot || !a.iconOnUrl) return null;
+        return (
+          <img
             key={a.code}
+            src={a.iconOnUrl}
+            alt={a.name}
             data-testid={`new-achievement-${a.code}`}
-            className="flex w-20 flex-col items-center gap-1.5"
-          >
-            {a.iconOnUrl ? (
-              <img src={a.iconOnUrl} alt="" aria-hidden className="h-20 w-20 object-contain" />
-            ) : (
-              <span aria-hidden className="h-20 w-20 rounded-full bg-off-white/20" />
-            )}
-            <span className="text-center text-caption text-off-white">{a.name}</span>
-          </li>
-        ))}
-      </ul>
+            className="absolute"
+            style={{
+              width: `${slot.size}%`,
+              // 배지 아트는 정사각(450×450)이라 높이를 따로 주지 않아도 비율이 유지된다
+              right: `${slot.right}%`,
+              bottom: `${slot.bottom}%`,
+              filter: stampShadow(slot.size),
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

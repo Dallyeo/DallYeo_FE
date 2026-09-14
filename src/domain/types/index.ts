@@ -10,10 +10,8 @@ export type {
   RunCompletedPayload,
   RunResult,
   CompletionTier,
-  PlaceSegment,
   NearbyPlace,
 } from './run';
-export { PLACE_SEGMENTS } from './run';
 export type {
   RunRecord,
   RunRecordDetail,

@@ -135,7 +135,7 @@ describe('RunResultView (V10)', () => {
     );
   });
 
-  it('새로 딴 업적이 오면 결과창에 도장으로 띄운다', async () => {
+  it('새로 딴 업적이 오면 지도 위에 도장으로 띄운다 (시안 V10_결과_new_1 자리)', async () => {
     useSessionStore.setState({ status: 'authenticated', session: { userId: 'u' } });
     stubFetch({
       ...result,
@@ -151,9 +151,14 @@ describe('RunResultView (V10)', () => {
     });
     renderView();
 
-    expect(await screen.findByTestId('new-achievement-JJAMPPONG')).toHaveTextContent(
-      '짬뽕을 먹을 자격이 있는 자',
-    );
+    const stamp = await screen.findByTestId('new-achievement-JJAMPPONG');
+    expect(stamp).toHaveAttribute('alt', '짬뽕을 먹을 자격이 있는 자');
+    // 1개일 때는 150/330 크기로 우하단 모서리에 걸친다(Figma V10_결과_new_1 실측)
+    expect(stamp.style.width).toBe(`${(150 / 330) * 100}%`);
+    expect(stamp.style.right).toBe(`${(-15 / 330) * 100}%`);
+    expect(stamp.style.bottom).toBe(`${(-34 / 330) * 100}%`);
+    // 초록 완주 스탬프는 새 시안에서 빠졌다
+    expect(screen.queryByTestId('run-stamp')).not.toBeInTheDocument();
   });
 
   it('도장이 브릿지 이벤트로 오면 결과창에 띄운다 (GET /runs/{id}에는 없는 값)', async () => {
@@ -174,7 +179,10 @@ describe('RunResultView (V10)', () => {
     });
     renderView();
 
-    expect(await screen.findByTestId('new-achievement-EARLY_BIRD')).toHaveTextContent('얼리버드');
+    expect(await screen.findByTestId('new-achievement-EARLY_BIRD')).toHaveAttribute(
+      'alt',
+      '얼리버드',
+    );
   });
 
   it('도장이 없으면 업적 줄 자체를 그리지 않는다', async () => {
@@ -230,7 +238,7 @@ describe('RunResultView (V10)', () => {
     renderView();
     const top = await ticket();
     const topPiece = top.parentElement;
-    const bottomPiece = screen.getByTestId('run-stamp').closest('.ticket-piece--bottom');
+    const bottomPiece = screen.getByTestId('route-map').closest('.ticket-piece--bottom');
     expect(topPiece).not.toHaveClass('ticket-piece--torn');
     expect(bottomPiece).not.toHaveClass('ticket-piece--torn');
 
