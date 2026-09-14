@@ -1,7 +1,14 @@
 /**
- * 완주 결과 도메인 타입 (V10). 네이티브 'runCompleted' 이벤트 페이로드가 계약.
- * 지도는 정적 이미지 URL(지도 SDK 아님, FR-V10). 폴리라인은 백업/표시 좌표열.
+ * 완주 결과 도메인 타입 (V10).
+ *
+ * ⚠️ 2026-09-14 계약 변경 — **저장 주체가 네이티브로 넘어갔다.**
+ * 웹은 `POST /runs`를 더 이상 호출하지 않는다(multipart + 경로 이미지 업로드는 iOS가 한다).
+ * 네이티브는 저장을 끝낸 뒤 'runCompleted'로 **runId와 도착 좌표만** 넘기고, 웹은
+ *   - `GET /runs/{runId}` 로 결과를 받아 화면을 그리고(be-spec-new-260913 §7.4),
+ *   - 도착 좌표로 `GET /places/nearby` 를 불러 「주변 둘러보기」를 채운다(§4.3).
+ * 비로그인이라 저장이 실패한 경우의 보관·재시도도 네이티브가 담당한다(웹은 안내 팝업만).
  */
+import type { Achievement } from './achievement';
 
 /** 위경도 좌표 */
 export interface GeoPoint {
@@ -10,39 +17,67 @@ export interface GeoPoint {
 }
 
 /**
- * 완주 결과 (FR-V10). 거리/시간/페이스/칼로리/완주율 + 정적 지도 + 종료 위치.
- * 'runCompleted' 이벤트로 수신하며, 로그인 시에만 백엔드에 저장된다(비로그인 저장 X).
+ * 네이티브 'runCompleted' 이벤트 페이로드 (BRIDGE 계약).
+ * 통계·경로는 들어 있지 않다 — 전부 `GET /runs/{runId}`로 받아온다.
+ */
+export interface RunCompletedPayload {
+  /** 네이티브가 `POST /runs`로 저장하고 받은 백엔드 기록 id */
+  runId: string;
+  /** 완주 종료 좌표 — 주변 장소(500m) 조회 기준 */
+  end: GeoPoint;
+  /**
+   * 결과창 도장 (§7.1 `newAchievements`).
+   *
+   * ⚠️ 이 값은 **`POST /runs` 응답에만** 있다 — §7.4가 "`GET /runs/{id}`에는 이 필드 자체가 없어,
+   * 지난 기록을 다시 열어도 도장이 재생되지 않습니다"라고 못박았다. 저장하는 주체가 네이티브이므로
+   * **네이티브만 이 배열을 볼 수 있고**, 여기에 실어 넘겨야 웹이 도장을 띄울 수 있다.
+   * 여러 건을 몰아 올린 경우 합치는 것도 네이티브 몫(client-run-sync-guide §6-③).
+   * 아직 안 와도 화면은 정상 동작한다 — 도장 줄만 안 그려진다.
+   */
+  newAchievements?: Achievement[];
+}
+
+/**
+ * 완주 결과 (`GET /runs/{id}` 응답을 도메인 단위로 옮긴 값).
+ *
+ * ⚠️ 백엔드는 **값이 없는 필드의 키를 통째로 뺀다**(`null`이 아니다, §1) → 전부 옵셔널.
+ * 완주율은 아직 계산하지 않는다(§7.1) — 응답에 없다.
  */
 export interface RunResult {
   runId: string;
+  /** 공식 코스면 코스 id. 자유 러닝이면 없음 */
   courseId?: string;
+  /** 코스명 — 코스를 못 찾으면 키 자체가 없다 */
+  courseName?: string;
+  /** 출발 좌표 */
+  start?: GeoPoint;
+  /** 도착 좌표 */
+  end?: GeoPoint;
   /** 뛴 거리(km) */
   distanceKm: number;
   /** 소요 시간(초) */
   durationSec: number;
-  /** 평균 페이스(초/km) */
+  /** 평균 페이스(초/km) — 서버가 거리·시간으로 계산해 준다 */
   avgPaceSecPerKm: number;
-  /** 소모 칼로리(kcal) */
-  calories: number;
-  /** 완주율 (0~100, %) */
-  completionRate: number;
-  /** 경로 폴리라인 좌표열(출발/경유/도착 포함) */
-  routePolyline: GeoPoint[];
-  /** 정적 지도 이미지 URL (줌 없음, 지도 SDK 아님) */
-  staticMapImageUrl: string;
-  /** 완주 종료 위치 — 주변 장소(500m) 조회 기준 */
-  endLocation: GeoPoint;
-  /** 완주 시각 (ISO 8601) */
-  completedAt: string;
-  /** 시작 시각 (ISO 8601). 시안의 "12:00 - 12:30" 구간 표시에 사용 — 없으면 완주 시각만 표시 */
+  /**
+   * 소모 칼로리(kcal). **서버가 계산하지 않는다** — 네이티브가 보낸 값(HealthKit)을 그대로 돌려준다
+   * (be-api-guide-0914 §7.1). 안 보냈으면 키 자체가 없다.
+   */
+  calories?: number;
+  /** 네이티브가 올린 경로 이미지 (API base가 붙은 절대 URL). 없으면 회색 자리 */
+  routeImageUrl?: string;
+  /** 시작 시각 (ISO 8601). 시안의 "12:00 - 12:30" 구간 표시에 사용 */
   startedAt?: string;
-  /** 출발 지점명 (시안: "청송 과수원 → 신시 전망대") */
-  startPlaceName?: string;
-  /** 도착 지점명 */
-  endPlaceName?: string;
+  /** 완주 시각 (ISO 8601) = 백엔드 `finishedAt` */
+  completedAt: string;
+  /**
+   * 이번 러닝으로 **처음 달성한** 업적 — 결과창 도장 (§7.1 `newAchievements`).
+   * 명세상 `GET /runs/{id}`에는 없다고 적혀 있으나 오면 그대로 띄운다(없으면 도장 없음).
+   */
+  newAchievements?: Achievement[];
 }
 
-/** 완주율 메시지 티어 (BR: 100% / 50%↑ / 50%↓) */
+/** 완주율 메시지 티어 (BR: 100% / 50%↑ / 50%↓) — 백엔드 완주율 제공 시 재사용 */
 export type CompletionTier = 'complete' | 'half' | 'low';
 
 /** 주변 장소 세그먼트 — 음식점 / 편의시설 (FR-V10 「주변 둘러보기」 모달) */
@@ -66,11 +101,11 @@ export interface NearbyPlace {
   photoUrl?: string;
   /** 업종 (시안: 이름 옆 "디저트") */
   category?: string;
-  /** 영업시간 표시 문자열 (시안: "00:00-00:00") */
+  /** 대표 영업시간 (§4 `openHours` — `businessHours`의 첫 항목) */
   businessHours?: string;
-  /** 현재 영업중 여부 (시안: 초록 "영업중" 배지) */
+  /** 현재 영업중 여부 (시안: 초록 "영업중" 배지). 백엔드 미제공 — 표시 안 함 */
   isOpenNow?: boolean;
-  /** 전화번호 — 있으면 「전화하기」 노출 */
+  /** 전화번호 — 있으면 「전화하기」 노출. 백엔드 미제공 */
   phoneNumber?: string;
   /** 완주 위치와의 거리(m) */
   distanceM: number;

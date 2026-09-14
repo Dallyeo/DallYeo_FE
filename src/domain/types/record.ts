@@ -13,26 +13,34 @@ export interface RunRecord {
   durationSec: number;
   /** 평균 페이스(초/km). 목록 응답에 없으면 거리·시간으로 계산해 채운다. */
   avgPaceSecPerKm: number;
-  /** ⚠️ 백엔드 명세에 없는 필드 — 현재 목에서만 채워진다(없으면 미표시). */
+  /**
+   * 소모 칼로리(kcal). 서버가 계산하지 않고 **네이티브가 저장 때 보낸 값**을 돌려준다
+   * (be-api-guide-0914 §7.1). 안 보냈으면 키 자체가 없다 → 미표시.
+   */
   calories?: number;
   /** 완주한 코스명. 자유 러닝이면 없음. */
   courseName?: string;
   /** 시작 시각 (ISO 8601). V12 "12:00 - 12:30" 구간 표시용 — 목록 응답엔 없다. */
   startedAt?: string;
+  /**
+   * 경로 이미지 (API base가 붙은 절대 URL).
+   * 폴리라인이 계약에서 사라지고(2026-09-14) **네이티브가 그려 올린 이미지**로 대체됐다.
+   */
+  routeImageUrl?: string;
 }
 
-/** 기록 상세 (V12). 정적 지도 + 경로. */
+/**
+ * 기록 상세 (V12).
+ *
+ * ⚠️ 2026-09-14 계약 변경 — `polyline`·`completionRate`·출발/도착 **지점명이 모두 사라졌다**.
+ * 경로 그림은 `routeImageUrl`(네이티브가 올린 이미지)이 대신하고, 좌표는 출발·도착 2점만 온다.
+ * 티켓의 "출발 → 도착" 줄은 지점명 대신 **코스명**으로 그린다(자유 러닝이면 빈 자리).
+ */
 export interface RunRecordDetail extends RunRecord {
-  completionRate: number;
-  /**
-   * 출발/도착 지점명 (V12 "청송 과수원 → 신시 전망대").
-   * ⚠️ 백엔드 명세에 없음 — 지정 코스면 코스의 지점명, 자유 러닝이면 출발지는 "지정된 위치"로 대체.
-   */
-  startPlaceName?: string;
-  endPlaceName?: string;
-  routePolyline: GeoPoint[];
-  /** 정적 지도 이미지 URL (줌 없음) */
-  staticMapImageUrl: string;
+  /** 출발 좌표 */
+  start?: GeoPoint;
+  /** 도착 좌표 */
+  end?: GeoPoint;
 }
 
 /**

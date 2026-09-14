@@ -1,27 +1,13 @@
-import type { RunResult } from '@/domain/types';
+import type { RunCompletedPayload } from '@/domain/types';
 
 /**
- * 개발 프리뷰용 완주 결과 (네이티브 'runCompleted' payload 흉내).
- * 브라우저에서 V10을 미리보기 위한 용도. completionRate로 메시지 티어를 바꿔 확인.
+ * 개발 프리뷰용 'runCompleted' 페이로드 (네이티브 이벤트 흉내).
+ * 브라우저에서 V10을 미리보기 위한 용도 — 실제 내용은 `GET /runs/{runId}`가 채운다
+ * (MSW를 켜면 목 기록이, 끄고 dev 토큰을 넣으면 실 백엔드 기록이 뜬다).
  */
-export function buildDevRunResult(completionRate: number): RunResult {
+export function buildDevRunPayload(runId = '1'): RunCompletedPayload {
   return {
-    runId: `dev-run-${Date.now()}`,
-    courseId: 'c1',
-    distanceKm: 10.23,
-    durationSec: 3661,
-    avgPaceSecPerKm: 495,
-    calories: 200,
-    completionRate,
-    routePolyline: [
-      { lat: 35.9678, lng: 126.7369 },
-      { lat: 35.9701, lng: 126.7402 },
-    ],
-    staticMapImageUrl: 'https://placehold.co/600x450?text=Course+Route',
-    endLocation: { lat: 35.9701, lng: 126.7402 },
-    completedAt: new Date().toISOString(),
-    startedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    startPlaceName: '청송 과수원',
-    endPlaceName: '신시 전망대',
+    runId,
+    end: { lat: 35.9701, lng: 126.7402 },
   };
 }

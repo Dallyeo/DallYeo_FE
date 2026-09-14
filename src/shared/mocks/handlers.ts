@@ -13,9 +13,9 @@ const base = env.apiBaseUrl;
 /** 백엔드 미준비 엔드포인트 mock (NFR-DATA-01). 준비되면 해당 핸들러 제거로 passthrough. */
 export const handlers = [
   // 공개계(regions/courses)는 **실 백엔드**(env.publicApiBaseUrl)로 직접 나간다 — 목 없음.
-  // V10 완주결과: 주변 장소(500m) + 결과 저장
+  // V10 완주결과: `GET /runs/{id}`(아래 상세 핸들러) + 주변 장소.
+  // **저장(`POST /runs`)은 네이티브가 한다** — 웹에는 그 경로가 없어 목도 두지 않는다.
   // 주변 장소는 **공개계 실 백엔드**(/places/nearby)로 나간다 — 목 없음
-  http.post(`${base}/runs`, () => HttpResponse.json({ id: 1 })),
   // V11/V12 기록: 목록 + 상세 (통계 /records/stats 는 MVP3 — 미제공)
   http.get(`${base}/runs`, ({ request }) => {
     const url = new URL(request.url);

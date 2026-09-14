@@ -100,8 +100,7 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
   const logs = useSyncExternalStore(subscribeLogs, getLogs);
   const session = useSessionStore((s) => s.session);
   const status = useSessionStore((s) => s.status);
-  const result = useRunResultStore((s) => s.result);
-  const saved = useRunResultStore((s) => s.saved);
+  const runPayload = useRunResultStore((s) => s.payload);
   const [copied, setCopied] = useState(false);
 
   const report = [
@@ -111,7 +110,8 @@ function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: ()
     `apiBaseUrl=${env.apiBaseUrl}`,
     `publicApiBaseUrl=${env.publicApiBaseUrl}`,
     `msw=${env.enableMsw} forceMockBridge=${env.forceMockBridge}`,
-    `runResult=${result ? `${result.distanceKm}km / ${result.durationSec}s / 폴리라인 ${result.routePolyline.length}개` : '없음'} saved=${saved}`,
+    // 저장은 네이티브가 한다 — 웹이 받는 건 runId와 도착 좌표뿐이다(2026-09-14 계약 변경)
+    `runCompleted=${runPayload ? `runId=${runPayload.runId} end=${runPayload.end.lat},${runPayload.end.lng}` : '없음'}`,
     '',
     ...logs.map(formatEntry),
   ].join('\n');

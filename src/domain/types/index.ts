@@ -7,6 +7,7 @@ export type { GateAction } from './gate';
 export type { SharePayload, ImagePayload, SaveImageResult, Unsubscribe } from './shared';
 export type {
   GeoPoint,
+  RunCompletedPayload,
   RunResult,
   CompletionTier,
   PlaceSegment,

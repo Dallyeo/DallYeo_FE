@@ -276,22 +276,22 @@ export function buildMockRuns() {
 }
 
 
-/** 기록 상세 mock (V12) — backend §7.3 형태(목록 + polyline). */
+/**
+ * 기록 상세 mock (V10 결과창 / V12) — be-spec-new-260913 §7.4 형태.
+ * 폴리라인·완주율·지점명은 계약에서 빠졌고, 경로 그림은 네이티브가 올린 `imageUrl`이 대신한다.
+ */
 export function buildMockRunDetail(recordId: string) {
   const runs = buildMockRuns();
   const base = runs.find((r) => String(r.id) === recordId) ?? runs[0]!;
+  // 러닝 계열은 값이 없으면 **키 자체가 빠진다**(§1) — 목도 같은 모양이어야 방어 코드가 검증된다
+  const { courseId, courseName, ...rest } = base;
   return {
-    ...base,
-    completionRate: 100,
-    // 지정 코스면 코스 지점명, 자유 러닝이면 출발지 미상 → 뷰가 "지정된 위치"로 표기
-    ...(base.courseName
-      ? { startPlaceName: '청송 과수원', endPlaceName: '신시 전망대' }
-      : { endPlaceName: '신시 전망대' }),
-    polyline: [
-      { lat: 35.9678, lng: 126.7369 },
-      { lat: 35.9701, lng: 126.7402 },
-    ],
-    staticMapImageUrl: 'https://placehold.co/600x450?text=Record+Route',
+    ...rest,
+    ...(courseId ? { courseId } : {}),
+    ...(courseName ? { courseName } : {}),
+    start: { lat: 35.9678, lng: 126.7369 },
+    end: { lat: 35.9701, lng: 126.7402 },
+    imageUrl: 'https://placehold.co/600x600?text=Record+Route',
   };
 }
 
