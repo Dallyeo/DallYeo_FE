@@ -1,0 +1,194 @@
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { clearLogs, getLogs, subscribeLogs, type LogEntry } from '@/shared/observability/logger';
+import { env } from '@/shared/config/env';
+import { useSessionStore } from '@/shared/auth/sessionStore';
+import { useRunResultStore } from '@/features/runResult/model/runResultStore';
+
+/** 이 키가 'true'면 패널 진입 버튼이 항상 보인다. 두 손가락 길게 누르기로도 켤 수 있다. */
+const DEBUG_KEY = 'dallyeo.debug';
+/** 두 손가락으로 이 시간 이상 누르면 토글 */
+const HOLD_MS = 1200;
+
+function readFlag(): boolean {
+  try {
+    if (new URLSearchParams(window.location.search).get('debug') === '1') return true;
+    return window.localStorage.getItem(DEBUG_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function writeFlag(on: boolean): void {
+  try {
+    if (on) window.localStorage.setItem(DEBUG_KEY, 'true');
+    else window.localStorage.removeItem(DEBUG_KEY);
+  } catch {
+    // 프라이빗 모드 — 이번 세션에만 켜진다
+  }
+}
+
+/**
+ * 실기기(WebView) 진단 패널.
+ *
+ * **왜 필요한가** — 앱 안의 WebView에는 주소창도 콘솔도 없다. Mac에 USB로 연결해
+ * Safari 웹 인스펙터를 붙이는 방법뿐인데, 그것도 네이티브가 `isInspectable = true`로
+ * 빌드했을 때만 된다. 그래서 로그를 **화면 위에** 띄운다.
+ *
+ * **여는 법** — 화면 아무 데나 **두 손가락으로 1.2초 길게 누르기**(주소창이 없는 앱에서도 가능).
+ * 브라우저에서는 `?debug=1`로도 열린다. 한 번 켜면 `localStorage`에 남아 재실행해도 유지된다.
+ *
+ * 토큰 값은 절대 표시하지 않는다(보유 여부만).
+ */
+export function DebugPanel() {
+  const [enabled, setEnabled] = useState(readFlag);
+  const [open, setOpen] = useState(false);
+
+  // 두 손가락 길게 누르기 — 스크롤/스와이프와 겹치지 않도록 손가락이 움직이면 취소한다
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const cancel = (): void => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+    };
+    const onStart = (e: TouchEvent): void => {
+      if (e.touches.length !== 2) return cancel();
+      timer = setTimeout(() => {
+        setEnabled((prev) => {
+          const next = !prev;
+          writeFlag(next);
+          return next;
+        });
+        setOpen((prev) => !prev);
+      }, HOLD_MS);
+    };
+    window.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchmove', cancel, { passive: true });
+    window.addEventListener('touchend', cancel, { passive: true });
+    return () => {
+      cancel();
+      window.removeEventListener('touchstart', onStart);
+      window.removeEventListener('touchmove', cancel);
+      window.removeEventListener('touchend', cancel);
+    };
+  }, []);
+
+  if (!enabled) return null;
+
+  return open ? (
+    <DebugSheet
+      onClose={() => setOpen(false)}
+      onDisable={() => {
+        writeFlag(false);
+        setEnabled(false);
+      }}
+    />
+  ) : (
+    <button
+      type="button"
+      data-testid="debug-open"
+      aria-label="디버그 패널 열기"
+      onClick={() => setOpen(true)}
+      className="fixed right-2 z-[9999] h-9 w-9 rounded-full bg-black/60 text-caption text-white"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom) + 72px)' }}
+    >
+      LOG
+    </button>
+  );
+}
+
+function DebugSheet({ onClose, onDisable }: { onClose: () => void; onDisable: () => void }) {
+  const logs = useSyncExternalStore(subscribeLogs, getLogs);
+  const session = useSessionStore((s) => s.session);
+  const status = useSessionStore((s) => s.status);
+  const runPayload = useRunResultStore((s) => s.payload);
+  const [copied, setCopied] = useState(false);
+
+  const report = [
+    `# 달여 디버그 ${new Date().toISOString()}`,
+    `bridge=${typeof window !== 'undefined' && !!window.DallYeoBridge}`,
+    `session=${status}${session?.userId ? ` (${session.userId})` : ''}`,
+    `apiBaseUrl=${env.apiBaseUrl}`,
+    `publicApiBaseUrl=${env.publicApiBaseUrl}`,
+    `msw=${env.enableMsw} forceMockBridge=${env.forceMockBridge}`,
+    // 저장은 네이티브가 한다 — 웹이 받는 건 runId와 도착 좌표뿐이다(2026-09-14 계약 변경)
+    `runCompleted=${runPayload ? `runId=${runPayload.runId} end=${runPayload.end.lat},${runPayload.end.lng}` : '없음'}`,
+    '',
+    ...logs.map(formatEntry),
+  ].join('\n');
+
+  async function copyAll(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(report);
+      setCopied(true);
+    } catch {
+      // WebView에서 클립보드가 막혀 있으면 아래 텍스트를 길게 눌러 직접 복사해야 한다
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div
+      data-testid="debug-panel"
+      className="fixed inset-0 z-[9999] flex flex-col bg-black/90 text-white"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
+    >
+      <div className="flex shrink-0 items-center gap-2 px-3 py-2">
+        <span className="text-body">디버그</span>
+        <button
+          type="button"
+          onClick={copyAll}
+          className="rounded bg-white/15 px-2 py-1 text-caption"
+        >
+          {copied ? '복사됨' : '전체 복사'}
+        </button>
+        <button
+          type="button"
+          onClick={clearLogs}
+          className="rounded bg-white/15 px-2 py-1 text-caption"
+        >
+          비우기
+        </button>
+        <button
+          type="button"
+          onClick={onDisable}
+          className="rounded bg-white/15 px-2 py-1 text-caption"
+        >
+          끄기
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-auto rounded bg-white/15 px-3 py-1 text-caption"
+        >
+          닫기
+        </button>
+      </div>
+
+      {/* 클립보드가 막힌 WebView를 대비해 **선택 가능한 원문**을 그대로 둔다 (길게 눌러 복사 / 스크린샷) */}
+      <pre
+        data-testid="debug-report"
+        className="min-h-0 flex-1 select-text overflow-auto whitespace-pre-wrap break-all px-3 pb-4 text-[11px] leading-[15px]"
+      >
+        {report}
+      </pre>
+    </div>
+  );
+}
+
+function formatEntry(entry: LogEntry): string {
+  const time = entry.at.slice(11, 23);
+  const mark = entry.level === 'error' ? '✖' : entry.level === 'warn' ? '!' : '·';
+  const meta = entry.meta ? ` ${safeJson(entry.meta)}` : '';
+  return `${time} ${mark} ${entry.event}${meta}`;
+}
+
+function safeJson(value: unknown): string {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '[직렬화 불가]';
+  }
+}

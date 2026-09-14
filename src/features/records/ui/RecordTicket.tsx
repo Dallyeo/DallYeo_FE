@@ -25,19 +25,6 @@ function formatTimeRange(startIso: string | undefined, endIso: string): string {
 }
 
 /**
- * 출발지 → 도착지.
- * 지정 코스면 코스의 출발/도착 지점명, **사용자 지정 코스면 출발지를 "지정된 위치"**로 표기한다.
- * (자유 러닝은 출발점이 검색된 장소가 아니므로 이름이 없다.)
- */
-function resolveRoutePoints(record: TicketRecord): { start: string; end: string } | null {
-  if (record.startPlaceName && record.endPlaceName) {
-    return { start: record.startPlaceName, end: record.endPlaceName };
-  }
-  if (record.endPlaceName) return { start: '지정된 위치', end: record.endPlaceName };
-  return null;
-}
-
-/**
  * 기록 티켓 한 장 (시안 `V12_기록_후_new` 999:3422).
  *
  * 티켓은 **이미 뜯긴 상태로 고정**된다 — 뜯는 애니메이션은 V10 완주결과뷰로 옮겼다
@@ -62,7 +49,6 @@ export function RecordTicket({
   onShare?: (() => void) | undefined;
   onSave?: (() => void) | undefined;
 }) {
-  const route = resolveRoutePoints(record);
   /** 보이지 않는 옆 장은 테스트·캡처 대상이 아니다 */
   const tid = (name: string) => (active ? name : undefined);
 
@@ -98,17 +84,15 @@ export function RecordTicket({
               </div>
             </div>
 
-            {/* 2행(Frame 322, 324×28): 150 | 화살표 24 | 150 — **각 칸 가운데 정렬** */}
-            {route && (
+            {/* 2행(Frame 322, 324×28) — 백엔드가 출발/도착 **지점명을 주지 않는다**(2026-09-14
+              계약 변경: 좌표 2점 + 코스명뿐). 시안의 "청송 과수원 → 신시 전망대" 자리에는
+              **코스명**을 넣고, 자유 러닝(코스 없음)이면 빈 자리로 둔다. */}
+            {record.courseName && (
               <div
                 data-testid={tid('record-route')}
-                className="mt-[41px] flex h-7 items-center text-title leading-7 text-black"
+                className="mt-[41px] flex h-7 items-center justify-center text-title leading-7 text-black"
               >
-                <span className="flex-1 truncate text-center">{route.start}</span>
-                <span aria-hidden className="w-6 shrink-0 text-center text-heading text-gray-900">
-                  →
-                </span>
-                <span className="flex-1 truncate text-center">{route.end}</span>
+                <span className="truncate">{record.courseName}</span>
               </div>
             )}
           </div>
@@ -121,14 +105,23 @@ export function RecordTicket({
           className="ticket-piece ticket-piece--bottom mx-4 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
         >
           <section className="ticket-notch ticket-notch--top-edge rounded-lg bg-off-white px-5 pb-[34px] pt-[35px]">
-            {/* 정적 경로 이미지 자리 — 백엔드가 지도 URL을 주면 여기에 들어간다.
+            {/* 경로 이미지 — 네이티브가 `POST /runs`에 올린 그림(`imageUrl`)을 그대로 받아 쓴다.
               완주 스탬프는 새 시안(V12_기록_후_new)에서 빠졌다. */}
-            <div
-              data-testid={tid('route-map')}
-              className="flex aspect-square w-full items-center justify-center rounded-lg bg-gray-200 text-body-sm text-gray-500"
-            >
-              경로 이미지
-            </div>
+            {record.routeImageUrl ? (
+              <img
+                src={record.routeImageUrl}
+                alt="완주 경로 이미지"
+                data-testid={tid('route-map')}
+                className="aspect-square w-full rounded-lg bg-gray-200 object-cover"
+              />
+            ) : (
+              <div
+                data-testid={tid('route-map')}
+                className="flex aspect-square w-full items-center justify-center rounded-lg bg-gray-200 text-body-sm text-gray-500"
+              >
+                경로 이미지
+              </div>
+            )}
 
             <dl className="mt-[30px] flex items-center justify-center gap-5">
               <Stat label="진행 시간" value={formatDuration(record.durationSec)} />

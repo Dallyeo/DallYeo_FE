@@ -12,7 +12,7 @@ function stubJson(body: unknown) {
 
 const calledUrl = () => String((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]![0]);
 
-/** 백엔드 목록 응답(backend-api.md §7.2) — 페이스·칼로리 없음 */
+/** 백엔드 목록 응답(be-spec-new-260913 §7.3) — 페이스·칼로리 없음 */
 const runDto = {
   id: 1,
   courseName: '근대 역사 박물관 런',
@@ -55,11 +55,29 @@ describe('recordRepository (V11/V12)', () => {
     expect(calledUrl()).toContain('to=2026-06-21');
   });
 
-  it('getById는 /runs/:id 로 요청하고 polyline을 매핑한다', async () => {
-    stubJson({ ...runDto, polyline: [{ lat: 35.9, lng: 126.7 }], completionRate: 100 });
+  it('getById는 /runs/:id 로 요청하고 출발·도착 좌표를 매핑한다 (폴리라인은 계약에서 빠졌다)', async () => {
+    stubJson({
+      ...runDto,
+      start: { lat: 35.95, lng: 126.68 },
+      end: { lat: 35.96, lng: 126.69 },
+    });
     const detail = await recordRepository.getById('1');
     expect(calledUrl()).toContain('/runs/1');
-    expect(detail.routePolyline).toHaveLength(1);
-    expect(detail.completionRate).toBe(100);
+    expect(detail.start).toEqual({ lat: 35.95, lng: 126.68 });
+    expect(detail.end).toEqual({ lat: 35.96, lng: 126.69 });
+  });
+
+  it('imageUrl(서버 절대경로)에 API base를 붙여 바로 쓸 수 있는 URL로 만든다', async () => {
+    stubJson({ ...runDto, imageUrl: '/uploads/runs/abc.jpg' });
+    const detail = await recordRepository.getById('1');
+    expect(detail.routeImageUrl).toMatch(/\/uploads\/runs\/abc\.jpg$/);
+    // 상대경로 그대로면 WebView(로컬 번들)에서 열리지 않는다 — base가 반드시 앞에 붙어야 한다
+    expect(detail.routeImageUrl).not.toBe('/uploads/runs/abc.jpg');
+  });
+
+  it('경로 이미지가 없으면(업로드 전) routeImageUrl은 undefined', async () => {
+    stubJson(runDto);
+    const detail = await recordRepository.getById('1');
+    expect(detail.routeImageUrl).toBeUndefined();
   });
 });

@@ -6,6 +6,7 @@ import { ToastHost } from '@/shared/ui/ToastHost';
 import { LoginBottomSheetHost } from '@/features/login/ui/LoginBottomSheetHost';
 import { useRunCompletedListener } from '@/features/runResult/model/useRunCompletedListener';
 import { useOnboardingGate } from '@/features/onboarding/model/useOnboardingGate';
+import { DebugPanel } from './DebugPanel';
 
 /**
  * 라우터 루트 레이아웃. 라우터 컨텍스트 안에서 SessionService를 기동하여
@@ -36,6 +37,8 @@ export function RootLayout() {
       <Outlet />
       <LoginBottomSheetHost />
       <ToastHost />
+      {/* 실기기 진단 — 평소엔 렌더되지 않고, 두 손가락 1.2초 길게 누르기로만 켜진다 */}
+      <DebugPanel />
     </>
   );
 }

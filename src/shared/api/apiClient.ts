@@ -101,16 +101,34 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   // fetch가 던지는 TypeError(네트워크/CORS 차단)는 상태코드가 없어 일반 에러로 묻힌다.
   // WebView에서 가장 흔한 실패 원인이므로 URL과 함께 드러낸다.
+  //
+  // 모든 요청의 결과를 로거에 남긴다 — 실기기에는 Network 탭이 없어서
+  // "요청이 나가긴 했는가 / 몇 번으로 돌아왔는가"를 디버그 패널로 봐야 한다.
+  // ⚠️ 헤더(Authorization)와 응답 본문은 남기지 않는다.
+  const startedAt = Date.now();
+  const label = `${init.method} ${path}`;
   let res: Response;
   try {
     res = await fetch(url, init);
   } catch (cause) {
-    logger.error('[api] 요청 실패 — 네트워크 또는 CORS 차단', { url, cause: String(cause) });
+    logger.error('api_network_error', {
+      request: label,
+      url,
+      ms: Date.now() - startedAt,
+      cause: String(cause),
+      hint: '네트워크 끊김 또는 CORS 차단 (BRIDGE.md §9)',
+    });
     throw new ApiError(0, {
       code: 'NETWORK_ERROR',
       message: `서버에 연결하지 못했어요. (${url})`,
     });
   }
+  logger[res.ok ? 'info' : 'error']('api_response', {
+    request: label,
+    status: res.status,
+    ms: Date.now() - startedAt,
+    ...(token ? {} : { noToken: true }),
+  });
 
   if (res.status === 401) {
     // 세션 무효화는 콜백 경로로 분리 (U1-P2, BR-U1-4)
@@ -124,6 +142,14 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!res.ok) {
     const err = isEnvelope(body) ? body.error : undefined;
+    // 400대 거절은 사유(code/details)가 본문에만 있다 — 실기기에서 이게 안 보이면 원인을 못 찾는다
+    logger.error('api_error_body', {
+      request: label,
+      status: res.status,
+      code: err?.code,
+      message: err?.message,
+      details: err?.details,
+    });
     throw new ApiError(res.status, {
       code: err?.code,
       message: err?.message,

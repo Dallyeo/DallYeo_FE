@@ -51,10 +51,11 @@ export const NEARBY_PLACE_RADIUS_M = 500;
 
 /**
  * 설정 외부 링크 (FR-V13 문의/약관).
- * 약관 3종은 Notion 공개 페이지가 원본이다. `inquiry`만 아직 placeholder다.
+ * 문의는 Google Form, 약관 3종은 Notion 공개 페이지가 원본이다 — 넷 다 실주소다.
+ * 여는 주체는 **네이티브**다(`bridge.openExternalUrl`) — 같은 WebView에서 열면 SPA가 날아간다.
  */
 export const SETTINGS_LINKS = {
-  inquiry: 'https://dallyeo.app/support',
+  inquiry: 'https://forms.gle/ysoPxd5yVm8AW5AV7',
   terms: 'https://palrang22.notion.site/3dace2dd63a980599370f4eb0fe1c657',
   privacy: 'https://palrang22.notion.site/3dace2dd63a98092b40ef532dd3fe6de',
   locationTerms: 'https://palrang22.notion.site/3dace2dd63a980fa8032caa4b1c3702f',
