@@ -9,6 +9,7 @@ import { useAuth } from '@/features/login/model/useAuth';
 import { useRecordDetail } from '@/features/records/model/useRecordDetail';
 import { useRecordPages } from '@/features/records/model/useRecordPages';
 import { RecordTicket } from '@/features/records/ui/RecordTicket';
+import { TicketActions } from '@/shared/ui/TicketActions';
 import IcBack from '@/shared/ui/icons/ic-back.svg?react';
 
 /** "7월 20일 (일)" */
@@ -78,10 +79,11 @@ export function RecordDetailView() {
             data-testid="record-detail-view"
             className="relative flex flex-1 flex-col overflow-x-hidden overflow-y-auto bg-green-700"
           >
-            {/* 앱바 — 뒤로 40×40(좌16) / 가운데 날짜. 기록 넘기기는 **스와이프 전용**.
+            {/* 앱바 — 뒤로 40×40(좌16) / 가운데 날짜 / 우측 공유·저장. 기록 넘기기는 **스와이프 전용**.
+                공유·저장은 V10_결과_출시버전(1039:1598)과 같은 자리로, 티켓 우하단에서 올려 왔다.
                 안전영역 패딩은 바깥에 (고정 높이와 같은 요소에 주면 내용이 상태바에 붙는다) */}
             <div className="shrink-0 pt-screen">
-              <div className="relative flex h-10 items-center px-4">
+              <div className="relative flex h-10 items-center justify-between pl-4 pr-5">
                 <button
                   type="button"
                   data-testid="record-detail-back"
@@ -91,9 +93,17 @@ export function RecordDetailView() {
                 >
                   <IcBack aria-hidden className="h-10 w-10" />
                 </button>
+                {/* 제목은 앱바 전체 기준 가운데 — 양옆 버튼 폭이 달라 flex로는 가운데가 안 맞는다 */}
                 <h1 className="pointer-events-none absolute inset-x-0 mt-0.5 text-center text-subheading text-off-white">
                   {formatTitleDate(detail.completedAt)}
                 </h1>
+                <TicketActions
+                  busy={ticket.busy !== null}
+                  onShare={ticket.shareImage}
+                  onSave={ticket.saveImage}
+                  shareTestId="record-share"
+                  saveTestId="record-save-image"
+                />
               </div>
             </div>
 
@@ -118,9 +128,6 @@ export function RecordDetailView() {
                     record={i === index ? detail : (page.record ?? detail)}
                     active={i === index}
                     captureRef={ticket.containerRef}
-                    busy={ticket.busy !== null}
-                    onShare={ticket.shareImage}
-                    onSave={ticket.saveImage}
                   />
                 ))}
               </div>

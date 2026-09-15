@@ -6,6 +6,7 @@ import { SafeAreaLayout } from '@/app/SafeAreaLayout';
 import { bridgeService } from '@/shared/services/BridgeService';
 import { useAuth } from '@/features/login/model/useAuth';
 import { useGate } from '@/features/login/model/useGate';
+import { useLoginSheetStore } from '@/features/login/model/loginSheetStore';
 import { AlertDialog } from '@/shared/ui/AlertDialog';
 import { toast } from '@/shared/ui/toastStore';
 import { sessionService } from '@/shared/auth/SessionService';
@@ -21,11 +22,14 @@ import IcChevron from '@/shared/ui/icons/ic-chevron-forward.svg?react';
  * Figma(V13_설정 618:1110): 앱바(뒤로 40 + 가운데 제목) → 19 → 메뉴 행 370×50 연속.
  * 구분선 gray-250은 **내정보 아래**와 **로그아웃 위** 두 곳뿐(시안 stroke sides).
  * 시안에 프로필 카드·로그인 배너는 없다 — 비로그인은 항목 탭 시 게이트(로그인 시트)로 처리한다.
+ * 다만 마지막 구획(로그아웃·계정 삭제)만은 비로그인에서 **로그인 한 줄로 대체**한다.
  */
 export function SettingsView() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { status, logout } = useAuth();
   const { guard } = useGate();
+  const openLoginSheet = useLoginSheetStore((s) => s.open);
+  const isAuthenticated = status === 'authenticated';
   /** 되돌릴 수 없는 동작은 확인 알럿을 거친다 */
   const [confirming, setConfirming] = useState<'logout' | 'delete' | null>(null);
 
@@ -109,18 +113,32 @@ export function SettingsView() {
             testId="settings-location-terms"
             onClick={() => bridgeService.openExternalUrl(SETTINGS_LINKS.locationTerms)}
           />
-          <MenuItem
-            label="로그아웃"
-            border="top"
-            testId="settings-logout"
-            onClick={() => runGated('myPageAccount', () => setConfirming('logout'))}
-          />
-          <MenuItem
-            label="계정 삭제"
-            danger
-            testId="settings-account"
-            onClick={() => runGated('myPageAccount', () => setConfirming('delete'))}
-          />
+          {/* 비로그인이면 로그아웃/계정 삭제 자리에 **로그인** 한 줄만 둔다 —
+              누를 수도 없는 항목을 띄워놓고 탭할 때만 시트를 여는 것보다,
+              지금 할 수 있는 행동 하나를 보여주는 편이 맞다. */}
+          {isAuthenticated ? (
+            <>
+              <MenuItem
+                label="로그아웃"
+                border="top"
+                testId="settings-logout"
+                onClick={() => runGated('myPageAccount', () => setConfirming('logout'))}
+              />
+              <MenuItem
+                label="계정 삭제"
+                danger
+                testId="settings-account"
+                onClick={() => runGated('myPageAccount', () => setConfirming('delete'))}
+              />
+            </>
+          ) : (
+            <MenuItem
+              label="로그인"
+              border="top"
+              testId="settings-login"
+              onClick={() => openLoginSheet('myPageAccount')}
+            />
+          )}
         </nav>
       </main>
 
