@@ -56,6 +56,22 @@ describe('SettingsView (V13)', () => {
     renderView();
     expect(screen.getByTestId('settings-logout')).toHaveTextContent('로그아웃');
     expect(screen.getByTestId('settings-account')).toHaveTextContent('계정 삭제');
+    expect(screen.queryByTestId('settings-login')).not.toBeInTheDocument();
+  });
+
+  it('비로그인: 로그아웃/계정 삭제 대신 로그인 한 줄', () => {
+    useSessionStore.setState({ status: 'unauthenticated', session: null });
+    renderView();
+    expect(screen.queryByTestId('settings-logout')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('settings-account')).not.toBeInTheDocument();
+    expect(screen.getByTestId('settings-login')).toHaveTextContent('로그인');
+  });
+
+  it('비로그인: 로그인 탭 → 로그인 시트', () => {
+    useSessionStore.setState({ status: 'unauthenticated', session: null });
+    renderView();
+    fireEvent.click(screen.getByTestId('settings-login'));
+    expect(useLoginSheetStore.getState().isOpen).toBe(true);
   });
 
   describe('계정 삭제', () => {

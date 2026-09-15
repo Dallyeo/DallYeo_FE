@@ -1,8 +1,6 @@
 import type { RefObject } from 'react';
 import type { TicketRecord } from '@/features/records/model/useRecordPages';
 import { formatDistanceKm, formatDuration, formatPace } from '@/shared/format/runFormat';
-import IcLink from '@/shared/ui/icons/ic-link-2.svg?react';
-import IcDownload from '@/shared/ui/icons/ic-download.svg?react';
 
 /** "2026/07/20" */
 function formatDate(iso: string): string {
@@ -38,16 +36,10 @@ export function RecordTicket({
   record,
   active = false,
   captureRef,
-  busy = false,
-  onShare,
-  onSave,
 }: {
   record: TicketRecord;
   active?: boolean;
   captureRef?: RefObject<HTMLDivElement | null> | undefined;
-  busy?: boolean;
-  onShare?: (() => void) | undefined;
-  onSave?: (() => void) | undefined;
 }) {
   /** 보이지 않는 옆 장은 테스트·캡처 대상이 아니다 */
   const tid = (name: string) => (active ? name : undefined);
@@ -137,32 +129,8 @@ export function RecordTicket({
         </div>
       </div>
 
-      {/* 공유 / 저장 — 우하단. 시안: 아랫조각에서 25, 화면 바닥까지 29.
-          옆 장에도 같이 그려야 티켓이 통째로 밀려 들어온다(넘어간 뒤 버튼만 뒤늦게 나타나지 않게). */}
-      <div className="flex justify-end gap-7 pb-[29px] pr-[28px] pt-[25px] text-off-white">
-        <button
-          type="button"
-          data-testid={tid('record-share')}
-          aria-label="티켓 공유하기"
-          tabIndex={active ? undefined : -1}
-          disabled={active && busy}
-          onClick={active ? onShare : undefined}
-          className="flex h-6 w-6 items-center justify-center disabled:opacity-50"
-        >
-          <IcLink aria-hidden className="h-[18px] w-auto" />
-        </button>
-        <button
-          type="button"
-          data-testid={tid('record-save-image')}
-          aria-label="티켓 이미지 저장"
-          tabIndex={active ? undefined : -1}
-          disabled={active && busy}
-          onClick={active ? onSave : undefined}
-          className="flex h-6 w-6 items-center justify-center disabled:opacity-50"
-        >
-          <IcDownload aria-hidden className="h-4 w-auto" />
-        </button>
-      </div>
+      {/* 공유 / 저장은 **앱바 우측**으로 옮겼다(V10_결과_출시버전과 동일) — 티켓 바깥이라
+          페이징 트랙을 따라 밀리지 않고 한 벌만 존재한다. */}
     </div>
   );
 }

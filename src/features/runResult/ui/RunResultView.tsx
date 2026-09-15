@@ -14,9 +14,8 @@ import type { Achievement, RunResult } from '@/domain/types';
 import { NearbyPlacesModal } from './NearbyPlacesModal';
 import { LeaveConfirmDialog } from './LeaveConfirmDialog';
 import { stampSlots, stampShadow } from './achievementStampSlots';
+import { TicketActions } from '@/shared/ui/TicketActions';
 import IcBack from '@/shared/ui/icons/ic-back.svg?react';
-import IcLink from '@/shared/ui/icons/ic-link-2.svg?react';
-import IcDownload from '@/shared/ui/icons/ic-download.svg?react';
 
 /** "2026/07/20" */
 function formatDate(iso: string): string {
@@ -113,8 +112,10 @@ export function RunResultView() {
         data-testid="run-result-view"
         className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto bg-green-700"
       >
-        {/* 상단 액션 — 시안: 40×40, 좌16 / 우16, 상단 2 */}
-        <div className="flex items-center justify-between px-4 text-off-white">
+        {/* 상단 액션 — 시안 `V10_결과_출시버전`(1039:1598): 뒤로 40×40 좌16 / 공유·저장 우측.
+            두 액션 모두 **티켓 이미지**를 대상으로 한다 — 공유는 네이티브 시트에 PNG 첨부,
+            저장은 사진 앨범. (이전의 링크 복사는 `/runs/:id` 라우트도 공개 URL도 없어 죽은 링크였다) */}
+        <div className="flex items-center justify-between pl-4 pr-5 text-off-white">
           <button
             type="button"
             data-testid="go-main"
@@ -124,30 +125,11 @@ export function RunResultView() {
           >
             <IcBack aria-hidden className="h-10 w-10" />
           </button>
-          {/* 두 버튼 모두 **티켓 이미지**를 대상으로 한다 — 공유는 네이티브 시트에 PNG 첨부,
-              저장은 사진 앨범. (이전의 링크 복사는 `/runs/:id` 라우트도 공개 URL도 없어 죽은 링크였다) */}
-          <div className="flex gap-4">
-            <button
-              type="button"
-              data-testid="share"
-              aria-label="티켓 공유하기"
-              disabled={ticket.busy !== null || !result}
-              onClick={ticket.shareImage}
-              className="flex h-10 w-10 items-center justify-center disabled:opacity-50"
-            >
-              <IcLink aria-hidden className="h-[18px] w-auto" />
-            </button>
-            <button
-              type="button"
-              data-testid="save-image"
-              aria-label="티켓 이미지 저장"
-              disabled={ticket.busy !== null || !result}
-              onClick={ticket.saveImage}
-              className="flex h-10 w-10 items-center justify-center disabled:opacity-50"
-            >
-              <IcDownload aria-hidden className="h-4 w-auto" />
-            </button>
-          </div>
+          <TicketActions
+            busy={ticket.busy !== null || !result}
+            onShare={ticket.shareImage}
+            onSave={ticket.saveImage}
+          />
         </div>
 
         {/*

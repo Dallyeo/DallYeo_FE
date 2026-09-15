@@ -233,6 +233,15 @@ function readViewportDiagnostics(): string[] {
   const overflowing = de.scrollHeight > de.clientHeight;
   // dvh가 화면보다 크면 웹뷰 프레임/인셋이 과대하다는 뜻 — 네이티브 책임
   const oversized = screenH > 0 && dvh > screenH + 1;
+  /*
+   * 반대로 dvh가 화면보다 **작으면** 스크롤뷰가 레이아웃 뷰포트보다 크다는 뜻이다.
+   * WKWebView는 `contentInsetAdjustmentBehavior`가 `.never`가 아니면 safe-area/탭바를
+   * `adjustedContentInset`에 더하고, `dvh`는 그만큼 **깎인** 높이로 계산된다.
+   * → 문서(WKContentView)가 스크롤뷰보다 짧아져 위로 붙고 아래에 빈 칸이 남는다.
+   * 홈 인디케이터가 있는 기기에서만 인셋이 생기므로 "일부 기기에서만" 재현된다.
+   */
+  const shortfall = screenH > 0 ? screenH - dvh : 0;
+  const undersized = shortfall > 1;
 
   return [
     '',
@@ -249,9 +258,12 @@ function readViewportDiagnostics(): string[] {
         ? '❌ 웹 문서가 뷰포트보다 크다 → CSS 책임'
         : oversized
           ? `❌ 웹뷰 뷰포트(${dvh})가 화면(${screenH})보다 크다 → 네이티브 프레임/인셋 책임`
-          : inset.top === '0px' && screenH > 0 && dvh >= screenH
-            ? '⚠️ safe-area top=0 — 웹뷰가 노치 아래로 확장되지 않았거나 컨테이너가 인셋을 먹었다(네이티브)'
-            : '✅ 웹 레이아웃은 뷰포트와 일치'
+          : undersized
+            ? `❌ 웹뷰 뷰포트(${dvh})가 화면(${screenH})보다 ${shortfall} 작다 → 스크롤뷰 인셋이 먹고 있다. ` +
+              'scrollView.contentInsetAdjustmentBehavior = .never (네이티브)'
+            : inset.top === '0px' && screenH > 0
+              ? '⚠️ safe-area top=0 — 웹뷰가 노치 아래로 확장되지 않았거나 컨테이너가 인셋을 먹었다(네이티브)'
+              : '✅ 웹 레이아웃은 뷰포트와 일치'
     }`,
     '',
   ];
