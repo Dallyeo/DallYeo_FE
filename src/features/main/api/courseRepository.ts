@@ -12,6 +12,7 @@ interface CourseDto {
   distanceCategory?: DistanceCategory;
   totalMeters: number;
   waypointCount?: number;
+  imageUrl?: string;
   polyline?: { lat: number; lng: number }[];
   cumulativeMeters?: number[];
   waypointAnchors?: { name: string; polylineIndex: number }[];
@@ -36,8 +37,7 @@ function toCourse(d: CourseDto): Course {
     description: d.description ?? '',
     distanceKm: Math.round((d.totalMeters / 1000) * 100) / 100,
     estimatedTime: estimateTime(d.totalMeters),
-    // 백엔드에 미리보기 이미지가 없다 — 뷰가 빈 이미지 자리로 처리한다
-    previewImageUrl: '',
+    previewImageUrl: d.imageUrl ?? '',
     regionCode: d.region,
     ...(d.distanceCategory ? { distanceCategory: d.distanceCategory } : {}),
     ...(d.waypointAnchors ? { waypoints: d.waypointAnchors.map((w) => w.name) } : {}),
